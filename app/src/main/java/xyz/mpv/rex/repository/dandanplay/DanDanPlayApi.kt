@@ -167,8 +167,8 @@ class DanDanPlayApi(
                         .replace("&", "&amp;")
                         .replace("<", "&lt;")
                         .replace(">", "&gt;")
-                        .replace("\"", """)
-                        .replace("'", "'")
+                        .replace("\"", "&quot;")
+                        .replace("'", "&apos;")
                     xmlBuilder.append("  <d p=\"$p\">$content</d>\n")
                 }
             } catch (e: Exception) {
