@@ -42,6 +42,10 @@ object MpvConfigSync : KoinComponent {
       Utils.copyAssets(context)
       syncFromUserMpvDirectory(context)
 
+      // Re-copy bundled lua scripts AFTER user script sync,
+      // since syncScripts() clears filesDir/scripts/ directory
+      Utils.copyScriptsFromAssets(context)
+
       // Configure hdr-toys conditional profile in mpv.conf if enabled
       val isEnabled = decoderPreferences.enableHdrToys.get()
       val toneStr = decoderPreferences.hdrToysToneMapping.get()

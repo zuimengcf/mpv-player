@@ -117,8 +117,21 @@ class PlayerPreferences(
     deserializer = { it.toDoubleOrNull() ?: -1.0 }
   )
 
-  // Custom Buttons - JSON List
-  val customButtons = preferenceStore.getString("custom_buttons_json", "[]")
+  // Custom Buttons - JSON List (8-slot default v3: 上一句字幕/3倍速/静音/监测综合/监测缓存/上一帧/下一帧/单曲循环)
+  val customButtons = preferenceStore.getString("custom_buttons_json", DEFAULT_CUSTOM_BUTTONS_JSON)
+
+  companion object {
+    private const val DEFAULT_CUSTOM_BUTTONS_JSON = """{"slots":[
+      {"id":"sub-prev","title":"上一句字幕","content":"mp.command('sub-seek','-1')","longPressContent":"mp.command('sub-seek','-5')","enabled":true},
+      {"id":"speed-3x","title":"3倍速","content":"mp.set_property('speed','3.0')","longPressContent":"mp.set_property('speed','1.0')","enabled":true},
+      {"id":"mute","title":"静音","content":"mp.set_property('mute','yes')","longPressContent":"mp.set_property('mute','no')","enabled":true},
+      {"id":"stats-p1","title":"监测综合","content":"mp.command('script-binding','stats/display-page-1')","longPressContent":"mp.command('script-binding','stats/display-stats-toggle')","enabled":true},
+      {"id":"stats-p2","title":"监测缓存","content":"mp.command('script-binding','stats/display-page-2')","longPressContent":"mp.command('script-binding','stats/display-stats-toggle')","enabled":true},
+      {"id":"frame-back","title":"上一帧","content":"mp.command('no-osd','frame-back-step')","longPressContent":"mp.command('no-osd','frame-back-step')","enabled":true},
+      {"id":"step-fwd","title":"下一帧","content":"mp.command('no-osd','frame-step')","longPressContent":"mp.command('no-osd','frame-step')","enabled":true},
+      {"id":"loop-file","title":"单曲循环","content":"mp.set_property('loop-file','inf')","longPressContent":"mp.set_property('loop-file','no')","enabled":true}
+    ]}"""
+  }
 
   // Ambience Mode
   val isAmbientEnabled = preferenceStore.getBoolean("ambient_enabled", false)

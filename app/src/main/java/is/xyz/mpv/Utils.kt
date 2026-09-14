@@ -47,6 +47,38 @@ object Utils {
                 out?.close()
             }
         }
+        // Copy bundled lua scripts from assets/scripts/ to filesDir/scripts/
+        copyScriptsFromAssets(context)
+    }
+
+    fun copyScriptsFromAssets(context: Context) {
+        val scriptsDir = File(context.filesDir, "scripts")
+        if (!scriptsDir.exists()) scriptsDir.mkdirs()
+        try {
+            val assetScripts = context.assets.list("scripts") ?: return
+            for (scriptName in assetScripts) {
+                var ins: InputStream? = null
+                var out: OutputStream? = null
+                try {
+                    ins = context.assets.open("scripts/$scriptName", AssetManager.ACCESS_STREAMING)
+                    val outFile = File(scriptsDir, scriptName)
+                    if (outFile.length() == ins.available().toLong()) {
+                        Log.v(TAG, "Skipping copy of script (exists same size): $scriptName")
+                        continue
+                    }
+                    out = FileOutputStream(outFile)
+                    ins.copyTo(out)
+                    Log.w(TAG, "Copied script: $scriptName")
+                } catch (e: IOException) {
+                    Log.e(TAG, "Failed to copy script: $scriptName", e)
+                } finally {
+                    ins?.close()
+                    out?.close()
+                }
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "Failed to list scripts in assets", e)
+        }
     }
 
     fun findRealPath(fd: Int): String? {

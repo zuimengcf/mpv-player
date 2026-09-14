@@ -90,7 +90,7 @@ fun PlayerSheet(
   val maxHeight = customMaxHeight ?: when {
     isImeVisible -> LocalConfiguration.current.screenHeightDp.dp
     LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT ->
-      LocalConfiguration.current.screenHeightDp.dp * .90f
+      LocalConfiguration.current.screenHeightDp.dp * .50f
     else -> LocalConfiguration.current.screenHeightDp.dp
   }
 
