@@ -483,6 +483,7 @@
     <string name="danmaku_show_switch_summary">Display loaded danmaku overlays during playback.</string>
     <string name="danmaku_toast_loaded">Danmaku loaded</string>
     <string name="danmaku_toast_removed">Danmaku removed</string>
+    <string name="danmaku_import_button">Import danmaku file (local XML)</string>
     <string name="player_sheets_stats_page_1_desc">Overview. CPU/GPU usage, A/V sync, dropped frames, clock speed.</string>
     <string name="player_sheets_stats_page_2_desc">Frame timing. Decode/render times, scaler info.</string>
     <string name="player_sheets_stats_page_3_desc">Cache status. Buffer health, demuxer cache, seekable ranges.</string>

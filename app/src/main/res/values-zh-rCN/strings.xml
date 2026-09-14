@@ -1285,6 +1285,7 @@
     <string name="danmaku_show_switch_summary">播放时显示已加载的弹幕层。</string>
     <string name="danmaku_toast_loaded">弹幕已加载</string>
     <string name="danmaku_toast_removed">弹幕已移除</string>
+    <string name="danmaku_import_button">导入弹幕文件（本地 XML）</string>
     <string name="generic_off">关闭</string>
     <string name="github_repo_url">https://github.com/sfsakhawat999/mpvRex</string>
     <string name="open_with_mini_player">用迷你播放器打开</string>

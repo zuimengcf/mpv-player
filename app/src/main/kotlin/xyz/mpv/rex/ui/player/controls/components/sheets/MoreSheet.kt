@@ -4,6 +4,11 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import android.text.format.DateUtils
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.net.Uri
+import java.io.File
+import java.io.FileOutputStream
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -1308,6 +1313,32 @@ private fun DanmakuSection(activity: PlayerActivity) {
   // 弹幕显示状态（跟随 manager）
   var danmakuVisible by remember { mutableStateOf(danmakuManager.isTrackSelected()) }
 
+  // 本地导入弹幕文件（XML）
+  val danmakuFilePicker = rememberLauncherForActivityResult(
+    ActivityResultContracts.OpenDocument()
+  ) { uri: Uri? ->
+    if (uri != null) {
+      val success = try {
+        val input = context.contentResolver.openInputStream(uri)
+        if (input == null) false else {
+          val dir = File(context.cacheDir, "danmaku")
+          if (!dir.exists()) dir.mkdirs()
+          val outFile = File(dir, "local_${System.currentTimeMillis()}.xml")
+          FileOutputStream(outFile).use { out -> input.copyTo(out) }
+          input.close()
+          danmakuManager.loadDanmaku(outFile.absolutePath)
+        }
+      } catch (e: Exception) {
+        Toast.makeText(context, "导入弹幕失败: ${e.message}", Toast.LENGTH_SHORT).show()
+        false
+      }
+      if (success) {
+        danmakuVisible = true
+        Toast.makeText(context, R.string.danmaku_toast_loaded, Toast.LENGTH_SHORT).show()
+      }
+    }
+  }
+
   Column(
     modifier = Modifier
       .fillMaxWidth()
@@ -1353,6 +1384,32 @@ private fun DanmakuSection(activity: PlayerActivity) {
               Icon(imageVector = Icons.Default.Close, contentDescription = null)
             }
           }
+        },
+      )
+    }
+
+    // 导入本地弹幕文件按钮
+    Surface(
+      shape = MaterialTheme.shapes.medium,
+      color = MaterialTheme.colorScheme.surfaceContainerLow,
+      modifier = Modifier.fillMaxWidth(),
+    ) {
+      ListItem(
+        modifier = Modifier
+          .fillMaxWidth()
+          .clickable { danmakuFilePicker.launch(arrayOf("application/xml", "text/xml", "text/plain", "*/*")) },
+        leadingContent = {
+          Icon(
+            imageVector = Icons.Default.Tune,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+          )
+        },
+        headlineContent = {
+          Text(
+            text = stringResource(R.string.danmaku_import_button),
+            style = MaterialTheme.typography.bodyLarge,
+          )
         },
       )
     }
