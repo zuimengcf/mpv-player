@@ -49,7 +49,6 @@ class DanmakuManager(
 
         danmakuContext.apply {
             isDuplicateMergingEnabled = true
-            enableDanmakuDrawingCache(true)
             preventOverlapping(overlappingPair)
         }
 
