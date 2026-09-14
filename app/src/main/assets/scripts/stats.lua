@@ -1781,6 +1781,53 @@ for k, page in pairs(pages) do
     end, {repeatable=false})
 end
 
+-- ============================================================================
+-- Custom: cycle through pages 0,1,2,3,4,5 in order (循环切换监测页面 012345)
+-- Invoked via: script-binding stats/display-page-next
+-- ============================================================================
+local page_cycle = {0, 1, 2, 3, 4, 5}
+local cycle_pos = 1
+mp.add_key_binding(nil, "display-page-next", function()
+    cycle_pos = cycle_pos % #page_cycle + 1
+    local target = page_cycle[cycle_pos]
+    for k, page in pairs(pages) do
+        if page.idx == target then
+            curr_page = k
+            break
+        end
+    end
+    if display_timer:is_enabled() then
+        -- Already showing -> just switch page (keep toggle state)
+        print_page(curr_page)
+    else
+        -- Not showing -> open as toggle (stays until closed)
+        process_key_binding(false)
+    end
+    mp.osd_message("监测页 " .. target, 1)
+end, {repeatable=true})
+
+-- ============================================================================
+-- Custom: close/hide stats overlay (关闭监测面板)
+-- Invoked via: script-binding stats/display-stats-close
+-- ============================================================================
+mp.add_key_binding(nil, "display-stats-close", function()
+    if display_timer:is_enabled() then
+        display_timer:kill()
+        cache_recorder_timer:stop()
+        if tm_viz_prev ~= nil then
+            mp.set_property_native("tone-mapping-visualize", tm_viz_prev)
+            tm_viz_prev = nil
+        end
+        clear_screen()
+        remove_page_bindings()
+        if recorder then
+            mp.unobserve_property(recorder)
+            recorder = nil
+        end
+        mp.osd_message("监测面板已关闭", 1)
+    end
+end, {repeatable=true})
+
 -- Reprint stats immediately when VO was reconfigured, only when toggled
 mp.register_event("video-reconfig",
     function()

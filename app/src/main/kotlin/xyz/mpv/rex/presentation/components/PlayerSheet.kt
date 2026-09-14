@@ -3,7 +3,6 @@
 package xyz.mpv.rex.presentation.components
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
@@ -80,17 +79,20 @@ fun PlayerSheet(
   val scope = rememberCoroutineScope()
   val density = LocalDensity.current
   val latestOnDismissRequest by rememberUpdatedState(onDismissRequest)
+  val isPortrait = LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT
   val maxWidth = customMaxWidth ?:
-  if (LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE) {
-    640.dp
-  } else {
+  if (isPortrait) {
     420.dp
+  } else {
+    // 横屏：右半屏宽度
+    LocalConfiguration.current.screenWidthDp.dp * .50f
   }
   val isImeVisible = WindowInsets.ime.getBottom(density) > 0
   val maxHeight = customMaxHeight ?: when {
     isImeVisible -> LocalConfiguration.current.screenHeightDp.dp
-    LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT ->
+    isPortrait ->
       LocalConfiguration.current.screenHeightDp.dp * .50f
+    // 横屏：右半屏（全高、靠右）
     else -> LocalConfiguration.current.screenHeightDp.dp
   }
 
@@ -130,14 +132,15 @@ fun PlayerSheet(
         ).fillMaxSize()
         .background(Color.Black.copy(alpha))
         .onSizeChanged {
+          val size = if (isPortrait) it.height.toFloat() else it.width.toFloat()
           val anchors =
             DraggableAnchors {
               0 at 0f
-              1 at it.height.toFloat()
+              1 at size
             }
           anchoredDraggableState.updateAnchors(anchors)
         },
-    contentAlignment = Alignment.BottomCenter,
+    contentAlignment = if (isPortrait) Alignment.BottomCenter else Alignment.CenterEnd,
   ) {
     Surface(
       modifier =
@@ -153,21 +156,28 @@ fun PlayerSheet(
             },
           ).then(modifier)
           .offset {
-            IntOffset(
-              0,
+            val dragOffset =
               anchoredDraggableState.offset
                 .takeIf { it.isFinite() }
                 ?.roundToInt()
-                ?: 0,
+                ?: 0
+            IntOffset(
+              if (isPortrait) 0 else dragOffset,
+              if (isPortrait) dragOffset else 0,
             )
           }.anchoredDraggable(
             state = anchoredDraggableState,
-            orientation = Orientation.Vertical,
+            orientation = if (isPortrait) Orientation.Vertical else Orientation.Horizontal,
           ).windowInsetsPadding(
             WindowInsets.systemBars
               .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
           ).imePadding(),
-      shape = MaterialTheme.shapes.extraLarge.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
+      shape =
+        if (isPortrait) {
+          MaterialTheme.shapes.extraLarge.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize)
+        } else {
+          MaterialTheme.shapes.extraLarge.copy(topEnd = ZeroCornerSize, bottomEnd = ZeroCornerSize)
+        },
       color = surfaceColor ?: MaterialTheme.colorScheme.surface,
       tonalElevation = tonalElevation,
       content = {

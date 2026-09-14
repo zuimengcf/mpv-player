@@ -117,19 +117,19 @@ class PlayerPreferences(
     deserializer = { it.toDoubleOrNull() ?: -1.0 }
   )
 
-  // Custom Buttons - JSON List (8-slot default v3: 上一句字幕/3倍速/静音/监测综合/监测缓存/上一帧/下一帧/单曲循环)
+  // Custom Buttons - JSON List (8-slot default v4: 上一句字幕/3倍速/静音/监测循环/关闭监测/上一帧/下一帧/截图, 带OSD提示)
   val customButtons = preferenceStore.getString("custom_buttons_json", DEFAULT_CUSTOM_BUTTONS_JSON)
 
   companion object {
     private const val DEFAULT_CUSTOM_BUTTONS_JSON = """{"slots":[
-      {"id":"sub-prev","title":"上一句字幕","content":"mp.command('sub-seek','-1')","longPressContent":"mp.command('sub-seek','-5')","enabled":true},
-      {"id":"speed-3x","title":"3倍速","content":"mp.set_property('speed','3.0')","longPressContent":"mp.set_property('speed','1.0')","enabled":true},
-      {"id":"mute","title":"静音","content":"mp.set_property('mute','yes')","longPressContent":"mp.set_property('mute','no')","enabled":true},
-      {"id":"stats-p1","title":"监测综合","content":"mp.command('script-binding','stats/display-page-1')","longPressContent":"mp.command('script-binding','stats/display-stats-toggle')","enabled":true},
-      {"id":"stats-p2","title":"监测缓存","content":"mp.command('script-binding','stats/display-page-2')","longPressContent":"mp.command('script-binding','stats/display-stats-toggle')","enabled":true},
-      {"id":"frame-back","title":"上一帧","content":"mp.command('no-osd','frame-back-step')","longPressContent":"mp.command('no-osd','frame-back-step')","enabled":true},
-      {"id":"step-fwd","title":"下一帧","content":"mp.command('no-osd','frame-step')","longPressContent":"mp.command('no-osd','frame-step')","enabled":true},
-      {"id":"loop-file","title":"单曲循环","content":"mp.set_property('loop-file','inf')","longPressContent":"mp.set_property('loop-file','no')","enabled":true}
+      {"id":"sub-prev","title":"上一句字幕","content":"mp.osd_message('上一句字幕',1) mp.command('sub-seek','-1')","longPressContent":"mp.osd_message('后退5句',1) mp.command('sub-seek','-5')","enabled":true},
+      {"id":"speed-3x","title":"3倍速","content":"mp.osd_message('3倍速',1) mp.set_property('speed','3.0')","longPressContent":"mp.osd_message('恢复1倍速',1) mp.set_property('speed','1.0')","enabled":true},
+      {"id":"mute","title":"静音","content":"mp.osd_message('已静音',1) mp.set_property('mute','yes')","longPressContent":"mp.osd_message('取消静音',1) mp.set_property('mute','no')","enabled":true},
+      {"id":"stats-cycle","title":"监测循环","content":"mp.command('script-binding','stats/display-page-next')","longPressContent":"mp.command('script-binding','stats/display-stats-toggle')","enabled":true},
+      {"id":"stats-close","title":"关闭监测","content":"mp.command('script-binding','stats/display-stats-close')","longPressContent":"mp.command('script-binding','stats/display-stats-close')","enabled":true},
+      {"id":"frame-back","title":"上一帧","content":"mp.osd_message('上一帧',1) mp.command('no-osd','frame-back-step')","longPressContent":"mp.osd_message('上一帧',1) mp.command('no-osd','frame-back-step')","enabled":true},
+      {"id":"step-fwd","title":"下一帧","content":"mp.osd_message('下一帧',1) mp.command('no-osd','frame-step')","longPressContent":"mp.osd_message('下一帧',1) mp.command('no-osd','frame-step')","enabled":true},
+      {"id":"screenshot","title":"截图","content":"mp.osd_message('已截图(带字幕)',1) mp.command('screenshot','subtitles')","longPressContent":"mp.osd_message('已截图(无字幕)',1) mp.command('screenshot','video')","enabled":true}
     ]}"""
   }
 
