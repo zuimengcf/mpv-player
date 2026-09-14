@@ -1,0 +1,772 @@
+package xyz.mpv.rex.ui.player
+
+import android.annotation.SuppressLint
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.ServiceInfo
+import android.media.AudioManager
+import android.graphics.Bitmap
+import android.os.Binder
+import android.os.Build
+import android.os.IBinder
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
+import androidx.media.MediaBrowserServiceCompat
+import androidx.media.session.MediaButtonReceiver
+import xyz.mpv.rex.R
+import xyz.mpv.rex.MainActivity
+import `is`.xyz.mpv.MPVLib
+import `is`.xyz.mpv.MPVNode
+import xyz.mpv.rex.preferences.PlayerPreferences
+import xyz.mpv.rex.preferences.GesturePreferences
+import xyz.mpv.rex.ui.player.SingleActionGesture
+import xyz.mpv.rex.ui.browser.miniplayer.MiniPlayerStateManager
+import kotlinx.coroutines.cancel
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+
+/**
+ * Background playback service for mpv with MediaSession integration.
+ */
+class MediaPlaybackService :
+  MediaBrowserServiceCompat(),
+  MPVLib.EventObserver,
+  KoinComponent {
+  companion object {
+    private const val TAG = "MediaPlaybackService"
+    private const val NOTIFICATION_ID = 1
+    private const val NOTIFICATION_CHANNEL_ID = "mpvex_playback_channel"
+
+    const val ACTION_TOGGLE_REPEAT = "xyz.mpv.rex.action.TOGGLE_REPEAT"
+    const val ACTION_TOGGLE_SHUFFLE = "xyz.mpv.rex.action.TOGGLE_SHUFFLE"
+
+    @Volatile
+    internal var thumbnail: Bitmap? = null
+    
+    @Volatile
+    private var isServiceRunning = false
+
+    fun createNotificationChannel(context: Context) {
+      val channel =
+        NotificationChannel(
+          NOTIFICATION_CHANNEL_ID,
+          context.getString(R.string.notification_channel_name),
+          NotificationManager.IMPORTANCE_LOW,
+        ).apply {
+          description = context.getString(R.string.notification_channel_description)
+          setShowBadge(false)
+          enableLights(false)
+          enableVibration(false)
+        }
+
+      (context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
+        .createNotificationChannel(channel)
+    }
+  }
+
+  private val binder = MediaPlaybackBinder()
+  private lateinit var mediaSession: MediaSessionCompat
+  private val playerPreferences: PlayerPreferences by inject()
+  private val gesturePreferences: GesturePreferences by inject()
+  private val playbackManager: PlaybackManager by inject()
+  private val miniPlayerStateManager: MiniPlayerStateManager by inject()
+
+  private val serviceScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main)
+
+  private var mediaTitle = ""
+  private var mediaArtist = ""
+  private var isDirectMiniPlayerSession = false
+  private var paused = false
+  private var lastNotificationUpdateTime = 0L
+  private val notificationUpdateIntervalMs = 1000L // Update notification every 1 second
+
+  /**
+   * Receiver for ACTION_AUDIO_BECOMING_NOISY (headphone disconnect).
+   * Pauses playback when headphones are unplugged during background playback.
+   */
+  private val noisyReceiver = object : BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+      if (intent?.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
+        Log.d(TAG, "Headphones disconnected — pausing background playback")
+        MPVLib.setPropertyBoolean("pause", true)
+      }
+    }
+  }
+  private var noisyReceiverRegistered = false
+
+  /**
+   * Listener for playback actions that the service cannot handle alone (like playlist navigation).
+   */
+  interface ServiceListener {
+    fun onNextRequested()
+    fun onPreviousRequested()
+    fun onRepeatToggled()
+    fun onShuffleToggled()
+  }
+
+  private var listener: ServiceListener? = null
+
+  fun setListener(listener: ServiceListener?) {
+    this.listener = listener
+  }
+
+  inner class MediaPlaybackBinder : Binder() {
+    fun getService() = this@MediaPlaybackService
+  }
+
+  override fun onCreate() {
+    super.onCreate()
+    Log.d(TAG, "Service created")
+    
+    isServiceRunning = true
+
+    // Ensure notification channel exists before starting foreground service
+    createNotificationChannel(this)
+
+    setupMediaSession()
+
+    // Register noisy receiver so headphone disconnects pause background playback
+    if (!noisyReceiverRegistered) {
+      registerReceiver(
+        noisyReceiver,
+        IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY),
+      )
+      noisyReceiverRegistered = true
+    }
+    
+    // Only add MPV observer if MPV is initialized
+    try {
+      MPVLib.addObserver(this)
+      // Observe properties
+      MPVLib.observeProperty("pause", MPVLib.MpvFormat.MPV_FORMAT_FLAG)
+      MPVLib.observeProperty("media-title", MPVLib.MpvFormat.MPV_FORMAT_STRING)
+      MPVLib.observeProperty("metadata/artist", MPVLib.MpvFormat.MPV_FORMAT_STRING)
+      MPVLib.observeProperty("time-pos", MPVLib.MpvFormat.MPV_FORMAT_DOUBLE)
+      Log.d(TAG, "MPV observer registered")
+    } catch (e: Exception) {
+      Log.e(TAG, "Error registering MPV observer", e)
+    }
+  }
+
+  override fun onBind(intent: Intent): IBinder = binder
+
+  @SuppressLint("ForegroundServiceType")
+  override fun onStartCommand(
+    intent: Intent?,
+    flags: Int,
+    startId: Int,
+  ): Int {
+    Log.d(TAG, "Service starting with action: ${intent?.action}, startId: $startId")
+
+    when (intent?.action) {
+      ACTION_TOGGLE_REPEAT -> {
+        handleToggleRepeat()
+        return START_NOT_STICKY
+      }
+      ACTION_TOGGLE_SHUFFLE -> {
+        handleToggleShuffle()
+        return START_NOT_STICKY
+      }
+    }
+
+    // Handle media button events
+    intent?.let {
+      if (it.action == Intent.ACTION_MEDIA_BUTTON && playerPreferences.disableMediaButtons.get()) {
+        Log.d(TAG, "Ignoring external media button intent due to user preference")
+      } else {
+        MediaButtonReceiver.handleIntent(mediaSession, it)
+      }
+      // Get media info from intent extras if available
+      val title = it.getStringExtra("media_title")
+      val artist = it.getStringExtra("media_artist")
+      isDirectMiniPlayerSession = it.getBooleanExtra("direct_mini_player", false)
+      
+      if (!title.isNullOrBlank()) {
+        mediaTitle = title
+        mediaArtist = artist ?: ""
+        Log.d(TAG, "Media info from intent: $mediaTitle")
+      }
+    }
+
+    // Fallback: Read current state from MPV if not provided via intent
+    if (mediaTitle.isBlank()) {
+      mediaTitle = MPVLib.getPropertyString("media-title") ?: ""
+      mediaArtist = MPVLib.getPropertyString("metadata/artist") ?: ""
+    }
+    
+    paused = MPVLib.getPropertyBoolean("pause") == true
+
+    updateMediaSession()
+
+    // Always start as foreground service with notification (like YouTube)
+    try {
+      val type =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+          ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+        } else {
+          0
+        }
+      ServiceCompat.startForeground(this, NOTIFICATION_ID, buildNotification(), type)
+      Log.d(TAG, "Foreground service started successfully")
+    } catch (e: Exception) {
+      Log.e(TAG, "Error starting foreground service", e)
+    }
+
+    // Return START_NOT_STICKY so service doesn't restart if killed
+    return START_NOT_STICKY
+  }
+
+  override fun onGetRoot(
+    clientPackageName: String,
+    clientUid: Int,
+    rootHints: android.os.Bundle?,
+  ) = BrowserRoot("root_id", null)
+
+  override fun onLoadChildren(
+    parentId: String,
+    result: Result<MutableList<MediaBrowserCompat.MediaItem>>,
+  ) {
+    result.sendResult(mutableListOf())
+  }
+
+  fun setMediaInfo(
+    title: String,
+    artist: String,
+    thumbnail: Bitmap? = null,
+  ) {
+    MediaPlaybackService.thumbnail = thumbnail
+    mediaTitle = title
+    mediaArtist = artist
+    updateMediaSession()
+  }
+
+  fun handleToggleRepeat() {
+    val currentListener = listener
+    if (currentListener != null) {
+      currentListener.onRepeatToggled()
+    } else {
+      miniPlayerStateManager.cycleRepeatMode()
+    }
+    updateMediaSession()
+  }
+
+  fun handleToggleShuffle() {
+    val currentListener = listener
+    if (currentListener != null) {
+      currentListener.onShuffleToggled()
+    } else {
+      miniPlayerStateManager.toggleShuffle()
+    }
+    updateMediaSession()
+  }
+
+  private fun setupMediaSession() {
+    mediaSession =
+      MediaSessionCompat(this, TAG).apply {
+        setCallback(
+          object : MediaSessionCompat.Callback() {
+            private fun canHandle() = !playerPreferences.disableMediaButtons.get()
+
+            override fun onPlay() {
+              if (!canHandle()) return
+              Log.d(TAG, "onPlay called")
+              MPVLib.setPropertyBoolean("pause", false)
+            }
+
+            override fun onPause() {
+              if (!canHandle()) return
+              Log.d(TAG, "onPause called")
+              MPVLib.setPropertyBoolean("pause", true)
+            }
+
+            override fun onStop() {
+              if (!canHandle()) return
+              Log.d(TAG, "onStop called")
+              stopSelf()
+            }
+
+            override fun onSkipToNext() {
+              if (!canHandle()) return
+              Log.d(TAG, "onSkipToNext called")
+              listener?.onNextRequested() ?: run {
+                miniPlayerStateManager.playNext()
+              }
+            }
+
+            override fun onSkipToPrevious() {
+              if (!canHandle()) return
+              Log.d(TAG, "onSkipToPrevious called")
+              listener?.onPreviousRequested() ?: run {
+                miniPlayerStateManager.playPrevious()
+              }
+            }
+
+            override fun onSeekTo(pos: Long) {
+              if (!canHandle()) return
+              Log.d(TAG, "onSeekTo called: $pos")
+              MPVLib.setPropertyDouble("time-pos", pos / 1000.0)
+            }
+
+            override fun onSetRepeatMode(repeatMode: Int) {
+              if (!canHandle()) return
+              Log.d(TAG, "onSetRepeatMode called: $repeatMode")
+              handleToggleRepeat()
+            }
+
+            override fun onSetShuffleMode(shuffleMode: Int) {
+              if (!canHandle()) return
+              Log.d(TAG, "onSetShuffleMode called: $shuffleMode")
+              handleToggleShuffle()
+            }
+
+            override fun onCustomAction(action: String?, extras: android.os.Bundle?) {
+              if (!canHandle()) return
+              Log.d(TAG, "onCustomAction called: $action")
+              when (action) {
+                ACTION_TOGGLE_REPEAT -> handleToggleRepeat()
+                ACTION_TOGGLE_SHUFFLE -> handleToggleShuffle()
+              }
+            }
+          },
+        )
+
+        // Set flags to handle media buttons and transport controls
+        setFlags(
+          MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
+            MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS,
+        )
+
+        isActive = true
+      }
+    sessionToken = mediaSession.sessionToken
+  }
+
+  fun updateMediaSession() {
+    try {
+      // Ensure we have valid media title
+      val title = mediaTitle.ifBlank { "Unknown Video" }
+      
+      // Update metadata
+      val duration = runCatching { 
+        MPVLib.getPropertyDouble("duration")?.times(1000)?.toLong() 
+      }.getOrNull() ?: 0L
+      
+      val metadataBuilder =
+        MediaMetadataCompat
+          .Builder()
+          .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
+          .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, mediaArtist)
+          .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, title)
+          .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
+
+      thumbnail?.let {
+        metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, it)
+        metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, it)
+      }
+      mediaSession.setMetadata(metadataBuilder.build())
+
+      // Update playback state
+      val position = runCatching { 
+        MPVLib.getPropertyDouble("time-pos")?.times(1000)?.toLong() 
+      }.getOrNull() ?: 0L
+      
+      val state = if (paused) PlaybackStateCompat.STATE_PAUSED else PlaybackStateCompat.STATE_PLAYING
+
+      val repeatMode = playerPreferences.repeatMode.get()
+      val shuffleEnabled = playerPreferences.shuffleEnabled.get()
+
+      val playbackRepeatMode = when (repeatMode) {
+        RepeatMode.OFF -> PlaybackStateCompat.REPEAT_MODE_NONE
+        RepeatMode.ONE -> PlaybackStateCompat.REPEAT_MODE_ONE
+        RepeatMode.ALL -> PlaybackStateCompat.REPEAT_MODE_ALL
+      }
+      val playbackShuffleMode = if (shuffleEnabled) {
+        PlaybackStateCompat.SHUFFLE_MODE_ALL
+      } else {
+        PlaybackStateCompat.SHUFFLE_MODE_NONE
+      }
+
+      mediaSession.setRepeatMode(playbackRepeatMode)
+      mediaSession.setShuffleMode(playbackShuffleMode)
+
+      val (shuffleIcon, shuffleLabel) = if (shuffleEnabled) {
+        Pair(R.drawable.ic_shuffle_on, getString(R.string.shuffle_on))
+      } else {
+        Pair(R.drawable.ic_shuffle, getString(R.string.shuffle_off))
+      }
+
+      val (repeatIcon, repeatLabel) = when (repeatMode) {
+        RepeatMode.OFF -> Pair(R.drawable.ic_repeat_off, getString(R.string.repeat_off))
+        RepeatMode.ONE -> Pair(R.drawable.ic_repeat_one, getString(R.string.repeat_one))
+        RepeatMode.ALL -> Pair(R.drawable.ic_repeat, getString(R.string.repeat_all))
+      }
+
+      val playbackState =
+        PlaybackStateCompat
+          .Builder()
+          .setActions(
+            PlaybackStateCompat.ACTION_PLAY or
+              PlaybackStateCompat.ACTION_PAUSE or
+              PlaybackStateCompat.ACTION_PLAY_PAUSE or
+              PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
+              PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+              PlaybackStateCompat.ACTION_STOP or
+              PlaybackStateCompat.ACTION_SEEK_TO or
+              PlaybackStateCompat.ACTION_SET_REPEAT_MODE or
+              PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE,
+          )
+          .addCustomAction(
+            PlaybackStateCompat.CustomAction.Builder(
+              ACTION_TOGGLE_SHUFFLE,
+              shuffleLabel,
+              shuffleIcon,
+            ).build()
+          )
+          .addCustomAction(
+            PlaybackStateCompat.CustomAction.Builder(
+              ACTION_TOGGLE_REPEAT,
+              repeatLabel,
+              repeatIcon,
+            ).build()
+          )
+          .setState(state, position, 1.0f)
+          .build()
+
+      mediaSession.setPlaybackState(playbackState)
+
+      miniPlayerStateManager.updateState(
+        isPlaybackActive = true,
+        title = title,
+        artist = mediaArtist,
+        currentPositionMs = position,
+        durationMs = duration,
+        isPaused = paused,
+        thumbnail = thumbnail,
+        shuffleEnabled = shuffleEnabled,
+        repeatMode = repeatMode,
+      )
+
+      // Update notification
+      updateNotification()
+    } catch (e: Exception) {
+      Log.e(TAG, "Error updating MediaSession", e)
+    }
+  }
+
+  private fun updateNotification() {
+    try {
+      val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+      notificationManager.notify(NOTIFICATION_ID, buildNotification())
+    } catch (e: Exception) {
+      Log.e(TAG, "Error updating notification", e)
+    }
+  }
+
+  private fun buildNotification(): Notification {
+    val openAppIntent =
+      Intent(
+        this,
+        if (isDirectMiniPlayerSession) MainActivity::class.java else PlayerActivity::class.java,
+      ).apply {
+        flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+      }
+    val pendingIntent =
+      PendingIntent.getActivity(
+        this,
+        0,
+        openAppIntent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+      )
+
+    val repeatMode = playerPreferences.repeatMode.get()
+    val shuffleEnabled = playerPreferences.shuffleEnabled.get()
+
+    // Shuffle Action
+    val shuffleIntent = Intent(this, MediaPlaybackService::class.java).apply {
+      action = ACTION_TOGGLE_SHUFFLE
+    }
+    val shufflePendingIntent = PendingIntent.getService(
+      this,
+      101,
+      shuffleIntent,
+      PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+    )
+    val (shuffleIcon, shuffleLabel) = if (shuffleEnabled) {
+      Pair(R.drawable.ic_shuffle_on, getString(R.string.shuffle_on))
+    } else {
+      Pair(R.drawable.ic_shuffle, getString(R.string.shuffle_off))
+    }
+    val shuffleAction =
+      NotificationCompat.Action(
+        shuffleIcon,
+        shuffleLabel,
+        shufflePendingIntent,
+      )
+
+    // Previous Action
+    val previousAction =
+      NotificationCompat.Action(
+        android.R.drawable.ic_media_previous,
+        "Previous",
+        MediaButtonReceiver.buildMediaButtonPendingIntent(
+          this,
+          PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS,
+        ),
+      )
+
+    // Play/Pause Action
+    val playPauseAction =
+      NotificationCompat.Action(
+        if (paused) android.R.drawable.ic_media_play else android.R.drawable.ic_media_pause,
+        if (paused) "Play" else "Pause",
+        MediaButtonReceiver.buildMediaButtonPendingIntent(
+          this,
+          PlaybackStateCompat.ACTION_PLAY_PAUSE,
+        ),
+      )
+
+    // Next Action
+    val nextAction =
+      NotificationCompat.Action(
+        android.R.drawable.ic_media_next,
+        "Next",
+        MediaButtonReceiver.buildMediaButtonPendingIntent(
+          this,
+          PlaybackStateCompat.ACTION_SKIP_TO_NEXT,
+        ),
+      )
+
+    // Repeat Action
+    val repeatIntent = Intent(this, MediaPlaybackService::class.java).apply {
+      action = ACTION_TOGGLE_REPEAT
+    }
+    val repeatPendingIntent = PendingIntent.getService(
+      this,
+      102,
+      repeatIntent,
+      PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+    )
+    val (repeatIcon, repeatLabel) = when (repeatMode) {
+      RepeatMode.OFF -> Pair(R.drawable.ic_repeat_off, getString(R.string.repeat_off))
+      RepeatMode.ONE -> Pair(R.drawable.ic_repeat_one, getString(R.string.repeat_one))
+      RepeatMode.ALL -> Pair(R.drawable.ic_repeat, getString(R.string.repeat_all))
+    }
+    val repeatAction =
+      NotificationCompat.Action(
+        repeatIcon,
+        repeatLabel,
+        repeatPendingIntent,
+      )
+
+    return NotificationCompat
+      .Builder(this, NOTIFICATION_CHANNEL_ID)
+      .setContentTitle(mediaTitle.ifBlank { "Unknown Video" })
+      .setContentText(mediaArtist.ifBlank { getString(R.string.notification_playing) })
+      .setSmallIcon(R.drawable.ic_launcher_foreground)
+      .setLargeIcon(thumbnail)
+      .setContentIntent(pendingIntent)
+      .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+      .setOnlyAlertOnce(true)
+      .setOngoing(!paused)
+      .addAction(shuffleAction)
+      .addAction(previousAction)
+      .addAction(playPauseAction)
+      .addAction(nextAction)
+      .addAction(repeatAction)
+      .setStyle(
+        androidx.media.app.NotificationCompat
+          .MediaStyle()
+          .setMediaSession(mediaSession.sessionToken)
+          .setShowActionsInCompactView(1, 2, 3),
+      ).setPriority(NotificationCompat.PRIORITY_LOW)
+      .build()
+  }
+
+  // ==================== MPV Event Observers ====================
+
+  override fun eventProperty(property: String) {}
+
+  override fun eventProperty(
+    property: String,
+    value: Long,
+  ) {}
+
+  override fun eventProperty(
+    property: String,
+    value: Boolean,
+  ) {
+    if (property == "pause") {
+      paused = value
+      updateMediaSession()
+    }
+  }
+
+  override fun eventProperty(
+    property: String,
+    value: String,
+  ) {
+    when (property) {
+      "media-title" -> {
+        if (value.isNotBlank()) {
+          mediaTitle = value
+          updateMediaSession()
+        }
+      }
+      "metadata/artist" -> {
+        mediaArtist = value
+        updateMediaSession()
+      }
+    }
+  }
+
+  override fun eventProperty(
+    property: String,
+    value: Double,
+  ) {
+    if (property == "time-pos") {
+      // Throttle notification updates to avoid excessive updates
+      val currentTime = System.currentTimeMillis()
+      if (currentTime - lastNotificationUpdateTime >= notificationUpdateIntervalMs) {
+        lastNotificationUpdateTime = currentTime
+        updateMediaSession()
+      }
+    }
+  }
+
+  override fun eventProperty(
+    property: String,
+    value: MPVNode,
+  ) {}
+
+  override fun event(eventId: Int, data: MPVNode) {
+    if (eventId == MPVLib.MpvEvent.MPV_EVENT_SHUTDOWN) {
+      Log.d(TAG, "MPV shutdown event received, stopping service")
+      stopSelf()
+    }
+  }
+
+  override fun onDestroy() {
+    try {
+      Log.d(TAG, "Service destroyed")
+
+      isServiceRunning = false
+
+      // Cancel coroutine scope
+      serviceScope.cancel()
+
+      // Unregister noisy receiver
+      if (noisyReceiverRegistered) {
+        runCatching { unregisterReceiver(noisyReceiver) }
+        noisyReceiverRegistered = false
+      }
+
+      // Remove MPV observer safely
+      try {
+        MPVLib.removeObserver(this)
+      } catch (e: Exception) {
+        Log.e(TAG, "Error removing MPV observer", e)
+      }
+      
+      // Stop foreground and remove notification explicitly
+      try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+          stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+          @Suppress("DEPRECATION")
+          stopForeground(true)
+        }
+      } catch (e: Exception) {
+        Log.e(TAG, "Error stopping foreground", e)
+      }
+      
+      // Cancel notification explicitly to ensure cleanup
+      try {
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(NOTIFICATION_ID)
+      } catch (e: Exception) {
+        Log.e(TAG, "Error canceling notification", e)
+      }
+      
+      // Release media session
+      try {
+        mediaSession.isActive = false
+        mediaSession.release()
+      } catch (e: Exception) {
+        Log.e(TAG, "Error releasing media session", e)
+      }
+      
+      // Clear thumbnail to prevent memory leak
+      thumbnail = null
+      
+      runCatching {
+        MPVLib.command("stop")
+      }
+
+      miniPlayerStateManager.clearState()
+
+      Log.d(TAG, "Service cleanup completed")
+      super.onDestroy()
+    } catch (e: Exception) {
+      Log.e(TAG, "Error in onDestroy", e)
+      super.onDestroy()
+    }
+  }
+
+  override fun onTaskRemoved(rootIntent: Intent?) {
+    Log.d(TAG, "Task removed - killing playback and cleaning up service")
+    try {
+      // Kill MPV playback immediately when task is removed
+      try {
+        MPVLib.command("quit")
+        Log.d(TAG, "MPV quit command sent")
+      } catch (e: Exception) {
+        Log.e(TAG, "Error sending quit command to MPV", e)
+      }
+      
+      // Stop foreground and remove notification when task is removed
+      try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+          stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+          @Suppress("DEPRECATION")
+          stopForeground(true)
+        }
+      } catch (e: Exception) {
+        Log.e(TAG, "Error stopping foreground in onTaskRemoved", e)
+      }
+      
+      // Cancel notification explicitly
+      try {
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(NOTIFICATION_ID)
+      } catch (e: Exception) {
+        Log.e(TAG, "Error canceling notification in onTaskRemoved", e)
+      }
+      
+      // Clear thumbnail
+      thumbnail = null
+      
+      // Stop the service which will trigger cleanup
+      stopSelf()
+      
+      // Force kill the process to ensure everything stops
+      android.os.Process.killProcess(android.os.Process.myPid())
+    } catch (e: Exception) {
+      Log.e(TAG, "Error in onTaskRemoved", e)
+      // Force kill even if there's an error
+      android.os.Process.killProcess(android.os.Process.myPid())
+    }
+    super.onTaskRemoved(rootIntent)
+  }
+}

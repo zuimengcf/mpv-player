@@ -1,0 +1,1393 @@
+<resources>
+    <string name="app_name" translatable="false">REX Player</string>
+    <string name="author_name" translatable="false">Sakhawat</string>
+
+    <string name="generic_reset">Reset</string>
+    <string name="generic_share">Share</string>
+    <string name="open_with_mini_player">Open with mini player</string>
+    <string name="generic_confirm">Confirm</string>
+    <string name="generic_cancel">Cancel</string>
+    <string name="generic_ok">OK</string>
+    <string name="generic_unit_ms">ms</string>
+    <string name="generic_disabled">Disabled</string>
+
+    <string name="pref_preferences">Preferences</string>
+
+    <string name="pref_appearance_title">Appearance</string>
+    <string name="pref_appearance_category_bottom_nav">Bottom Navigation Tabs</string>
+    <string name="pref_appearance_tab_home_title">Home / Files</string>
+    <string name="pref_appearance_tab_home_summary">Show local folders &amp; file explorer</string>
+    <string name="pref_appearance_tab_shorts_title">RexShorts</string>
+    <string name="pref_appearance_tab_shorts_summary">Toggle high-tempo vertical video feeds</string>
+    <string name="pref_appearance_tab_recents_title">Recently Played</string>
+    <string name="pref_appearance_tab_recents_summary">Quickly resume previous video sessions</string>
+    <string name="pref_appearance_tab_playlists_title">Playlists</string>
+    <string name="pref_appearance_tab_playlists_summary">Show local custom video playlists</string>
+    <string name="pref_appearance_tab_network_title">Network Streaming</string>
+    <string name="pref_appearance_tab_network_summary">Access SMB, FTP, and WebDAV drives</string>
+    <string name="pref_appearance_summary">Dark mode, Material You</string>
+    <string name="pref_appearance_category_theme">Theme</string>
+    <string name="pref_appearance_darkmode_system">System</string>
+    <string name="pref_appearance_darkmode_light">Light</string>
+    <string name="pref_appearance_darkmode_dark">Dark</string>
+    <string name="pref_appearance_amoled_mode_title">AMOLED Black Mode</string>
+    <string name="pref_appearance_amoled_mode_summary">Use pure black background for dark themes</string>
+    <string name="pref_appearance_material_you_title">Material You</string>
+    <string name="pref_appearance_material_you_summary">Enable dynamic colors</string>
+    <string name="pref_appearance_material_you_summary_disabled">Only available on Android 12 and above</string>
+    <string name="pref_appearance_unlimited_name_lines_title">Show full names</string>
+    <string name="pref_appearance_unlimited_name_lines_summary">Show full folder and video names without truncation</string>
+    <string name="pref_appearance_enable_bounce_animation_title">Enable bouncy animations</string>
+    <string name="pref_appearance_enable_bounce_animation_summary">Seekbar and volume/brightness sliders animate with a bounce effect</string>
+    <string name="pref_appearance_hide_player_buttons_background_title">Hide player buttons background</string>
+    <string name="pref_appearance_hide_player_buttons_background_summary">Hide the background of all player control buttons</string>
+    <string name="pref_appearance_enable_glass_player_controls_title">Glass player controls</string>
+    <string name="pref_appearance_enable_glass_player_controls_summary">Apply glass-morphism style to player control buttons</string>
+    <string name="pref_appearance_enable_glass_seekbar_title">Glass seekbar background</string>
+    <string name="pref_appearance_enable_glass_seekbar_summary">Apply glass-morphism style to the video progress bar track</string>
+    <string name="pref_appearance_match_player_controls_to_theme_title">Match player controls to theme</string>
+    <string name="pref_appearance_match_player_controls_to_theme_summary">Color player buttons using the current theme colors</string>
+    <string name="pref_appearance_player_always_dark_mode_title">Player always dark mode</string>
+    <string name="pref_appearance_player_always_dark_mode_summary">Keep player controls in dark theme regardless of app theme</string>
+    <string name="pref_appearance_use_system_font_title">Use system font</string>
+    <string name="pref_appearance_use_system_font_summary">Use your device\'s default font instead of the app font</string>  
+    <string name="pref_appearance_category_file_browser">File Browser</string>
+    <string name="pref_appearance_show_hidden_files_title">Show Hidden Files</string>
+    <string name="pref_appearance_show_hidden_files_summary">Show hidden folders starting with a dot (.) including android, data, system folders and .nomedia files</string>
+    <string name="pref_appearance_show_unplayed_old_video_label_title">Show label for new unplayed videos</string>
+    <string name="pref_appearance_show_unplayed_old_video_label_summary">Display a \"New\" label on videos added within specified days that have never been played</string>
+    <string name="pref_appearance_unplayed_old_video_days_title">Days threshold for new video label</string>
+    <string name="pref_appearance_unplayed_old_video_days_summary">Videos added within the last %d days without playback history will be marked as new</string>
+    <string name="pref_appearance_category_thumbnails">Thumbnail</string>
+    <string name="pref_appearance_show_network_thumbnails_title">Show network thumbnails (Experimental)</string>
+    <string name="pref_appearance_show_network_thumbnails_summary">Generate thumbnails for network streams (May increase data usage on mobile networks)</string>
+    <string name="pref_appearance_thumbnail_strategy_title">Thumbnail generation strategy</string>
+    <string name="pref_appearance_thumbnail_strategy_summary">Choose how thumbnails are extracted from videos</string>
+    <string name="pref_appearance_thumbnail_strategy_first_frame_title">First Frame</string>
+    <string name="pref_appearance_thumbnail_strategy_first_frame_summary">Quickest extraction. Uses the 10-second mark of the video.</string>
+    <string name="pref_appearance_thumbnail_strategy_position_title">Frame at Position</string>
+    <string name="pref_appearance_thumbnail_strategy_position_summary">Requires more processing. Extracts a frame from further into the video to avoid blank title cards.</string>
+    <string name="pref_appearance_thumbnail_position_title">Thumbnail frame position</string>
+    <string name="pref_appearance_thumbnail_position_summary">Extract thumbnail at %d%% of the video duration</string>
+    <string name="pref_appearance_thumbnail_position_reset">Reset thumbnail position to default</string>
+    <string name="pref_appearance_theme_picker_label">App Theme</string>
+    <string name="pref_appearance_auto_scroll_title">Auto-scroll to last played</string>
+    <string name="pref_appearance_auto_scroll_summary">Automatically scroll to the last played video when opening video lists</string>
+    <string name="pref_appearance_watched_threshold_title">Watched threshold</string>
+    <string name="pref_appearance_watched_threshold_summary">Mark video as watched when playback reaches %d%%</string>
+    <string name="video_label_new">NEW</string>
+
+    <!-- Theme names -->
+    <string name="theme_default">Default</string>
+    <string name="theme_dynamic">Dynamic</string>
+    <string name="theme_cloudflare">Cloudflare</string>
+    <string name="theme_cotton_candy">Cotton Candy</string>
+    <string name="theme_doom">Doom</string>
+    <string name="theme_green_apple">Green Apple</string>
+    <string name="theme_lavender">Lavender</string>
+    <string name="theme_midnight">Midnight</string>
+    <string name="theme_mocha">Mocha</string>
+    <string name="theme_strawberry">Strawberry</string>
+    <string name="theme_tidal">Tidal</string>
+    <string name="theme_nord">Nord</string>
+    <string name="theme_tako_green">Tako</string>
+    <string name="theme_yin_yang">Yin Yang</string>
+    <string name="theme_yotsuba">Yotsuba</string>
+    <string name="theme_sapphire">Sapphire</string>
+    <string name="theme_sunset">Sunset</string>
+    <string name="theme_ocean">Ocean</string>
+    <string name="theme_forest">Forest</string>
+    <string name="theme_rose_gold">Rose Gold</string>
+    <string name="theme_violet">Violet</string>
+    <string name="theme_amber">Amber</string>
+    <string name="theme_coral">Coral</string>
+    <string name="theme_slate">Slate</string>
+    <string name="theme_dracula">Dracula</string>
+    <string name="theme_monochrome">Monochrome</string>
+    <string name="theme_catppuccin">Catppuccin</string>
+    <string name="theme_gruvbox">Gruvbox</string>
+    <string name="theme_tokyo_night">Tokyo Night</string>
+    <string name="theme_kanagawa">Kanagawa</string>
+    <string name="theme_rose_pine">Rosé Pine</string>
+
+    <!-- Settings Search -->
+    <string name="settings_search_hint">Search settings…</string>
+    <string name="settings_search_no_results">No settings found</string>
+    <string name="settings_search_title">Search</string>
+
+    <!-- Player Preferences -->
+    <string name="pref_autoplay_title">Enable next/previous navigation</string>
+    <string name="pref_autoplay_summary">Show next/previous buttons for all videos in folder</string>
+    <string name="pref_autoplay_next_video_title">Autoplay next video</string>
+    <string name="pref_autoplay_next_video_summary">Automatically play next video when current ends</string>
+    <string name="pref_auto_pip_title">Auto Picture-in-Picture</string>
+    <string name="pref_auto_pip_summary">Automatically enter PIP mode when pressing home or back</string>
+    <string name="pref_player_resume_on_unlock_title">Resume on unlock</string>
+    <string name="pref_player_resume_on_unlock_summary_on">Resume video automatically after unlocking if it was playing before the screen locked</string>
+    <string name="pref_player_resume_on_unlock_summary_off">Keep video paused after the screen is unlocked</string>
+    <string name="pref_dynamic_speed_overlay_title">Dynamic Speed Overlay</string>
+    <string name="pref_dynamic_speed_overlay_summary">Show advance overlay for speed control during long press and swipe</string>
+    <string name="pref_show_navigation_bar_title">Show navigation bar with controls</string>
+
+    <!-- Gesture Preferences -->
+    <string name="pref_double_tap_seek_area_width_title">Double Tap Seek Area Width</string>
+    <string name="pref_double_tap_seek_area_width_summary">Current: %d%%</string>
+
+    <!-- Advanced Preferences -->
+    <string name="pref_export_settings_title">Export Settings</string>
+    <string name="pref_export_settings_summary">Export settings to an XML file</string>
+    <string name="pref_import_settings_title">Import Settings</string>
+    <string name="pref_import_settings_summary">Import settings from an XML file</string>
+    <string name="pref_enable_lua_scripts_title">Enable Lua Scripts</string>
+    <string name="pref_enable_lua_scripts_summary">Load Lua scripts from configuration directory</string>
+    <string name="pref_manage_lua_scripts_title">Manage Lua Scripts</string>
+    <string name="pref_manage_lua_scripts_summary">Manage enabled Lua scripts</string>
+    <string name="pref_clear_config_cache_title">Clear config cache</string>
+    <string name="pref_clear_config_cache_summary">Clear the cached mpv.conf settings</string>
+    <string name="pref_clear_thumbnail_cache_title">Clear thumbnail cache</string>
+    <string name="pref_clear_thumbnail_cache_summary">Delete all cached video thumbnails (will regenerate as you browse folders)</string>
+
+
+    <string name="pref_layout_title">Player Layout</string>
+    <string name="pref_layout_summary">Customize player button layout</string>
+    <string name="pref_layout_reset_default">Reset to default</string>
+    <string name="pref_layout_top_right_controls">Top Right Controls</string>
+    <string name="pref_layout_bottom_right_controls">Bottom Right Controls</string>
+    <string name="pref_layout_bottom_left_controls">Bottom Left Controls</string>
+    <string name="pref_layout_portrait_bottom_controls">Portrait Bottom Controls</string>
+    <string name="pref_layout_preview">Preview</string>
+    <string name="pref_layout_reset_title">Reset layout?</string>
+    <string name="pref_layout_reset_summary">All customized player control layouts will be reset to default positions</string>
+
+    <string name="pref_player">Player</string>
+    <string name="pref_player_summary">Orientation, gestures and controls</string>
+    <string name="pref_player_orientation">Orientation</string>
+    <string name="pref_player_orientation_free">Free</string>
+    <string name="pref_player_orientation_video">Video</string>
+    <string name="pref_player_orientation_smart">Smart</string>
+    <string name="pref_player_orientation_smart_summary">Follow video orientation unless manually changed</string>
+    <string name="pref_player_orientation_portrait">Portrait</string>
+    <string name="pref_player_orientation_reverse_portrait">Reverse portrait</string>
+    <string name="pref_player_orientation_sensor_portrait">Sensor portrait</string>
+    <string name="pref_player_orientation_landscape">Landscape</string>
+    <string name="pref_player_orientation_reverse_landscape">Reverse landscape</string>
+    <string name="pref_player_orientation_sensor_landscape">Sensor landscape</string>
+    <string name="pref_player_save_position_on_quit">Save position on quit</string>
+    <string name="pref_player_resume_playback_title">Resume playback</string>
+    <string name="pref_player_resume_playback_summary">Choose how previously watched videos are opened</string>
+    <string name="pref_player_resume_mode_always">Always resume</string>
+    <string name="pref_player_resume_mode_always_summary">Automatically resume from last saved position</string>
+    <string name="pref_player_resume_mode_ask">Ask every time</string>
+    <string name="pref_player_resume_mode_ask_summary">Prompt to resume or start afresh</string>
+    <string name="pref_player_resume_mode_never">Always start afresh</string>
+    <string name="pref_player_resume_mode_never_summary">Always start playback from 00:00</string>
+    <string name="player_resume_prompt_title">Resume playback?</string>
+    <string name="player_resume_prompt_message">You previously watched up to %1$s.</string>
+    <string name="player_resume_prompt_message_with_duration">You previously watched up to %1$s of %2$s.</string>
+    <string name="player_resume_action_resume">Resume</string>
+    <string name="player_resume_action_start_over">Start afresh</string>
+    <string name="player_resumed_from_pill">Resumed from %1$s</string>
+    <string name="player_restart_action">Restart</string>
+    <string name="pref_player_section_mini_player">Mini Player</string>
+    <string name="pref_player_play_in_mini_player">Play audio in mini player</string>
+    <string name="pref_player_play_in_mini_player_summary_on">Tapping an audio file starts playback directly in the bottom mini player bar</string>
+    <string name="pref_player_play_in_mini_player_summary_off">Tapping an audio file opens the full-screen player</string>
+    <string name="pref_player_double_tap_seek_duration">Double tap seek duration</string>
+    <string name="pref_player_custom_skip_duration_title">Custom skip duration</string>
+    <string name="pref_player_custom_skip_duration_summary">Duration to skip forward on custom skip button</string>
+    <string name="pref_player_seeking_title">Seeking</string>
+    <string name="pref_player_close_after_eof">Close after the end of playback</string>
+    <string name="pref_player_remember_brightness">Remember display brightness</string>
+
+    <string name="pref_player_gestures">Gestures</string>
+    <string name="pref_player_gestures_brightness">Brightness gestures</string>
+    <string name="pref_player_gestures_volume">Volume gestures</string>
+    <string name="pref_player_gestures_pinch_to_zoom">Pinch to zoom</string>
+    <string name="pref_player_gestures_pan_and_zoom">Pan and Zoom</string>
+    <string name="pref_player_gestures_pan_and_zoom_summary">Allow panning (dragging) the video alongside zooming</string>
+    <string name="pref_player_gestures_horizontal_swipe_to_seek">Horizontal swipe to seek</string>
+    <string name="pref_player_gestures_horizontal_swipe_to_seek_summary">Swipe left or right on screen to seek forward or backward</string>
+    <string name="pref_player_gestures_swipe_to_subtitle_seek_title">Swipe to subtitle seek</string>
+    <string name="pref_player_gestures_swipe_to_subtitle_seek_summary">Swipe left or right on the top or bottom of the screen to seek subtitles</string>
+    <string name="pref_player_gestures_move_subtitle_by_dragging_title">Drag subtitle to reposition</string>
+    <string name="pref_player_gestures_move_subtitle_by_dragging_summary">Touch the subtitle and drag up or down to move it. Brightness and volume swipes still work elsewhere</string>
+    <string name="pref_player_gestures_horizontal_swipe_sensitivity">Horizontal swipe sensitivity</string>
+    <string name="pref_player_gestures_horizontal_swipe_sensitivity_summary">Adjust how much distance is covered per swipe</string>
+    <string name="pref_player_gestures_hold_for_multiple_speed">Hold for multi - x speed</string>
+    <string name="pref_player_remember_long_press_speed_title">Remember adjusted speed</string>
+    <string name="pref_player_remember_long_press_speed_summary">Use the last swiped speed for subsequent long presses</string>
+
+    <string name="pref_player_controls">Controls</string>
+    <string name="pref_player_controls_disable_media_buttons_title">Disable media buttons</string>
+    <string name="pref_player_controls_disable_media_buttons_summary">Ignore playback commands from headset and Bluetooth devices, etc</string>
+    <string name="pref_player_controls_allow_gestures_in_panels">Allow gestures in panels</string>
+    <string name="pref_player_controls_display_volume_as_percentage">Display volume as percentage</string>
+    <string name="pref_player_controls_show_loading_circle">Show loading circle</string>
+    <string name="pref_player_display_show_status_bar">Show system status bar with controls</string>
+
+    <string name="pref_player_display">Display</string>
+    <string name="pref_player_display_panel_opacity">Panel opacity</string>
+    <string name="pref_player_display_panel_transparency_summary" translatable="false">%d%%</string>
+
+    <string name="pref_gesture">Gestures</string>
+    <string name="pref_gesture_summary">Double tap, media controls</string>
+    <string name="pref_gesture_double_tap_title">Double tap</string>
+    <string name="pref_gesture_double_tap_none">None</string>
+    <string name="pref_gesture_double_tap_seek">Seek</string>
+    <string name="pref_gesture_double_tap_subseek">Seek Subtitle</string>
+    <string name="pref_gesture_reverse_double_tap_title">Reverse left/right gestures</string>
+    <string name="pref_gesture_reverse_double_tap_summary">Swap the left and right double/single tap gestures</string>
+    <string name="pref_gesture_double_tap_play">Play/Pause</string>
+    <string name="pref_gesture_double_tap_custom">Custom</string>
+    <string name="pref_gesture_double_tap_left_title">Double tap (left)</string>
+    <string name="pref_gesture_double_tap_center_title">Double tap (center)</string>
+    <string name="pref_gesture_single_tap_center_title">Single tap (center)</string>
+    <string name="pref_gesture_double_tap_right_title">Double tap (right)</string>
+    <string name="pref_gesture_single_tap_right_title">Single tap (right)</string>
+    <string name="pref_gesture_single_tap_left_title">Single tap (left)</string>
+    <string name="pref_gesture_use_single_tap_for_center_title">Use single tap for center gesture</string>
+    <string name="pref_gesture_use_single_tap_for_center_summary">Use a single tap in the center for gestures (like play/pause) instead of a double tap.</string>
+    <string name="pref_gesture_use_single_tap_for_left_right_title">Use single tap for left/right gesture</string>
+    <string name="pref_gesture_use_single_tap_for_left_right_summary">Use a single tap in the left and right areas for gestures instead of a double tap.</string>
+    <string name="pref_gesture_prevent_seekbar_tap_title">Prevent Seeking on Accidental Taps</string>
+    <string name="pref_gesture_prevent_seekbar_tap_summary">Video will only seek by dragging the seekbar, not by tapping it.</string>
+    <string name="pref_gesture_use_relative_seeking_title">Use Relative Seeking</string>
+    <string name="pref_gesture_use_relative_seeking_summary">Seek relative to drag start position instead of absolute finger position.</string>
+    <string name="pref_gesture_enable_release_to_cancel_title">Enable "Release to cancel"</string>
+    <string name="pref_gesture_enable_release_to_cancel_summary">Revert seek position when releasing near the drag start location</string>
+
+    <string name="pref_gesture_double_tap_custom_info">You can bind custom actions to these gestures in input.conf using the following key codes:\n\nLeft: MBTN_LEFT_DBL\nCenter: MBTN_MID_DBL\nRight: MBTN_RIGHT_DBL</string>
+
+    <string name="pref_gesture_media_title">Media controls</string>
+    <string name="pref_gesture_media_previous">Previous</string>
+    <string name="pref_gesture_media_play">Play/Pause</string>
+    <string name="pref_gesture_media_next">Next</string>
+    <string name="pref_gesture_media_custom_info">You can bind custom actions to media controls in input.conf using the following key codes:\n\nPrevious: PREV\nPlay/Pause: PLAYPAUSE\nNext: NEXT</string>
+
+    <string name="pref_gesture_view_title">View</string>
+    <string name="pref_gesture_tap_thumbnail_to_select_title">Tap thumbnail to select</string>
+    <string name="pref_gesture_tap_thumbnail_to_select_summary">When enabled, tapping on thumbnails enters selection mode. When disabled, tapping thumbnails plays the video. Has no effect in grid mode.</string>
+
+    <string name="pref_decoder">Decoder</string>
+    <string name="pref_decoder_summary">Hardware decoding, pixel format, debanding</string>
+    <string name="pref_decoder_profile_title">MPV Profile</string>
+    <string name="pref_decoder_try_hw_dec_title">Try hardware decoding</string>
+    <string name="pref_decoder_gpu_next_title">Use gpu-next</string>
+    <string name="pref_decoder_gpu_next_summary">A new rendering backend</string>
+    <string name="pref_decoder_gpu_next_enable_title">Enable gpu-next?</string>
+    <string name="pref_decoder_gpu_next_warning">Enabling gpu-next may cause purple screen issues during playback on some devices.</string>
+    <string name="pref_decoder_gpu_next_purple_screen_fix">If you experience purple screens, try to disable opengl-pbo in Advanced settings (mpv.conf):</string>
+    <string name="pref_decoder_gpu_next_enable_anyway">Enable Anyway</string>
+    <string name="pref_decoder_debanding_title">Debanding</string>
+    <string name="pref_decoder_yuv420p_title">Use YUV420P pixel format</string>
+    <string name="pref_decoder_yuv420p_summary">May fix black screens on some video codecs, can also improve performance at the cost of quality</string>
+    <string name="pref_decoder_vulkan_title">Use Vulkan</string>
+    <string name="pref_decoder_vulkan_summary">Enable Vulkan rendering on supported devices (may improve performance)</string>
+    <string name="pref_decoder_vulkan_not_supported">Not supported (requires Android 13+ with Vulkan 1.3)</string>
+
+    <string name="pref_subtitles">Subtitles</string>
+    <string name="pref_subtitles_summary">Preferred languages, fonts and search</string>
+    <string name="pref_subtitle_search_title">Online Subtitle Search</string>
+    <string name="pref_subtitle_search_summary">Search and download subtitles from Online sources</string>
+    <string name="pref_custom_lua_title">Custom Lua Buttons</string>
+    <string name="pref_custom_lua_summary">Manage custom player buttons with Lua code</string>
+    <string name="pref_preferred_languages">Preferred languages</string>
+    <string name="pref_subtitles_fonts_dir">Fonts directory</string>
+    <string name="pref_subtitles_disable_by_default_title">Disable subtitles by default</string>
+    <string name="pref_subtitles_disable_by_default_summary">Subtitles will not appear unless you manually enable them during playback.</string>
+    <string name="pref_subtitles_autoload_title">Automatically load subtitles</string>
+    <string name="pref_subtitles_autoload_summary">Automatically load external subtitles with the same name.</string>
+    <string name="pref_subtitles_force_ltr_title">Force LTR direction</string>
+    <string name="pref_subtitles_force_ltr_summary">Forces left-to-right direction for RTL subtitles</string>
+    <string name="pref_subtitles_open_at_video_location_title">Open at video location</string>
+    <string name="pref_subtitles_open_at_video_location_summary">Open file picker in the same folder as the current video</string>
+    <string name="pref_subtitles_custom_picker_folder_title">Default selection folder</string>
+    <string name="pref_subtitles_custom_picker_folder_summary">Chosen folder to open when manually adding subtitles</string>
+    <string name="pref_subtitles_save_location">Subtitle Save Location</string>
+    <string name="pref_subtitles_search_online">Online Subtitle Search…</string>
+    <string name="pref_subtitles_subdl_languages">Subtitle Languages</string>
+    <string name="all_languages">All (Selective Filtering)</string>
+    <string name="pref_subtitles_clear_downloads">Clear Subtitle Downloads</string>
+    <string name="pref_subtitles_clear_downloads_summary">Delete all files in the current save location</string>
+    <string name="pref_subtitles_clear_downloads_confirmation">Are you sure you want to delete all downloaded subtitles? This action cannot be undone.</string>
+    <string name="toast_subtitles_cleared">Subtitle downloads cleared</string>
+    <string name="pref_subtitles_searching">Searching…</string>
+    <string name="pref_subtitles_found">%d subtitles found</string>
+    <string name="pref_subtitles_online_search_title">Online Subtitle Search</string>
+    <string name="pref_subtitles_wyzie_api_key_title">Wyzie API Key</string>
+    <string name="pref_subtitles_wyzie_api_key_summary">Required for subtitle searches. Get yours at sub.wyzie.io/redeem</string>
+    <string name="pref_subtitles_wyzie_api_key_hint">Enter API Key</string>
+    <string name="pref_subtitles_wyzie_api_key_not_set">Not set</string>
+    <string name="pref_subtitles_wyzie_api_key_masked">••••••••••••••••••••••</string>
+
+    <string name="pref_audio">Audio</string>
+    <string name="pref_audio_summary">Preferred languages, audio channels, pitch correction</string>
+    <string name="pref_audio_pitch_correction_title">Enable audio pitch correction</string>
+    <string name="pref_audio_pitch_correction_summary">Prevents the audio from becoming high-pitched at faster speeds and low-pitched at slower speeds</string>
+    <string name="pref_audio_volume_normalization_title">Volume normalization</string>
+    <string name="pref_audio_volume_normalization_summary">Automatically adjust audio volume to maintain consistent loudness levels</string>
+    <string name="pref_audio_channels">Audio channels</string>
+    <string name="pref_audio_channels_auto">Auto</string>
+    <string name="pref_audio_channels_auto_safe">Auto Safe</string>
+    <string name="pref_audio_channels_mono">Mono</string>
+    <string name="pref_audio_channels_stereo">Stereo</string>
+    <string name="pref_audio_channels_stereo_reversed">Reversed Stereo</string>
+    <string name="pref_audio_preferred_language">Audio language(s) to be selected by default on a video with multiple audio streams, Two- or three-letter languages codes work. Multiple values can be delimited by comma.</string>
+    <string name="pref_audio_volume_boost_cap">Volume boost cap</string>
+
+    <string name="pref_advanced">Advanced</string>
+    <string name="pref_advanced_summary">Configuration location, mpv.conf</string>
+    <string name="pref_advanced_mpv_conf_storage_location">Pick configuration storage location</string>
+    <string name="config_editor_unsaved_changes">Unsaved changes</string>
+    <string name="config_editor_no_storage_location">No storage location set</string>
+    <string name="config_editor_create_failed">Failed to create file</string>
+    <string name="pref_advanced_mpv_conf">Edit mpv.conf</string>
+    <string name="pref_advanced_input_conf">Edit input.conf</string>
+    <string name="pref_advanced_dump_logs_title">Dump logs</string>
+    <string name="pref_advanced_dump_logs_summary">Dumps and copies the logs to be shared with the developers</string>
+    <string name="pref_advanced_verbose_logging_title">Verbose logging</string>
+    <string name="pref_advanced_verbose_logging_summary">Helps in debugging but may hinder performance</string>
+    <string name="pref_advanced_clear_playback_history">Clear playback history</string>
+    <string name="pref_advanced_clear_playback_history_confirm_title">Are you sure you want to clear your playback history?</string>
+    <string name="pref_advanced_clear_playback_history_confirm_subtitle">This will clear all your previous media\'s playback positions, selected subtitles and audio tracks along with their delays and speeds</string>
+    <string name="pref_advanced_cleared_playback_history">Cleared playback history</string>
+    <string name="pref_advanced_clear_fonts_cache">Clear cached fonts</string>
+    <string name="pref_advanced_cleared_fonts_cache">Cleared cached fonts</string>
+    <string name="pref_advanced_enable_recently_played_title">Recently Played</string>
+    <string name="pref_advanced_enable_recently_played_summary">Track and display recently played videos and playlists</string>
+
+    <string name="pref_advanced_features_tooltip">Enable experimental or advanced features such as stats page and Anime4K upscaling</string>
+    <string name="pref_anime4k_title">Anime4K upscaling (Experimental)</string>
+    <string name="pref_anime4k_summary">Enable Anime4K upscaling filter</string>
+    <string name="pref_anime4k_incompatibility">Anime4K Incompatibility</string>
+    <string name="pref_anime4k_gpu_next_error">gpu-next is incompatible with Anime4K shaders. When Anime4K is enabled, the app will automatically use the legacy \'gpu\' backend for shader compatibility.</string>
+    <string name="pref_anime4k_cannot_use_with_gpu_next">Cannot use Anime4K when gpu-next is enabled</string>
+    <string name="anime4k_mode_title">Anime4K Presets</string>
+    <string name="anime4k_quality_title">Anime4K Variants</string>
+    <string name="anime4k_mode_toast">Anime4K: Preset %1$s</string>
+    <string name="anime4k_quality_toast">Anime4K Variant: %1$s</string>
+
+    <!-- Anime4K Modes (Renamed to Presets in UI) -->
+    <string name="anime4k_mode_off">Off</string>
+    <string name="anime4k_mode_a">A</string>
+    <string name="anime4k_mode_b">B</string>
+    <string name="anime4k_mode_c">C</string>
+    <string name="anime4k_mode_a_plus">A+</string>
+    <string name="anime4k_mode_b_plus">B+</string>
+    <string name="anime4k_mode_c_plus">C+</string>
+
+    <!-- Anime4K Qualities (Renamed to Mode in UI) -->
+    <string name="anime4k_quality_fast">Fast</string>
+    <string name="anime4k_quality_balanced">Balanced</string>
+    <string name="anime4k_quality_high">High</string>
+
+    <string name="pref_about_title">About</string>
+    <string name="pref_about_summary">Acknowledgments, licenses</string>
+    <string name="pref_about_oss_libraries">Libraries</string>
+    <string name="pref_about_device_info">Device Info</string>
+    <string name="pref_about_donate_title">Donate</string>
+    <string name="pref_about_donate_kofi">Ko-fi</string>
+    <string name="pref_about_donate_kofi_summary">Support the developer on Ko-fi</string>
+    <string name="pref_about_donate_kofi_url" translatable="false">https://ko-fi.com/adityanarvekar</string>
+    <string name="pref_about_donate_paypal">PayPal</string>
+    <string name="pref_about_donate_paypal_summary">Support the developer on PayPal</string>
+    <string name="pref_about_donate_paypal_url" translatable="false">https://paypal.me/aadinarvekar</string>
+    <string name="pref_about_donate_upi">UPI</string>
+    <string name="pref_about_donate_upi_id" translatable="false">aadiinarvekar@upi</string>
+
+    <string name="pref_about_telegram_title">Telegram</string>
+    <string name="pref_about_telegram_channel">Telegram Channel</string>
+    <string name="pref_about_telegram_channel_summary">Join our channel for updates and news</string>
+    <string name="pref_about_telegram_group">Telegram Chat Group</string>
+    <string name="pref_about_telegram_group_summary">Discuss and chat with the community</string>
+    <string name="pref_about_telegram_url" translatable="false">https://t.me/mpvRex</string>
+    <string name="pref_about_telegram_chat_url" translatable="false">https://t.me/mpvRex_chat</string>
+
+    <string name="player_sheets_add_ext_sub">Add external subtitles</string>
+    <string name="player_sheets_add_ext_audio">Add external audio tracks</string>
+    <string name="player_sheets_tracks_off">Off</string>
+    <string name="player_sheets_track_title_w_lang" translatable="false">#%d: %s (%s)</string>
+    <string name="player_sheets_track_title_wo_lang" translatable="false">#%d: %s</string>
+    <string name="player_sheets_track_lang_wo_title" translatable="false">#%d: %s</string>
+    <string name="player_sheets_chapter_title_substitute_subtitle" translatable="false">Subtitle #%d</string>
+    <string name="player_sheets_chapter_title_substitute_audio" translatable="false">Audio #%d</string>
+    <string name="player_sheets_subtitles_settings_title">Subtitles settings</string>
+    <string name="player_sheets_subtitles_color_text">Text</string>
+    <string name="player_sheets_subtitles_color_border">Border</string>
+    <string name="player_sheets_subtitles_color_background">Background</string>
+    <string name="player_sheets_subtitles_border_style">Border style</string>
+    <string name="player_sheets_subtitles_border_style_outline_and_shadow">Outline and shadow</string>
+    <string name="player_sheets_subtitles_border_style_opaque_box">Opaque box</string>
+    <string name="player_sheets_subtitles_shadow_offset">Shadow offset</string>
+    <string name="player_sheets_sub_color_red">Red</string>
+    <string name="player_sheets_sub_color_green">Green</string>
+    <string name="player_sheets_sub_color_blue">Blue</string>
+    <string name="player_sheets_sub_color_alpha">Alpha</string>
+    <string name="player_sheets_sub_override_ass">Override ASS/SSA subtitles</string>
+    <string name="player_sheets_sub_override_ass_subtitle">Force override ASS/SSA subtitle formatting</string>
+    <string name="player_sheets_sub_scale_by_window">Scale by window</string>
+    <string name="player_sheets_sub_scale_by_window_summary">Scale subtitles by window size and use video margins</string>
+    <string name="player_sheets_sub_scale">Scale</string>
+    <string name="player_sheets_sub_position">Position</string>
+    <string name="player_sheets_sub_primary_position">Primary subtitle position</string>
+    <string name="player_sheets_secondary_sub_position">Secondary subtitle position</string>
+    <string name="player_sheets_secondary_sub_scale">Secondary subtitle scale</string>
+    <string name="player_sheets_sub_typography_card_title">Typography</string>
+    <string name="player_sheets_sub_typography_font">Font</string>
+    <string name="player_sheets_sub_typography_font_size">Font size</string>
+    <string name="player_sheets_sub_typography_border_size">Border size</string>
+    <string name="player_sheets_sub_colors_card_title">Colors</string>
+    <string name="player_sheets_sub_misc_card_title">Miscellaneous</string>
+    <string name="player_sheets_sub_delay_card_title">Subtitle delay</string>
+    <string name="player_sheets_sub_delay_card_delay">Delay</string>
+    <string name="player_sheets_sub_delay_card_speed">Speed</string>
+    <string name="player_sheets_sub_delay_subtitle_type_primary">Primary subtitle</string>
+    <string name="player_sheets_sub_delay_subtitle_type_secondary">Secondary subtitle</string>
+    <string name="player_sheets_sub_delay_subtitle_type_primary_and_secondary">Both</string>
+    <string name="player_sheets_sub_delay_subtitle_voice_heard">Voice heard</string>
+    <string name="player_sheets_sub_delay_subtitle_text_seen">Text seen</string>
+    <string name="player_sheets_delay_set_as_default">Set as default</string>
+    <string name="player_sheets_audio_delay_card_title">Audio delay</string>
+    <string name="player_sheets_sub_delay_audio_sound_heard">Sound heard</string>
+    <string name="player_sheets_sub_delay_sound_sound_spotted">Sound spotted</string>
+
+    <string name="player_sheets_video_settings_title">Video settings</string>
+    <string name="player_sheets_deband_title">Deband</string>
+    <string name="player_sheets_deband_none">None</string>
+    <string name="player_sheets_deband_cpu">CPU</string>
+    <string name="player_sheets_deband_gpu">GPU</string>
+    <string name="player_sheets_deband_iterations">Iterations</string>
+    <string name="player_sheets_deband_threshold">Threshold</string>
+    <string name="player_sheets_deband_range">Range</string>
+    <string name="player_sheets_deband_grain">Grain</string>
+    <string name="player_sheets_filters_title">Filters</string>
+    <string name="player_sheets_filters_brightness">Brightness</string>
+    <string name="player_sheets_filters_contrast">Contrast</string>
+    <string name="player_sheets_filters_gamma">Gamma</string>
+    <string name="player_sheets_filters_Saturation">Saturation</string>
+    <string name="player_sheets_filters_hue">Hue</string>
+    <string name="player_sheets_filters_sharpness">Sharpness</string>
+    <string name="player_sheets_filters_warning">Some filters may not work on your current video driver</string>
+    <string name="player_sheets_speed_slider_label">Speed</string>
+    <string name="player_sheets_speed_make_default">Make default speed</string>
+    <string name="player_sheets_decoder_formatted" formatted="false">%s (%s)</string>
+    <string name="numeric_chooser_value_too_big">Value too big</string>
+    <string name="numeric_chooser_value_too_small">Value too small</string>
+    <string name="player_sheets_more_title">More</string>
+    <string name="player_sheets_stats_page_title">Default statistics page</string>
+    <string name="player_sheets_stats_page_chip">Page %d</string>
+    <string name="player_sheets_stats_page_0_desc">Disabled. No overlay statistics.</string>
+    <string name="player_sheets_stats_page_1_desc">Overview. CPU/GPU usage, A/V sync, dropped frames, clock speed.</string>
+    <string name="player_sheets_stats_page_2_desc">Frame timing. Decode/render times, scaler info.</string>
+    <string name="player_sheets_stats_page_3_desc">Cache status. Buffer health, demuxer cache, seekable ranges.</string>
+    <string name="player_sheets_stats_page_4_desc">Current keybindings. List of mapped keyboard shortcuts.</string>
+    <string name="player_sheets_stats_page_5_desc">Track list. Details of video, audio and subtitle tracks.</string>
+    <string name="player_speed" translatable="false">%.2fx</string>
+
+    <string name="playlist_now_playing">Now Playing</string>
+    <string name="playlist_playing">Playing</string>
+    <string name="playlist_reorder">Reorder Playlist</string>
+    <string name="playlist_search_placeholder">Search...</string>
+    <string name="playlist_no_items">No items found</string>
+    <string name="playlist_items_count">%1$d of %2$d items</string>
+    <string name="playlist_selected_count">%1$d selected</string>
+
+    <string name="player_aspect_fit">Fit Screen</string>
+    <string name="player_aspect_crop">Crop</string>
+    <string name="player_aspect_stretch">Stretch</string>
+
+    <string name="crash_screen_title">Oops</string>
+    <string name="crash_screen_subtitle">Looks like %s experienced an unexpected error. Consider sharing the crash logs in a GitHub issue.</string>
+    <string name="crash_screen_logs_title">Crash logs:</string>
+    <string name="crash_screen_share">Share crash logs</string>
+    <string name="crash_screen_restart">Restart the app</string>
+    <string name="crash_screen_fix_crash">Fix Crash (Delete Database)</string>
+    <string name="crash_screen_database_deleted">Database deleted successfully. Please restart the app.</string>
+    <string name="crash_screen_database_hint">This crash appears to be database-related. Try deleting the database to fix it.</string>
+
+    <string name="timer_picker_enter_timer">Enter time</string>
+    <string name="timer_picker_pick_time">Pick time</string>
+    <string name="timer_title">Sleep timer</string>
+    <string name="timer_remaining">%s remaining</string>
+    <string name="toast_sleep_timer_ended">Sleep timer ended</string>
+    <string name="volume_slider_absolute_value" translatable="false">%d</string>
+    <string name="value_percentage_int" translatable="false">%d%%</string>
+
+    <string name="github_repo_url" translatable="false">https://github.com/sfsakhawat999/mpvRex</string>
+    <string name="swap_the_volume_and_brightness_slider">Swap volume and brightness slider</string>
+    <string name="pref_player_display_reduce_player_animation">Reduce player animation</string>
+    <string name="pref_player_display_hide_player_control_time">Hide player control time</string>
+    <string name="show_splash_ovals_on_double_tap_to_seek">Show ripple when double tap seeking</string>
+    <string name="pref_player_show_circular_double_tap_seek_title">Show circular double tap seek</string>
+    <string name="pref_player_show_circular_double_tap_seek_summary">Show a circular seek overlay with time below it</string>
+    <string name="show_time_on_double_tap_to_seek">Show seek time</string>
+    <string name="player_gesture_seek_indicator" translatable="false">[%1$s%2$s] (%3$s)</string>
+
+    <string name="pref_audio_channels_auto_safe_desc">Default, safe auto selection</string>
+    <string name="pref_audio_channels_auto_desc">Auto selection</string>
+    <string name="pref_audio_channels_mono_desc">Downmix to mono</string>
+    <string name="pref_audio_channels_stereo_desc">Downmix to stereo</string>
+    <string name="pref_audio_channels_reverse_stereo_desc">Swap left and right channels</string>
+
+    <string name="player_sheets_aspect_ratio_title">Aspect Ratio</string>
+    <string name="player_sheets_aspect_ratio_presets">Presets</string>
+    <string name="player_sheets_aspect_ratio_preset_default">Default</string>
+    <string name="player_sheets_aspect_ratio_preset_4_3" translatable="false">4:3</string>
+    <string name="player_sheets_aspect_ratio_preset_16_9" translatable="false">16:9</string>
+    <string name="player_sheets_aspect_ratio_preset_16_10" translatable="false">16:10</string>
+    <string name="player_sheets_aspect_ratio_preset_21_9" translatable="false">21:9</string>
+    <string name="player_sheets_aspect_ratio_preset_32_9" translatable="false">32:9</string>
+    <string name="player_sheets_aspect_ratio_preset_2_35_1" translatable="false">2.35:1</string>
+    <string name="player_sheets_aspect_ratio_preset_2_39_1" translatable="false">2.39:1</string>
+    <string name="player_sheets_aspect_ratio_custom_toggle">Custom...</string>
+    <string name="player_sheets_aspect_ratio_custom_section">Custom</string>
+    <string name="player_sheets_aspect_ratio_manual_zoom_pan_title">Manual Zoom &amp; Pan (Camera Offset)</string>
+    <string name="player_sheets_aspect_ratio_zoom_value">Zoom: %1$.2fx</string>
+    <string name="player_sheets_aspect_ratio_reset_zoom">Reset Zoom</string>
+    <string name="player_sheets_aspect_ratio_horizontal_offset_value">Horizontal Offset: %1$.3f</string>
+    <string name="player_sheets_aspect_ratio_vertical_offset_value">Vertical Offset: %1$.3f</string>
+    <string name="player_sheets_aspect_ratio_reset_pan">Reset Pan</string>
+    <string name="player_sheets_aspect_ratio_add_custom_title">Add Custom Ratio (e.g. 16:9)</string>
+    <string name="player_sheets_aspect_ratio_width">Width</string>
+    <string name="player_sheets_aspect_ratio_separator" translatable="false">:</string>
+    <string name="player_sheets_aspect_ratio_height">Height</string>
+    <string name="player_sheets_aspect_ratio_custom_ratio_label" translatable="false">%1$s:%2$s</string>
+    <string name="player_sheets_aspect_ratio_invalid">Invalid</string>
+    <string name="player_sheets_aspect_ratio_add">Add</string>
+    <string name="player_sheets_aspect_ratio_advanced_zoom_toggle">Advanced Zoom</string>
+    <string name="player_sheets_aspect_ratio_advanced_zoom_description">Independently stretch or crop the horizontal and vertical axes, useful for removing black bars</string>
+    <string name="player_sheets_aspect_ratio_horizontal_zoom_value">Horizontal Zoom: %1$.2fx</string>
+    <string name="player_sheets_aspect_ratio_vertical_zoom_value">Vertical Zoom: %1$.2fx</string>
+    <string name="player_sheets_aspect_ratio_reset_horizontal_zoom">Reset horizontal zoom</string>
+    <string name="player_sheets_aspect_ratio_reset_vertical_zoom">Reset vertical zoom</string>
+    <string name="player_sheets_aspect_ratio_decrease_horizontal_zoom">Decrease horizontal zoom</string>
+    <string name="player_sheets_aspect_ratio_increase_horizontal_zoom">Increase horizontal zoom</string>
+    <string name="player_sheets_aspect_ratio_decrease_vertical_zoom">Decrease vertical zoom</string>
+    <string name="player_sheets_aspect_ratio_increase_vertical_zoom">Increase vertical zoom</string>
+    <string name="player_sheets_aspect_ratio_reset_advanced_zoom">Reset Advanced Zoom</string>
+
+    <string name="player_sheets_frame_navigation_title">Frame Navigation</string>
+    <string name="player_sheets_frame_navigation_timestamp_value" formatted="false" translatable="false">%1$02d:%2$02d:%3$02d</string>
+    <string name="player_sheets_frame_navigation_frame_label">Frame:\u0020</string>
+    <string name="player_sheets_frame_navigation_frame_count" translatable="false">%1$d / %2$d</string>
+    <string name="player_sheets_frame_navigation_current_frame" translatable="false">%1$d</string>
+    <string name="player_sheets_frame_navigation_timestamp_label">Timestamp:\u0020</string>
+    <string name="player_sheets_frame_navigation_snapshot_saved" translatable="false">Saved to Pictures/mpvSnaps</string>
+    <string name="player_sheets_frame_navigation_screenshot_create_failed">Failed to create screenshot</string>
+    <string name="player_sheets_frame_navigation_mediastore_entry_failed">Failed to create MediaStore entry</string>
+    <string name="player_sheets_frame_navigation_snapshot_dir_failed">Failed to create mpvSnaps directory</string>
+    <string name="player_sheets_frame_navigation_snapshot_save_failed">Failed to save snapshot: %1$s</string>
+    <string name="player_sheets_frame_navigation_include_subtitles">Include subtitles in snapshot</string>
+
+    <string name="player_sheets_zoom_slider_label">Video Zoom</string>
+
+    <plurals name="seconds">
+        <item quantity="one">%1$d second</item>
+        <item quantity="other">%1$d seconds</item>
+    </plurals>
+
+    <!-- Background Playback -->
+    <string name="background_playback_title">Background playback</string>
+    <string name="pref_player_background_playback">Background Playback</string>
+    <string name="pref_background_playback_always">Always</string>
+    <string name="pref_background_playback_audio_only">Audio files only</string>
+    <string name="pref_background_playback_video_only">Video files only</string>
+    <string name="pref_background_playback_never">Never</string>
+    <string name="deselect_all">Deselect All</string>
+    <string name="select_all">Select All</string>
+    <string name="invert_selection">Invert Selection</string>
+    <string name="selected_items">%1$d / %2$d Selected</string>
+    <string name="selection_options">Selection options</string>
+    <string name="back">Back</string>
+    <string name="sort">Sort</string>
+    <string name="settings">Settings</string>
+    <string name="rename">Rename</string>
+    <string name="info">Info</string>
+    <string name="delete">Delete</string>
+    <string name="got_it">Got it</string>
+    <string name="general">General</string>
+    <string name="not_set_video_default">Not set (will use video default)</string>
+    <string name="enter_language_codes">Enter language codes separated by commas (e.g., eng,jpn,spa)</string>
+    <string name="language_codes_placeholder">eng,jpn,spa</string>
+    <string name="not_set_system_fonts">Not set (using system fonts)</string>
+    <string name="fonts_loaded">%1$d fonts loaded</string>
+    <string name="reload_fonts">Reload fonts</string>
+    <string name="clear_font_directory">Clear font directory</string>
+    <string name="reset_to_default_font">Reset to default font</string>
+    <string name="set_as_default">Set as default</string>
+
+    <!-- Notification strings -->
+    <string name="notification_channel_name">Media Playback</string>
+    <string name="notification_channel_description">Media playback controls</string>
+    <string name="notification_playing">Playing</string>
+
+    <!-- Media Info Activity -->
+    <string name="pref_player_use_precise_seeking">Use precise seeking</string>
+    <string name="pref_player_show_seekbar_when_seeking_title">Show seekbar when seeking</string>
+    <string name="pref_player_show_seekbar_when_seeking_summary">Display the video progress bar during gesture seeking</string>
+    <string name="pref_player_white_seekbar_title">White video progress bar</string>
+    <string name="pref_player_white_seekbar_summary">Make the video progress bar white in player screen</string>
+    <string name="pref_player_show_seekbar_chapters_title">Show chapters</string>
+    <string name="pref_player_show_seekbar_chapters_summary">Display chapter markers on the seekbar</string>
+    <string name="pref_player_show_seekbar_read_ahead_title">Show buffered content</string>
+    <string name="pref_player_show_seekbar_read_ahead_summary">Display visual hint of buffered content on the seekbar</string>
+    <string name="pref_player_hide_osd_text_title">Hide player OSD text</string>
+    <string name="pref_player_hide_osd_text_summary">Hide the default mpv OSD text during seeking or subtitle seeking</string>
+    <string name="pref_player_keep_screen_on_when_paused_title">Keep screen on when paused</string>
+    <string name="pref_player_keep_screen_on_when_paused_summary">Prevents screen timeout during pause</string>
+    <string name="pref_player_save_position_on_quit_summary">Remember where you left off</string>
+    <string name="pref_player_interaction_header">Player Interaction</string>
+
+    <!-- Folders Preferences -->
+    <string name="pref_folders_title">Folders</string>
+    <string name="pref_folders_summary">Manage folder blacklist</string>
+    <string name="pref_folders_empty_title">No blacklisted folders</string>
+    <string name="pref_folders_empty_message">Tap the button below to add folders you want to hide from the folder list</string>
+    <string name="pref_folders_add_folder">Add Folder to Blacklist</string>
+    <string name="pref_folders_select_folders">Select folder/s</string>
+    <string name="pref_folders_loading">Loading folders…</string>
+    <string name="pref_folders_no_folders">No folders found</string>
+    <string name="pref_folders_clear_all">Clear all blacklisted folders</string>
+    <string name="pref_folders_clear_all_confirm_title">Clear all blacklisted folders?</string>
+    <string name="pref_folders_clear_all_confirm_message">This will remove all folders from the blacklist. You can add them back later.</string>
+    <string name="pref_folders_blacklist">Blacklist</string>
+    <string name="pref_folders_blacklisted">Folder(s) blacklisted</string>
+
+    <!-- M3U Playlist Strings -->
+    <string name="playlist_add_m3u_title">Add M3U Playlist</string>
+    <string name="playlist_add_m3u_description">Enter the URL of an M3U playlist file</string>
+    <string name="playlist_url_label">Playlist URL</string>
+    <string name="playlist_url_placeholder">https://example.com/playlist.m3u</string>
+    <string name="playlist_url_hint">Supports .m3u and .m3u8 formats</string>
+    <string name="playlist_add_success">M3U playlist added successfully</string>
+    <string name="playlist_add_error">Failed to add M3U playlist: %s</string>
+    <string name="playlist_create_empty">Create empty playlist</string>
+    <string name="playlist_add_from_url">Add from M3U/M3U8 URL</string>
+    <string name="playlist_refresh_m3u">Refresh M3U playlist</string>
+    <string name="playlist_refresh_success">Playlist refreshed successfully</string>
+    <string name="playlist_refresh_error">Failed to refresh playlist: %s</string>
+    <string name="playlist_m3u_badge">M3U</string>
+
+    <string name="open_file">Open file</string>
+    <string name="recently_played">Recently played</string>
+    <string name="open_link">Open link</string>
+    <string name="install">Install</string>
+    <string name="download">Download</string>
+    <string name="failed_load_audio_invalid_uri">Failed to load audio file: Invalid URI</string>
+    <string name="audio_track_added">Audio track added</string>
+    <string name="failed_load_audio">Failed to load audio: %s</string>
+    <string name="invalid_subtitle_format">Invalid subtitle file format</string>
+    <string name="subtitle_added">%s added</string>
+    <string name="failed_load_subtitle">Failed to load subtitle</string>
+    <string name="remove_from_playlist">Remove %1$d %2$s from playlist?</string>
+    <string name="remove_playlist_items_confirm">The selected %2$s will be removed from this playlist. Original %3$s will not be deleted.</string>
+    <string name="search_videos">Search videos…</string>
+    <string name="search_folders_and_videos">Search folders and videos…</string>
+    <string name="search_playlists">Search playlists…</string>
+    <string name="search_no_results_title">No results found</string>
+    <string name="search_no_results_message">No files or folders match your search query</string>
+    <string name="search_empty_title">Search</string>
+    <string name="search_empty_message">Type to search files and folders</string>
+    <string name="play_recently_played_or_first">Play recently played or first video</string>
+    <string name="toggle_menu">Toggle menu</string>
+    <string name="close">Close</string>
+    <string name="copy">Copy</string>
+    <string name="done">Done</string>
+    <string name="create">Create</string>
+    <string name="select">Select</string>
+    <string name="browse">Browse</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connect">Connect</string>
+    <string name="remove">Remove</string>
+    <string name="add">Add</string>
+    <string name="ignore">Ignore</string>
+    <string name="check_for_updates_now">Check for updates now</string>
+    <string name="loading_detailed_information">Loading detailed information…</string>
+    <string name="stream_url">Stream URL</string>
+    <string name="export_complete">Export complete</string>
+    <string name="import_complete">Import complete</string>
+    <string name="auto_picture_in_picture">Auto picture-in-picture</string>
+    <string name="dynamic_speed_overlay">Dynamic speed overlay</string>
+    <string name="show_navigation_bar_with_controls">Show navigation bar with controls</string>
+    <string name="enable_lua_scripts">Enable Lua scripts</string>
+    <string name="manage_lua_scripts">Manage Lua scripts</string>
+    <string name="rename_playlist">Rename playlist</string>
+    <string name="create_playlist">Create playlist</string>
+    <string name="add_connection">Add connection</string>
+    <string name="playlist_name">Playlist name</string>
+    <string name="playlist_url">Playlist URL</string>
+    <string name="enter_url">Enter URL</string>
+    <string name="new_name">New name</string>
+    <string name="folder_name">Folder name</string>
+    <string name="video_url">Video URL</string>
+    <string name="choose_local_m3u_file">Choose local M3U file</string>
+    <string name="add_from_url">Add from URL</string>
+    <string name="home">Home</string>
+    <string name="shorts">Shorts</string>
+    <string name="recents">Recents</string>
+    <string name="playlists">Playlists</string>
+    <string name="network">Network</string>
+    <string name="unit_seconds">Seconds</string>
+    <string name="milliseconds">Milliseconds</string>
+    <string name="name">Name</string>
+    <string name="protocol">Protocol</string>
+    <string name="host_ip_address">Host/IP address</string>
+    <string name="port">Port</string>
+    <string name="path">Path</string>
+    <string name="anonymous_guest_access">Anonymous/Guest access</string>
+    <string name="use_https_secure_connection">Use HTTPS (secure connection)</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="selected_long_press_to_reorder">Selected (long press to reorder)</string>
+    <string name="available">Available</string>
+    <string name="width">Width</string>
+    <string name="height">Height</string>
+    <string name="filter_presets">Filter presets</string>
+    <string name="no_storage_devices_found">No storage devices found</string>
+    <string name="no_folders_or_supported_files">No folders or supported files</string>
+    <string name="hello_world">Hello world</string>
+
+    <!-- Browser Preferences -->
+    <string name="pref_show_audio_files_title">Show audio files</string>
+    <string name="pref_show_audio_files_summary">Show and index audio files in the browser and playlists</string>
+    <string name="pref_include_no_media_content_title">Include &#96;.nomedia&#96; content</string>
+    <string name="pref_include_no_media_content_summary">Show media from folders excluded from Android\'s media library. Scanning these folders may take longer.</string>
+    <string name="pref_add_library_root">Add library folder</string>
+    <string name="pref_clear_library_roots">Remove selected library folders</string>
+    <string name="pref_library_root_count">Selected library folders: %1$d</string>
+    <string name="pref_library_roots_title">Library Scan Folders</string>
+    <string name="pref_library_roots_summary">Custom folders and SAF roots explicitly authorized for library indexing</string>
+    <string name="pref_library_roots_empty_title">No Library Folders Added</string>
+    <string name="pref_library_roots_empty_message">Add custom folder paths or external storage directories to index them in your library.</string>
+    <string name="pref_library_roots_clear_all_confirm_title">Remove All Library Folders?</string>
+    <string name="pref_library_roots_clear_all_confirm_message">Are you sure you want to remove all added library scan roots? Persisted permissions will be released.</string>
+    <string name="pref_show_tree_view_path_title">Show path breadcrumbs</string>
+    <string name="pref_show_tree_view_path_summary">Show the folder path breadcrumbs at the top of Tree View</string>
+    <string name="pref_media_library_title">Media &amp; Library</string>
+    <string name="pref_media_library_summary">Manage scan roots, .nomedia files, blacklisted folders, and indexing</string>
+    <string name="pref_category_content_discovery">Content &amp; Discovery</string>
+    <string name="pref_category_storage_exclusions">Storage &amp; Exclusions</string>
+    <string name="pref_category_library_maintenance">Library Maintenance</string>
+    <string name="pref_rescan_library_title">Force Rescan Library</string>
+    <string name="pref_rescan_library_summary">Re-index internal shared storage and custom roots to discover media</string>
+    <string name="pref_clear_metadata_cache_title">Clear Metadata Cache</string>
+    <string name="pref_clear_metadata_cache_summary">Delete cached video metadata, frame dimensions, and thumbnail cache</string>
+    <string name="pref_rescan_started_toast">Media library rescan started</string>
+    <string name="pref_cache_cleared_toast">Metadata cache cleared</string>
+
+    <string name="copy_path">Copy path</string>
+    <string name="copy_video_path">Copy video file path</string>
+    <string name="copy_folder_path">Copy folder path</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    
+    <!-- Media Info Screen -->
+    <string name="media_info_title">Media Info</string>
+    <string name="media_info_back">Back</string>
+    <string name="media_info_copy">Copy</string>
+    <string name="media_info_share">Share</string>
+    <string name="media_info_no_file_provided">No media file provided</string>
+    <string name="media_info_unknown_file_name">Unknown</string>
+    <string name="media_info_failed_to_load">Failed to load media information</string>
+    <string name="media_info_unknown_error">Unknown error</string>
+    <string name="media_info_analyzing">Analyzing media file...</string>
+    <string name="media_info_error_prefix">Error: %1$s</string>
+    <string name="media_info_loading_details">Loading detailed information...</string>
+    <string name="media_info_clipboard_label">Media Info - %1$s</string>
+    <string name="media_info_share_subject">Media Info - %1$s</string>
+    <string name="media_info_share_text">Media information for: %1$s</string>
+    <string name="media_info_share_chooser_title">Share Media Info</string>
+    <string name="media_info_share_failed">Failed to share: %1$s</string>
+    <string name="media_info_default_file_name">Media File</string>
+
+    <!-- Network Connection Card -->
+    <string name="network_connection_protocol_host">%1$s • %2$s:%3$s</string>
+    <string name="network_connection_edit">Edit</string>
+    <string name="network_connection_delete">Delete</string>
+    <string name="network_connection_path_prefix">Path: %1$s</string>
+    <string name="network_connection_user_prefix">User: %1$s</string>
+    <string name="network_connection_error_prefix">Error: %1$s</string>
+    <string name="network_connection_auto_connect">Connect automatically on app launch</string>
+    <string name="network_connection_connecting">Connecting</string>
+    <string name="network_connection_browse">Browse</string>
+    <string name="network_connection_disconnect">Disconnect</string>
+    <string name="network_connection_connect">Connect</string>
+
+    <!-- Playlist Screen Empty and Search States -->
+    <string name="no_playlists_found">No playlists found</string>
+    <string name="try_different_search_term">Try a different search term</string>
+    <string name="no_playlists_yet">No playlists yet</string>
+    <string name="no_playlists_yet_desc">Create a playlist or add one from an m3u URL</string>
+    <string name="empty_playlists_desc">Create a playlist to see it listed here</string>
+
+    <!-- Recently Played Screen -->
+    <string name="recently_played_disabled_title">Recently Played is disabled</string>
+    <string name="recently_played_disabled_message">Enable it in Advanced Settings to track your playback history</string>
+    <string name="no_recently_played_videos">No recently played videos</string>
+    <string name="no_recently_played_videos_message">Videos you play will appear here</string>
+    <string name="no_recently_played_items">No recently played items</string>
+    <string name="no_recently_played_items_message">Your recently played videos and playlists will appear here</string>
+    <string name="remove_from_history_title">Remove %1$d %2$s from history?</string>
+    <string name="remove_from_history_msg">This will remove the selected %1$s from your recently played list. The original video files will not be deleted.</string>
+    <string name="delete_files_title">Delete %1$d %2$s?</string>
+    <string name="delete_files_msg">This will permanently delete the original video file(s) from your device storage.\n\nThis action cannot be undone.</string>
+    <string name="also_delete_files">Also delete original file(s)</string>
+
+    <!-- Folder List Screen Empty States -->
+    <string name="no_video_folders_found">No video folders found</string>
+    <string name="no_video_folders_found_desc">Add videos to your device to see folders here</string>
+
+    <!-- File System Browser Screen Strings -->
+    <string name="search_in_all_storage_volumes">Search all storage</string>
+    <string name="search_in_folder_placeholder">Search in %1$s…</string>
+    <string name="search_default_folder_name">folder</string>
+    <string name="empty_folder_title">Empty folder</string>
+    <string name="empty_folder_message">This folder contains no videos or subfolders</string>
+
+    <!-- Media Library Content Screen Strings -->
+    <string name="search_all_videos">Search all videos…</string>
+
+    <!-- Network Streaming Screen Strings -->
+    <string name="stream_link">Stream Link</string>
+    <string name="video_url_placeholder">https://example.com/video.mp4</string>
+    <string name="paste">Paste</string>
+    <string name="play">Play</string>
+
+    <!-- Playlist Detail Screen Strings -->
+    <string name="no_videos_in_playlist">No videos in this playlist</string>
+    <string name="no_videos_in_playlist_desc">Add videos from the browser to build your playlist</string>
+    <string name="done_reordering">Done reordering</string>
+    <string name="reorder_playlist">Reorder playlist</string>
+    <string name="remove_from_playlist_confirm">The selected %1$s will be removed from this playlist. The original %2$s will not be deleted.</string>
+    <string name="remove_from_playlist_action">Remove from Playlist</string>
+
+    <!-- Shorts Screen Strings -->
+    <string name="go_back">Go Back</string>
+    <string name="auto_swipe_to_next_short">Auto Swipe to Next Short</string>
+    <string name="auto_swipe_to_next_short_desc">Swipe automatically when video ends</string>
+    <string name="long_press_speed">Long Press Speed</string>
+    <string name="video_information">Video Information</string>
+    <string name="blocked_videos_manager">Blocked Videos Manager</string>
+    <string name="delete_short">Delete Short</string>
+    <string name="delete_short_desc">Permanently delete this file from device</string>
+    <string name="long_press_speed_desc">Long press to lock speed and normal press to change</string>
+    <string name="delete_short_confirm_message">Are you sure you want to permanently delete this short video? This action cannot be undone.</string>
+
+    <!-- Private Space Strings -->
+    <string name="moving_to_private_space">Moving to private space…</string>
+    <string name="moved_to_private_space">Moved to Private Space</string>
+    <string name="moved_to_private_space_desc">Successfully moved %1$d video(s) to private space.\n\nTo access private space, long press on the app name at the top of the main screen.</string>
+    <string name="save">Save</string>
+    <string name="add_network_connection">Add Network Connection</string>
+    <string name="edit_network_connection">Edit Network Connection</string>
+
+    <!-- Add To Playlist Dialog Strings -->
+    <string name="add_to_playlist">Add to Playlist</string>
+    <string name="adding_one_video_to_playlist">Adding 1 video to playlist</string>
+    <string name="adding_n_videos_to_playlist">Adding %1$d videos to playlist</string>
+    <string name="create_new_playlist">Create New Playlist</string>
+    <string name="existing_playlists">Existing Playlists</string>
+    <string name="video_added_to">Video added to \"%1$s\"</string>
+    <string name="n_videos_added_to">%1$d videos added to \"%2$s\"</string>
+    <string name="playlist_videos_count">%1$d videos • %2$s</string>
+    <string name="create_first_playlist_above">Create your first playlist above</string>
+
+    <!-- Copy Paste Dialog Strings -->
+    <string name="copying_files">Copying files</string>
+    <string name="moving_files">Moving files</string>
+    <string name="operation_completed_successfully">Operation completed successfully!</string>
+    <string name="operation_cancelled">Operation cancelled</string>
+    <string name="file_index_of_total">File %1$d of %2$d</string>
+    <string name="current_file">Current file</string>
+    <string name="overall_progress">Overall progress</string>
+    <string name="file_bytes_progress">%1$s of %2$s</string>
+    <string name="files_processed">Files processed</string>
+    <string name="total_size">Total size</string>
+
+    <!-- File Picker Dialog Strings -->
+    <string name="select_storage_location">Select a storage location</string>
+
+    <!-- Folder Picker Dialog Strings -->
+    <string name="go_to_internal_storage">Go to internal storage</string>
+    <string name="create_folder">Create folder</string>
+    <string name="select_folder">Select Folder</string>
+    <string name="cannot_select_same_folder">Cannot select the same folder</string>
+    <string name="create_new_folder">Create New Folder</string>
+    <string name="folder_name_empty">Folder name cannot be empty</string>
+    <string name="folder_already_exists">Folder already exists</string>
+    <string name="failed_create_folder">Failed to create folder</string>
+
+    <!-- Rename Dialog Strings -->
+    <string name="rename_item">Rename %1$s</string>
+    <string name="name_cannot_be_empty">Name cannot be empty</string>
+    <string name="name_cannot_contain_invalid_chars">Name cannot contain / or \\</string>
+
+    <!-- Sheets Strings -->
+    <string name="play_link">Play Link</string>
+    <string name="invalid_url_protocol">Invalid URL protocol</string>
+    <string name="valid_url">Valid URL</string>
+    <string name="invalid_url">Invalid URL</string>
+    <string name="playlist_created_successfully">Playlist created successfully</string>
+    <string name="failed_create_playlist">Failed to create playlist</string>
+    <string name="m3u_playlist_added_successfully">M3U Playlist added successfully</string>
+    <string name="failed_add_m3u_playlist">Failed to add M3U playlist</string>
+    <string name="add_m3u_playlist">Add M3U Playlist</string>
+    <string name="or">OR</string>
+    <string name="playlist_options">Playlist Options</string>
+    <string name="create_empty_playlist">Create Empty Playlist</string>
+    <string name="create_blank_playlist_desc">Create a new blank playlist</string>
+    <string name="add_m3u_playlist_from_url">Add M3U Playlist from URL</string>
+    <string name="import_playlist_url_desc">Import a playlist from a web URL</string>
+
+    <!-- Component Strings -->
+    <string name="more_options">More options</string>
+    <string name="move">Move</string>
+    <string name="mark_as">Mark as</string>
+    <string name="mark_as_last_played">Last Played</string>
+    <string name="mark_as_last_played_desc">Move to top of Recently Played</string>
+    <string name="mark_as_finished">Finished</string>
+    <string name="mark_as_finished_desc">Mark as fully watched</string>
+    <string name="mark_as_none">None</string>
+    <string name="mark_as_none_desc">Remove all marks and watch history</string>
+    <string name="mark_as_new">New</string>
+    <string name="mark_as_new_desc">Remove all marks and mark as new</string>
+    <string name="folders_count">Folders (%1$d)</string>
+    <string name="media_count">Media (%1$d)</string>
+    <string name="drag_to_reorder">Drag to reorder</string>
+    <string name="community_links">Community Links</string>
+    <string name="community_hub">Community Hub</string>
+    <string name="connect_social_media">Connect with us on social media</string>
+    <string name="community_already_joined">Already joined</string>
+    <string name="community_never_show_again">Never show again</string>
+    <string name="community_not_now">Not now</string>
+    <string name="community_already_joined_message">You can also find these community links in Preferences → About.</string>
+
+    <!-- Sort Dialog Strings -->
+    <string name="sort_and_view_options">Sort &amp; View Options</string>
+    <string name="view_options">View Options</string>
+
+    <!-- Preference Category Strings -->
+    <string name="pref_category_ui_appearance">UI &amp; Appearance</string>
+    <string name="pref_category_playback_controls">Playback &amp; Controls</string>
+    <string name="pref_category_file_management">File Management</string>
+    <string name="pref_category_media_settings">Media Settings</string>
+    <string name="pref_category_rexshorts">RexShorts</string>
+    <string name="pref_category_rexshorts_settings">RexShorts Settings</string>
+    <string name="pref_category_rexshorts_settings_desc">Manage enable/disable, shuffle, and blocked content</string>
+    <string name="pref_category_advanced_about">Advanced &amp; About</string>
+
+    <!-- Shorts preference screen -->
+    <string name="pref_enable_rexshorts">Enable RexShorts</string>
+    <string name="pref_enable_rexshorts_summary">Show the Shorts tab in the bottom navigation bar</string>
+    <string name="pref_auto_swipe_shorts">Auto Swipe to Next Short</string>
+    <string name="pref_auto_swipe_shorts_summary">Automatically swipe to the next short when current one ends</string>
+    <string name="pref_enable_glass_shorts_controls">Glass shorts controls</string>
+    <string name="pref_enable_glass_shorts_controls_summary">Apply glass-morphism style to shorts action buttons</string>
+    <string name="pref_show_shorts_back_button">Show back button</string>
+    <string name="pref_show_shorts_back_button_summary">Show the back button in the shorts side control panel</string>
+    <string name="pref_category_discovery">Discovery</string>
+    <string name="pref_include_short_horizontal_videos">Include Short Normal Videos</string>
+    <string name="pref_include_short_horizontal_videos_summary">Show horizontal videos in the feed if they are short</string>
+    <string name="pref_max_horizontal_video_duration">Max Horizontal Duration</string>
+    <plurals name="pref_max_horizontal_video_duration_desc">
+        <item quantity="one">Limit horizontal videos to %d minute</item>
+        <item quantity="other">Limit horizontal videos to %d minutes</item>
+    </plurals>
+    <string name="pref_sourced_folders">Sourced Folders</string>
+    <string name="pref_sourced_folders_all">Sourced from all scanned directories</string>
+    <string name="pref_sourced_folders_count">Sourced from %1$d folder(s)</string>
+    <string name="pref_sourced_folders_list">Sourced from: %1$s</string>
+    <string name="pref_category_content_management">Content Management</string>
+    <string name="pref_blocked_videos">Blocked Videos</string>
+    <string name="pref_blocked_videos_summary">View and manage blocked shorts</string>
+    <string name="pref_select_sourced_folders">Select Sourced Folders</string>
+    <string name="pref_select_sourced_folders_desc">Choose directories to source shorts from. If none are selected, shorts will be sourced from all folders.</string>
+
+    <!-- Update features -->
+    <string name="pref_category_updates">Updates</string>
+    <string name="pref_about_auto_check_updates">Auto Check for Updates</string>
+    <string name="pref_about_auto_check_updates_summary">Check for new versions on startup</string>
+    <string name="pref_about_check_updates">Check for Updates</string>
+    <string name="pref_about_checking">Checking…</string>
+    <string name="pref_about_check_updates_summary">Manually check for new versions on GitHub</string>
+    <string name="pref_about_up_to_date">You are up to date!</string>
+    <string name="pref_about_check_updates_failed">Failed to check for updates</string>
+    <string name="update_ready_to_install">Ready to Install</string>
+    <string name="update_available_title">Update Available</string>
+    <string name="update_current_version">Current Version</string>
+    <string name="update_latest_version">Latest Version</string>
+    <string name="update_release_date">Release Date</string>
+    <string name="update_size">Size</string>
+    <string name="update_release_notes">Release Notes</string>
+    <string name="update_downloading">Downloading…</string>
+    <string name="update_install">Install</string>
+    <string name="update_download">Download</string>
+    <string name="update_ignore">Ignore</string>
+    <string name="update_cancel">Cancel</string>
+
+    <!-- Player Button Labels -->
+    <string name="btn_label_back">Back Arrow</string>
+    <string name="btn_label_title">Video Title</string>
+    <string name="btn_label_bookmarks">Chapters / Bookmarks</string>
+    <string name="btn_label_speed">Playback Speed</string>
+    <string name="btn_label_decoder">Decoder</string>
+    <string name="btn_label_rotation">Screen Rotation</string>
+    <string name="btn_label_frame_nav">Frame Navigation</string>
+    <string name="btn_label_zoom">Video Zoom</string>
+    <string name="btn_label_pip">Picture-in-Picture</string>
+    <string name="btn_label_aspect">Aspect Ratio</string>
+    <string name="btn_label_lock">Lock Controls</string>
+    <string name="btn_label_audio">Audio Track</string>
+    <string name="btn_label_subtitles">Subtitles</string>
+    <string name="btn_label_more">More Options</string>
+    <string name="btn_label_chapter">Current Chapter</string>
+    <string name="btn_label_repeat_mode">Repeat Mode</string>
+    <string name="btn_label_shuffle">Shuffle</string>
+    <string name="btn_label_mirror">Horizontal Flip</string>
+    <string name="btn_label_vertical_flip">Vertical Flip</string>
+    <string name="btn_label_ab_loop">A-B Loop</string>
+    <string name="btn_label_custom_skip">Custom Skip</string>
+    <string name="btn_label_background_playback">Background Playback</string>
+    <string name="btn_label_ambient_mode">Ambience Mode</string>
+    <string name="btn_label_sleep_timer">Sleep Timer</string>
+    <string name="btn_label_none">None</string>
+
+
+    <string name="timer_start">Start Timer</string>
+    <string name="slide_to_unlock">Slide to Unlock</string>
+
+    <string name="player_sheets_tab_controls">Controls</string>
+    <string name="player_sheets_tab_aesthetics">Aesthetics</string>
+    <string name="player_sheets_tab_gestures">Gestures</string>
+    <string name="player_sheets_tab_settings">Settings</string>
+    <string name="player_sheets_tab_interaction">Interaction</string>
+    <string name="anime4k_not_available_high_res">Not available for 4K/8K video</string>
+    <string name="player_sheets_extended_controls_title">Extended Controls</string>
+    
+    <string name="storage_access_required">Storage Access Required</string>
+    <string name="allow_access">ALLOW ACCESS</string>
+    <string name="why_do_i_see_this">Why do I see this?</string>
+    <string name="why_this_permission_is_needed">Why this permission is needed</string>
+    <string name="permission_explanation_playstore_intro">mpvRex needs access to your video files to provide its core functionality as a media player.</string>
+    <string name="permission_used_exclusively_for">The permission is used exclusively for:</string>
+    <string name="permission_usage_bullet_list">• Discovering and displaying your video files\n• Playing media content\n• Loading subtitle files</string>
+    <string name="permission_explanation_standard_intro">mpvRex has always required storage access permission as it\'s essential for the app to find all media and subtitle files on your device, including the ones that are not supported by the system.</string>
+    <string name="permission_security_policy_change">However, due to a change in security policy, apps built for Android 11 and above now require additional permission to continue accessing the same.</string>
+    <string name="permission_privacy_assurance_standard">Please know that this permission is only used for the auto-discovery of media/subtitle files on your device and will not allow us to access the private data files stored by other apps in any way.</string>
+    <string name="opensource_github_notice">mpvRex is an open source project. You can review the source code and verify how permissions are used by visiting our GitHub repository at:</string>
+    <string name="privacy_assurance_final">Be rest assured, your privacy is our utmost priority, and we neither access your files for other purposes nor transfer or store them to our servers. They remain safe on your device.</string>
+    
+    <string name="permission_required_photos_videos">mpvRex requires \"Photos and videos\" permission to access and play your video files stored on your device.</string>
+    <string name="permission_required_storage">mpvRex requires \"Storage\" permission to access and play your media files stored on your device.</string>
+    <string name="permission_required_all_files">mpvRex requires \"All file access\" permission to discover media and subtitles on your device due to a change in security policy in Android 11 and later versions.</string>
+    <string name="permission_explanation_tiramisu_plus">On Android 13 and above, this permission allows the app to read video files from your device\'s storage, including Downloads, Movies, and DCIM folders.</string>
+    <string name="permission_explanation_pre_tiramisu">This permission allows the app to read media files from your device\'s storage to play videos and audio.</string>
+
+    <!-- Player controls shared -->
+    <string name="playlist_separator">• %1$s</string>
+    <string name="chapters">Chapters</string>
+    <string name="skip_seconds">Skip %1$ds</string>
+    <string name="playback_speed">Playback Speed</string>
+    <string name="screen_rotation">Rotation</string>
+    <string name="frame_nav">Frame Nav</string>
+    <string name="frame_navigation">Frame Navigation</string>
+    <string name="pip">PiP</string>
+    <string name="video_zoom">Video Zoom</string>
+    <string name="lock">Lock</string>
+    <string name="audio">Audio</string>
+    <string name="subtitles">Subtitles</string>
+    <string name="repeat_off">Repeat Off</string>
+    <string name="repeat_one">Repeat One</string>
+    <string name="repeat_all">Repeat All</string>
+    <string name="shuffle_on">Shuffle On</string>
+    <string name="shuffle_off">Shuffle Off</string>
+    <string name="mirrored">Mirrored</string>
+    <string name="mirror">Mirror</string>
+    <string name="flipped">Flipped</string>
+    <string name="flip_vertical">Flip Vert</string>
+    <string name="flip_vertical_desc">Vertical Flip</string>
+    <string name="ab_loop_short">AB</string>
+    <string name="loop">Loop</string>
+    <string name="ab_loop_cut_clip">Cut Clip</string>
+    <string name="ab_loop_set_both_points">Please set both A and B points to cut clip</string>
+    <string name="ab_loop_exporting_clip">Exporting clip...</string>
+    <string name="ab_loop_clip_saved">Clip saved to %s</string>
+    <string name="ab_loop_clip_error">Failed to export clip: %s</string>
+    <string name="clip_export_title">Export Clip</string>
+    <string name="clip_export_fast_title">Fast (Lossless Copy)</string>
+    <string name="clip_export_fast_desc">Instant stream copy with 100% original quality. Starts at nearest keyframe.</string>
+    <string name="clip_export_exact_title">Exact Frame (Transcode)</string>
+    <string name="clip_export_exact_desc">Frame-accurate export starting on the exact timestamp.</string>
+    <string name="clip_export_fast_tag">Lossless</string>
+    <string name="clip_export_exact_tag">Frame-Accurate</string>
+    <string name="clip_export_duration">Duration: %s</string>
+    <string name="background_playback">Background</string>
+    <string name="ambient">Ambient</string>
+    <string name="ambience_mode">Ambience Mode</string>
+    <string name="ambient_mode_on">Ambience Mode: ON</string>
+    <string name="ambient_mode_off">Ambience Mode: OFF</string>
+    <string name="sleep_timer">Sleep Timer</string>
+
+    <!-- Preference section headers -->
+    <string name="pref_layout_landscape_controls_header">Landscape Controls</string>
+    <string name="pref_layout_portrait_controls_header">Portrait Controls</string>
+    <string name="pref_layout_more_sheet_controls_header">More Sheet Controls</string>
+    <string name="pref_layout_more_sheet_controls_title">Buttons in Controls Tab</string>
+    <string name="pref_seekbar_style_header">Seekbar Style</string>
+    <string name="pref_controls_layout_header">Controls Layout</string>
+    <string name="pref_player_appearance_header">Appearance</string>
+
+    <!-- Controls Layout: below/above seekbar -->
+    <string name="pref_controls_layout_below_seekbar_title">Bottom controls below seekbar</string>
+    <string name="pref_controls_layout_below_seekbar_summary_true">Control buttons appear below the seekbar</string>
+    <string name="pref_controls_layout_below_seekbar_summary_false">Control buttons appear above the seekbar</string>
+
+    <!-- Appearance section -->
+    <string name="pref_appearance_show_controls_on_play_title">Show controls on play start</string>
+    <string name="pref_appearance_show_controls_on_play_summary">Show player controls overlay when a video starts playing</string>
+    <string name="pref_appearance_player_gradient_opacity_title">Player gradient opacity</string>
+    <string name="pref_appearance_player_gradient_opacity_current">Current: %1$d%%</string>
+
+    <!-- Custom hide-time dialog -->
+    <string name="pref_player_display_custom_hide_time_dialog_message">Enter custom hide time in milliseconds</string>
+    <string name="pref_player_display_time_ms_format">%1$d ms</string>
+    <string name="pref_player_display_custom_time_summary">Custom (%1$d ms)</string>
+
+    <!-- Generic reusable strings -->
+    <string name="generic_off">Off</string>
+    <string name="generic_none">None</string>
+    <string name="generic_custom">Custom</string>
+    <string name="generic_edit_content_description">Edit %1$s</string>
+
+    <!-- Network Streaming Screen -->
+    <string name="network_recent_links">Recent Links</string>
+    <string name="network_local_network">Local Network</string>
+    <string name="network_empty_title">No network connections</string>
+    <string name="network_empty_description">Add SMB, FTP, or WebDAV connections to browse network files</string>
+    <string name="network_remove_link_action">Remove Link</string>
+
+    <!-- Appearance Preferences Screen -->
+    <string name="pref_appearance_network_thumbnails_dialog_title">Enable Network Thumbnails?</string>
+    <string name="pref_appearance_network_thumbnails_dialog_message">Generating thumbnails for network streams (M3U/HTTP) may significantly increase background data usage and loading times. Proceed?</string>
+    <string name="pref_appearance_thumbnail_strategy_dialog_title">Change Thumbnail Strategy?</string>
+    <string name="pref_appearance_thumbnail_strategy_dialog_message">Changing the extraction strategy will clear your currently saved thumbnail cache. New thumbnails will be generated automatically as you browse.</string>
+    <string name="pref_appearance_thumbnail_position_dialog_title">Update Thumbnail Position?</string>
+    <string name="pref_appearance_thumbnail_position_reset_confirm">Reset thumbnail at %1$d%% of the video duration.</string>
+    <string name="pref_appearance_thumbnail_position_dialog_message">Changing the extraction position will clear your currently saved thumbnail cache. New thumbnails will be generated automatically as you browse.</string>
+
+    <!-- Control Layout Editor Screen -->
+    <string name="control_layout_edit_title_top_right">Edit Top Right</string>
+    <string name="control_layout_edit_title_bottom_right">Edit Bottom Right</string>
+    <string name="control_layout_edit_title_bottom_left">Edit Bottom Left</string>
+    <string name="control_layout_edit_title_portrait_bottom">Edit Portrait Bottom</string>
+    <string name="control_layout_edit_title_more_sheet">Edit More Sheet Buttons</string>
+    <string name="control_layout_back">Back</string>
+    <string name="control_layout_reset_to_default">Reset to default</string>
+    <string name="control_layout_reset_dialog_title">Reset Layout</string>
+    <string name="control_layout_reset_dialog_message">Are you sure you want to reset this region to defaults?</string>
+    <string name="control_layout_reorder_hint">Long press to reorder items. Tap the \'-\' icon to remove them.</string>
+    <string name="control_layout_drop_zone_empty">Drop zone is empty</string>
+    <string name="control_layout_drop_zone_hint">Tap buttons from the \'Available Palette\' below</string>
+    <string name="control_layout_all_buttons_in_use">All available buttons are in use.</string>
+    <string name="control_layout_icons_legend_title">Icons Legend</string>
+
+           <!-- Gesture Preferences Screen -->
+    <string name="pref_gesture_custom_value">Custom</string>
+    <string name="pref_gesture_double_tap_seek_area_width_title">Double Tap Seek Area Width</string>
+    <string name="pref_gesture_custom_seek_dialog_hint">Enter custom seek duration in seconds (1-120)</string>
+
+    <string name="item_type_video">video</string>
+    <string name="item_type_folder">folder</string>
+    <string name="item_type_file">file</string>
+    <string name="item_type_playlist">playlist</string>
+    <string name="item_type_item">item</string>
+
+    <string name="no_videos_in_folder">No videos in this folder</string>
+    <string name="no_videos_in_folder_desc">Videos you add to this folder will appear here</string>
+    <string name="tree_view">Tree View</string>
+
+    <string name="pref_player_general">General</string>
+    <string name="pref_player_autoplay_next_video">Autoplay next video</string>
+    <string name="pref_player_autoplay_next_video_summary_on">Automatically play next video when current ends</string>
+    <string name="pref_player_autoplay_next_video_summary_off">Stay on current video when it ends</string>
+    <string name="pref_player_playlist_mode_summary_on">Show next/previous buttons for all videos in folder</string>
+    <string name="pref_player_playlist_mode_summary_off">Play videos individually (select multiple for playlist)</string>
+    <string name="pref_player_keep_screen_on_when_paused_summary_on">Screen stays awake while video is paused</string>
+    <string name="pref_player_keep_screen_on_when_paused_summary_off">Screen can turn off while video is paused</string>
+    <string name="pref_player_auto_pip">Auto Picture-in-Picture</string>
+    <string name="pref_player_auto_pip_summary">Automatically enter PIP mode when pressing home or back</string>
+    <string name="pref_player_dynamic_speed_overlay">Dynamic Speed Overlay</string>
+    <string name="pref_player_dynamic_speed_overlay_summary">Show advance overlay for speed control during long press and swipe</string>
+    <string name="pref_player_show_speed_indicator_overlay">Show Speed Indicator Overlay</string>
+    <string name="pref_player_show_speed_indicator_overlay_summary">Display speed indicator chip when holding for fast playback</string>
+    <string name="pref_player_display_show_navigation_bar">Show navigation bar with controls</string>
+
+    <string name="pref_decoder_codec_info_title">Device Codec Support</string>
+    <string name="pref_decoder_codec_info_summary">Check hardware acceleration and software decoding capabilities for video and audio formats</string>
+    <string name="codec_info_hw_badge">HW Accelerated</string>
+    <string name="codec_info_sw_badge">Software (CPU)</string>
+    <string name="codec_info_filter_all">All</string>
+    <string name="codec_info_filter_video">Video</string>
+    <string name="codec_info_filter_audio">Audio</string>
+    <string name="codec_info_filter_hw_only">HW Only</string>
+    <string name="codec_info_stats_title">System Codec Overview</string>
+    <string name="codec_info_stats_summary">%1$d Decoders (%2$d Hardware, %3$d Software)</string>
+    <string name="codec_info_max_res">Max: %s</string>
+
+    <plurals name="item_type_video_plural">
+        <item quantity="one">video</item>
+        <item quantity="other">videos</item>
+    </plurals>
+    <plurals name="item_type_folder_plural">
+        <item quantity="one">folder</item>
+        <item quantity="other">folders</item>
+    </plurals>
+    <plurals name="item_type_file_plural">
+        <item quantity="one">file</item>
+        <item quantity="other">files</item>
+    </plurals>
+    <plurals name="item_type_playlist_plural">
+        <item quantity="one">playlist</item>
+        <item quantity="other">playlists</item>
+    </plurals>
+    <plurals name="item_type_item_plural">
+        <item quantity="one">item</item>
+        <item quantity="other">items</item>
+    </plurals>
+    <string name="rename_failed">Rename failed</string>
+
+    <plurals name="delete_items_warning">
+        <item quantity="one">This action cannot be undone. The selected item will be permanently deleted.</item>
+        <item quantity="other">This action cannot be undone. The selected items will be permanently deleted.</item>
+    </plurals>
+
+    <string name="export_failed">Export failed: %1$s</string>
+    <string name="import_failed">Import failed: %1$s</string>
+    <string name="clear_failed">Failed to clear: %1$s</string>
+    <string name="export_complete_details">Successfully exported %1$d items!\n\n</string>
+    <string name="import_complete_details">Successfully imported: %1$d\nFailed: %2$d\nVersion: %3$s\n\nPlease restart the app for all changes to take effect.</string>
+    <string name="pref_advanced_section_backup_restore">Backup &amp; Restore</string>
+    <string name="pref_advanced_section_mpv_configuration">MPV Configuration</string>
+    <string name="pref_advanced_section_scripts">Scripts</string>
+    <string name="pref_advanced_section_history">History</string>
+    <string name="pref_advanced_section_cache">Cache</string>
+    <string name="pref_advanced_section_system_integration">System Integration</string>
+    <string name="pref_advanced_section_logging">Logging</string>
+    <string name="pref_advanced_tap_to_edit_configuration">Tap to edit configuration</string>
+    <string name="pref_advanced_mpv_directory_ready">MPV directory ready ✓</string>
+    <string name="pref_advanced_lua_set_storage_first">Set storage location and enable Lua scripts first</string>
+    <string name="pref_advanced_no_scripts_enabled">No scripts enabled</string>
+    <string name="pref_advanced_custom_lua_summary">Create and manage custom Lua buttons</string>
+    <string name="pref_advanced_config_cache_cleared">Config cache cleared</string>
+    <string name="pref_advanced_delete_thumbnails_summary">Delete all cached video thumbnails (will regenerate as you browse folders)</string>
+    <string name="pref_advanced_clear_thumbnail_cache_confirm_title">Clear thumbnail cache?</string>
+    <string name="pref_advanced_clear_thumbnail_cache_confirm_subtitle">This will delete all cached thumbnails (local and network) from storage and memory.</string>
+    <string name="pref_advanced_thumbnail_cache_cleared">Thumbnail cache cleared</string>
+    <string name="pref_advanced_remove_cached_fonts_summary">Remove all cached subtitle fonts</string>
+    <string name="pref_advanced_enable_media_info_title">Enable Media Info Activity</string>
+    <string name="pref_advanced_enable_media_info_summary">Show \'Media Info\' as an option in system-wide \'Open with\' menus</string>
+
+    <string name="blocked_shorts_empty_state">No blocked videos</string>
+    <string name="blocked_shorts_unblock_button">Blocked</string>
+    
+    <string name="media_info_selection_title">Selection Info</string>
+    <string name="media_info_selected_label">Selected</string>
+    <string name="media_info_total_length">Total length</string>
+
+        <!-- Shorts Player Action Buttons -->
+    <string name="shorts_action_love">Love</string>
+    <string name="shorts_action_loved">Loved</string>
+    <string name="shorts_action_block">Block</string>
+    <string name="shorts_action_blocked">Blocked</string>
+    <string name="shorts_action_free">Free</string>
+    <string name="shorts_action_back">Back</string>
+    <string name="shorts_action_more">More</string>
+
+        <!-- Shorts Empty / Exhausted States -->
+    <string name="shorts_no_blocked_videos_found">No blocked videos found</string>
+    <string name="shorts_no_vertical_videos_found">No vertical videos found</string>
+    <string name="shorts_all_finished_title">All videos finished</string>
+    <string name="shorts_all_finished_message">You\'ve seen all vertical videos for now.</string>
+
+        <!-- Shorts Video Info Dialog -->
+    <string name="shorts_video_info_title">Video Info</string>
+    <string name="shorts_video_info_resolution">Resolution: %1$dx%2$d</string>
+
+    <string name="player_sheets_zoom_decrease">Decrease zoom</string>
+    <string name="player_sheets_zoom_increase">Increase zoom</string>
+
+    <string name="custom_buttons_title">Custom Buttons</string>
+    <string name="custom_buttons_subtitle">Drag to reorder • Tap any slot to expand &amp; edit</string>
+    <string name="custom_buttons_export_success">Buttons exported successfully</string>
+    <string name="custom_buttons_import_export_title">Import / Export</string>
+    <string name="custom_buttons_import_export_desc">Backup or share all your custom buttons with their Lua code as an XML file</string>
+    <string name="generic_import">Import</string>
+    <string name="generic_export">Export</string>
+    <string name="custom_button_empty_slot">Empty slot</string>
+    <string name="custom_button_drag_disabled">Drag disabled</string>
+    <string name="custom_button_field_label">Button</string>
+    <string name="custom_button_lua_scripts_label">Lua scripts</string>
+    <string name="custom_button_title_field">Button title *</string>
+    <string name="custom_button_tap_action">Tap action</string>
+    <string name="custom_button_tap_action_required">Tap action *</string>
+    <string name="custom_button_long_press_action">Long press action</string>
+    <string name="custom_button_on_startup">On startup</string>
+    <string name="custom_button_settings_label">Settings</string>
+    <string name="custom_button_enabled_label">Button enabled</string>
+    <string name="custom_button_enabled_desc">Button is active in the player</string>
+    <string name="custom_button_disabled_desc">Button is saved but hidden</string>
+    <string name="custom_button_add">Add button</string>
+    <string name="custom_button_lua_editor_hint">Tap to write Lua code…</string>
+    <string name="custom_button_select_import_title">Select Buttons to Import</string>
+    <string name="custom_button_select_import_subtitle">Choose which buttons to import</string>
+    <string name="custom_button_will_overwrite">Will overwrite existing button</string>
+    <string name="custom_button_read_failed">Failed to read file: %1$s</string>
+    <string name="custom_button_field_label_with_slot">%1$s  ·  %2$s</string>
+
+    <plurals name="custom_buttons_imported_count">
+        <item quantity="one">Imported %1$d button</item>
+        <item quantity="other">Imported %1$d buttons</item>
+    </plurals>
+
+        <!-- Video Settings Filter Presets Card -->
+    <string name="video_settings_filter_presets_title">Filter Presets</string>
+    <string name="filter_preset_none">None</string>
+    <string name="filter_preset_none_desc">Default settings with no adjustments</string>
+    <string name="filter_preset_vivid">Vivid</string>
+    <string name="filter_preset_vivid_desc">Enhanced colors with crisp details</string>
+    <string name="filter_preset_warm_tone">Warm Tone</string>
+    <string name="filter_preset_warm_tone_desc">Warmer colors with golden tint</string>
+    <string name="filter_preset_cool_tone">Cool Tone</string>
+    <string name="filter_preset_cool_tone_desc">Cooler colors with blue tint</string>
+    <string name="filter_preset_soft_pastel">Soft Pastel</string>
+    <string name="filter_preset_soft_pastel_desc">Soft, muted colors with gentle look</string>
+    <string name="filter_preset_cinematic">Cinematic</string>
+    <string name="filter_preset_cinematic_desc">Film-like color grading with depth</string>
+    <string name="filter_preset_dramatic">Dramatic</string>
+    <string name="filter_preset_dramatic_desc">High contrast dramatic look</string>
+    <string name="filter_preset_night_mode">Night Mode</string>
+    <string name="filter_preset_night_mode_desc">Reduced brightness for dark environments</string>
+    <string name="filter_preset_nostalgic">Nostalgic</string>
+    <string name="filter_preset_nostalgic_desc">Vintage film look with soft focus</string>
+    <string name="filter_preset_ghibli_style">Ghibli Style</string>
+    <string name="filter_preset_ghibli_style_desc">Soft, dreamy anime colors</string>
+    <string name="filter_preset_neon_pop">Neon Pop</string>
+    <string name="filter_preset_neon_pop_desc">Vibrant neon-like colors with edge</string>
+    <string name="filter_preset_deep_black">Deep Black</string>
+    <string name="filter_preset_deep_black_desc">Enhanced blacks for OLED displays</string>
+
+    <!-- Language & Welcome/Onboarding strings -->
+    <string name="system_default">System Default</string>
+    <string name="pref_appearance_language_title">App Language</string>
+    <string name="pref_appearance_language_summary">Change the display language of the app</string>
+
+    <string name="welcome_title">Welcome to mpvRex</string>
+    <string name="welcome_subtitle">Your modern, powerful, and customizable media player.</string>
+    <string name="welcome_language_section_title">Preferred Language</string>
+    <string name="welcome_language_section_desc">Select your display language</string>
+    <string name="storage_access_granted">Storage Access Granted</string>
+    <string name="storage_access_granted_desc">Permission is granted. mpvRex is ready to discover and play your media.</string>
+    <string name="welcome_grant_permission">Grant Permission</string>
+    <string name="welcome_get_started">Get Started</string>
+    <string name="welcome_skip_permission">Continue without storage access</string>
+
+</resources>
