@@ -67,7 +67,7 @@ class DanmakuManager(
                         Log.d(TAG, "Synced to position: $pos ms")
                     }
                 }
-                danmakuView.setDanmuVisible(trackSelected)
+                danmakuView.visibility = if (trackSelected) android.view.View.VISIBLE else android.view.View.GONE
                 onPreparedListener?.invoke()
             }
             override fun updateTimer(timer: DanmakuTimer?) {}
@@ -147,14 +147,14 @@ class DanmakuManager(
     fun showDanmaku() {
         trackSelected = true
         if (danmakuLoaded) {
-            danmakuView.setDanmuVisible(true)
+            danmakuView.visibility = android.view.View.VISIBLE
         }
     }
 
     fun hideDanmaku() {
         trackSelected = false
         if (danmakuLoaded) {
-            danmakuView.setDanmuVisible(false)
+            danmakuView.visibility = android.view.View.GONE
         }
     }
 
@@ -174,6 +174,5 @@ class DanmakuManager(
 
     fun release() {
         releaseDanmaku()
-        danmakuView.onDetachedFromWindow()
     }
 }
