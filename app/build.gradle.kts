@@ -14,11 +14,11 @@ android {
   compileSdk = 36
 
   defaultConfig {
-    applicationId = "xyz.mpv.rex"
+    applicationId = "com.zuimeng.player"
     minSdk = 26
     targetSdk = 36
-    versionCode = 212
-    versionName = "5.1.0"
+    versionCode = 1
+    versionName = "1.0.0-dev"
 
     vectorDrawables {
       useSupportLibrary = true
@@ -27,7 +27,7 @@ android {
     buildConfigField("String", "GIT_SHA", "\"${getCommitSha()}\"")
     buildConfigField("int", "GIT_COUNT", getCommitCount())
     // Enable update feature by default
-    buildConfigField("boolean", "ENABLE_UPDATE_FEATURE", "true")
+    buildConfigField("boolean", "ENABLE_UPDATE_FEATURE", "false")
     buildConfigField("boolean", "SCOPED_STORAGE_ONLY", "false")
   }
 
@@ -40,27 +40,25 @@ android {
     abi {
       isEnable = true
       reset()
-      include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-      isUniversalApk = true
+      include("arm64-v8a")
+      isUniversalApk = false
     }
   }
 
   signingConfigs {
     create("release") {
-      if (project.hasProperty("releaseKeyStore")) {
-        storeFile = file(project.property("releaseKeyStore") as String)
-        storePassword = project.property("releaseKeyStorePassword") as String
-        keyAlias = project.property("releaseKeyAlias") as String
-        keyPassword = project.property("releaseKeyPassword") as String
-      }
+      storeFile = file("../keystore/debug.keystore")
+      storePassword = "android"
+      keyAlias = "androiddebugkey"
+      keyPassword = "android"
+    }
+  }
     }
   }
 
   buildTypes {
     named("release") {
-      if (project.hasProperty("releaseKeyStore")) {
-        signingConfig = signingConfigs.getByName("release")
-      }
+      signingConfig = signingConfigs.getByName("release")
       isMinifyEnabled = true
       isShrinkResources = true
       proguardFiles(
@@ -80,8 +78,8 @@ android {
     }
 
     named("debug") {
-      applicationIdSuffix = ".debug"
-      versionNameSuffix = "-${getCommitCount()}"
+      // 开发版：直接使用主包名，便于装机验证；固定签名保证每次构建可覆盖安装
+      signingConfig = signingConfigs.getByName("release")
     }
   }
 
