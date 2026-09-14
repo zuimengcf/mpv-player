@@ -20,6 +20,8 @@ dependencyResolutionManagement {
     google()
     mavenLocal()
     mavenCentral()
+    // Local AAR dependencies (e.g. DanmakuFlameMaster.aar)
+    flatDir { dirs("app/libs") }
     maven(url = "https://sfsakhawat999.github.io/mpvRex-libmpv")
     maven(url = "https://www.jitpack.io") {
       content {
