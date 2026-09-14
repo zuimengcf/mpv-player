@@ -21,7 +21,7 @@ class AdvancedPreferences(
 
   val enableMediaInfoActivity = preferenceStore.getBoolean("enable_media_info_activity", false)
 
-  val enableLuaScripts = preferenceStore.getBoolean("enable_lua_scripts", false)
+  val enableLuaScripts = preferenceStore.getBoolean("enable_lua_scripts", true)
   val selectedLuaScripts = preferenceStore.getStringSet("selected_lua_scripts", emptySet())
 
   /**
