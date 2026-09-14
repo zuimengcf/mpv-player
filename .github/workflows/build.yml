@@ -28,8 +28,10 @@ jobs:
       - name: Build with Gradle (debug)
         run: ./gradlew assembleDebug assembleRelease --no-daemon
 
-      - name: Upload APK Artifact
+      - name: Upload APK Artifacts (debug + release)
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/*.apk
+          name: apks
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/release/*.apk
