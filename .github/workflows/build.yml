@@ -2,7 +2,7 @@ name: Build Debug APK
 
 on:
   push:
-    branches: [main]
+    branches: [main, exp-pkgname]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
