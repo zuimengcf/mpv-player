@@ -6,6 +6,7 @@ import androidx.compose.material.icons.automirrored.outlined.Segment
 import androidx.compose.material.icons.outlined.AspectRatio
 import androidx.compose.material.icons.outlined.Audiotrack
 import androidx.compose.material.icons.outlined.Bookmarks
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Camera
 import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.Memory
@@ -59,6 +60,7 @@ enum class PlayerButton(
   BACKGROUND_PLAYBACK(Icons.Outlined.Headset),
   AMBIENT_MODE(Icons.Outlined.BlurOn),
   SLEEP_TIMER(Icons.Outlined.Timer),
+  POSITION_BOOKMARKS(Icons.Outlined.BookmarkBorder),
   NONE(Icons.Outlined.Bookmarks),
 }
 
@@ -103,5 +105,6 @@ fun getPlayerButtonLabel(button: PlayerButton): String =
     PlayerButton.BACKGROUND_PLAYBACK -> stringResource(R.string.btn_label_background_playback)
     PlayerButton.AMBIENT_MODE -> stringResource(R.string.btn_label_ambient_mode)
     PlayerButton.SLEEP_TIMER -> stringResource(R.string.btn_label_sleep_timer)
+    PlayerButton.POSITION_BOOKMARKS -> stringResource(R.string.btn_label_position_bookmarks)
     PlayerButton.NONE -> stringResource(R.string.btn_label_none)
   }

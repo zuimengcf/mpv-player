@@ -899,10 +899,7 @@
 	<string name="mark_as_new_desc">Удалить все отметки и пометить как новое</string>
 	<string name="folders_count">Папок (%1$d)</string>
 	<string name="media_count">Медиа (%1$d)</string>
-	<string name="drag_to_reorder">Перетащите для изменения порядка</string>
-	<string name="community_links">Ссылки сообщества</string>
-	<string name="community_hub">Центр сообщества</string>
-	<string name="connect_social_media">Оставайтесь с нами в соцсетях</string>
+	<string name="drag_to_reorder">Перетащите для изменения порядка</string><string name="connect_social_media">Оставайтесь с нами в соцсетях</string>
 
 	<!-- Sort Dialog Strings -->
 	<string name="sort_and_view_options">Опции сортировки и вида</string>
@@ -1317,12 +1314,7 @@
     <string name="welcome_get_started">Начать</string>
     <string name="welcome_skip_permission">Продолжить без доступа к хранилищу</string>
     <string name="storage_access_granted">Доступ к хранилищу предоставлен</string>
-    <string name="storage_access_granted_desc">Разрешение предоставлено. mpvRex готов обнаруживать и воспроизводить ваши медиафайлы.</string>
-    <string name="community_already_joined">Уже присоединился</string>
-    <string name="community_never_show_again">Больше не показывать</string>
-    <string name="community_not_now">Не сейчас</string>
-    <string name="community_already_joined_message">Ссылки сообщества также можно найти в разделе «Настройки» → «О приложении».</string>
-    <string name="player_resume_prompt_title">Возобновить воспроизведение?</string>
+    <string name="storage_access_granted_desc">Разрешение предоставлено. mpvRex готов обнаруживать и воспроизводить ваши медиафайлы.</string><string name="player_resume_prompt_title">Возобновить воспроизведение?</string>
     <string name="pref_player_resume_playback_summary">Выберите, как открываются ранее просмотренные видео</string>
     <string name="pref_player_resume_mode_always">Всегда возобновлять</string>
     <string name="pref_player_resume_mode_always_summary">Автоматическое возобновление с последней сохраненной позиции</string>

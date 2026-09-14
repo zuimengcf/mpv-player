@@ -826,10 +826,7 @@ Next: NEXT</string>
     <string name="mark_as_new_desc">Eliminar todas las marcas y marcar como nuevo.</string>
     <string name="folders_count">Carpetas (%1$d)</string>
     <string name="media_count">Multimedia (%1$d)</string>
-    <string name="drag_to_reorder">Arrastra para reordenar</string>
-    <string name="community_links">Enlaces de la comunidad</string>
-    <string name="community_hub">Centro de comunidad</string>
-    <string name="connect_social_media">Conéctate con nosotros en las redes sociales</string>
+    <string name="drag_to_reorder">Arrastra para reordenar</string><string name="connect_social_media">Conéctate con nosotros en las redes sociales</string>
     <string name="sort_and_view_options">Opciones de clasificación y visualización</string>
     <string name="view_options">Ver opciones</string>
     <string name="pref_category_ui_appearance">Interfaz de usuario y apariencia</string>

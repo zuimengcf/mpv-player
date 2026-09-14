@@ -600,7 +600,7 @@ class HybridMediaIndexRepository(
 
         val extension = name.substringAfterLast('.', "").lowercase()
         val mimeType = entry.type ?: FileTypeUtils.getMimeTypeFromExtension(extension)
-        val isVideo = mimeType.startsWith("video/") || extension in FileTypeUtils.VIDEO_EXTENSIONS
+        val isVideo = mimeType.startsWith("video/") || extension in FileTypeUtils.effectiveVideoExtensions()
         val isAudio = mimeType.startsWith("audio/") || extension in FileTypeUtils.AUDIO_EXTENSIONS
         if (!isVideo && !isAudio) continue
 

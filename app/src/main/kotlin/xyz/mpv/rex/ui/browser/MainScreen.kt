@@ -51,7 +51,6 @@ import xyz.mpv.rex.preferences.AppearancePreferences
 import xyz.mpv.rex.preferences.BrowserPreferences
 import xyz.mpv.rex.preferences.preference.collectAsState
 import xyz.mpv.rex.presentation.Screen
-import xyz.mpv.rex.ui.browser.dialogs.CommunityLinksDialog
 import xyz.mpv.rex.ui.browser.folderlist.FolderListScreen
 import xyz.mpv.rex.ui.browser.networkstreaming.NetworkStreamingScreen
 import xyz.mpv.rex.ui.browser.playlist.PlaylistScreen
@@ -252,57 +251,6 @@ object MainScreen : Screen {
       }
     }
 
-    // Community Hub auto-popup: Phase 1 (initial 1 min test threshold) / Phase 2 (15 days after "Already joined")
-    val appearancePreferences = koinInject<AppearancePreferences>()
-    val isCommunityPromptPermanentlyDismissed by appearancePreferences.communityPromptDismissedPermanently.collectAsState()
-    val firstOpenTimestamp by appearancePreferences.communityFirstAppOpenTimestamp.collectAsState()
-    val alreadyJoinedTimestamp by appearancePreferences.communityAlreadyJoinedTimestamp.collectAsState()
-    var showCommunityAutoPopup by remember { mutableStateOf(false) }
-    var isFollowupPrompt by remember { mutableStateOf(false) }
-    var hasDismissedThisSession by rememberSaveable { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-      if (firstOpenTimestamp == 0L) {
-        appearancePreferences.communityFirstAppOpenTimestamp.set(System.currentTimeMillis())
-      }
-    }
-
-    val isHomeTabActive = selectedTab in visibleTabs.indices && visibleTabs[selectedTab].id == "home"
-
-    LaunchedEffect(
-      isHomeTabActive,
-      isCommunityPromptPermanentlyDismissed,
-      hasDismissedThisSession,
-      firstOpenTimestamp,
-      alreadyJoinedTimestamp
-    ) {
-      if (isHomeTabActive && !isCommunityPromptPermanentlyDismissed && !hasDismissedThisSession) {
-        val (remainingDelay, isFollowup) = if (alreadyJoinedTimestamp > 0L) {
-          // Phase 2: User clicked "Already joined" in the past -> wait 10 days before follow-up
-          val followupCooldownMs = 10L * 24 * 60 * 60 * 1000L // 10 days
-          val elapsed = System.currentTimeMillis() - alreadyJoinedTimestamp
-          val remaining = (followupCooldownMs - elapsed).coerceAtLeast(0L)
-          remaining to true
-        } else {
-          // Phase 1: User hasn't clicked "Already joined" yet -> wait initial threshold (20 minutes)
-          val initialDelayMs = 20 * 60 * 1000L // 20 minutes
-          val currentFirstOpen = if (firstOpenTimestamp == 0L) System.currentTimeMillis() else firstOpenTimestamp
-          val elapsed = System.currentTimeMillis() - currentFirstOpen
-          val remaining = (initialDelayMs - elapsed).coerceAtLeast(0L)
-          remaining to false
-        }
-
-        if (remainingDelay > 0L) {
-          kotlinx.coroutines.delay(remainingDelay)
-        }
-
-        if (isHomeTabActive && !isCommunityPromptPermanentlyDismissed && !hasDismissedThisSession) {
-          isFollowupPrompt = isFollowup
-          showCommunityAutoPopup = true
-        }
-      }
-    }
-
     // Scaffold with bottom navigation bar
     Scaffold(
       modifier = Modifier.fillMaxSize(),
@@ -444,21 +392,11 @@ object MainScreen : Screen {
             } else {
               FolderListScreen.Content()
             }
-          }
         }
       }
     }
-
-    if (showCommunityAutoPopup && !isCommunityPromptPermanentlyDismissed) {
-      CommunityLinksDialog(
-        isFollowupPrompt = isFollowupPrompt,
-        onDismissRequest = {
-          hasDismissedThisSession = true
-          showCommunityAutoPopup = false
-        }
-      )
-    }
   }
+}
 }
 
 // CompositionLocal for navigation bar height

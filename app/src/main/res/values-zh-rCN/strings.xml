@@ -865,10 +865,7 @@
     <string name="mark_as_new_desc">清除旧标记，标记为新视频</string>
     <string name="folders_count">文件夹（%1$d）</string>
     <string name="media_count">媒体（%1$d）</string>
-    <string name="drag_to_reorder">拖动调整顺序</string>
-    <string name="community_links">社区链接</string>
-    <string name="community_hub">社区中心</string>
-    <string name="connect_social_media">前往社交平台关注我们</string>
+    <string name="drag_to_reorder">拖动调整顺序</string><string name="connect_social_media">前往社交平台关注我们</string>
 
     <!-- Sort Dialog Strings -->
     <string name="sort_and_view_options">排序与视图设置</string>

@@ -16,6 +16,34 @@ object FileTypeUtils {
         "f4v", "rm", "rmvb", "asf"
     )
 
+    // Custom video extensions added by the user at runtime (parsed from preferences)
+    @Volatile
+    private var customVideoExtensions: Set<String> = emptySet()
+
+    /**
+     * Returns the effective video extension set (built-in + custom).
+     * Used by callers that need the full list (e.g. mime detection fallback).
+     */
+    fun effectiveVideoExtensions(): Set<String> = VIDEO_EXTENSIONS + customVideoExtensions
+
+    /**
+     * Parses a raw extension string into a clean set.
+     * @param raw comma-separated string like "iso,bin,dat" (dots/spaces/uppercase tolerated)
+     */
+    fun parseExtensions(raw: String): Set<String> = raw
+        .split(',', '，', ';', '、', ' ')
+        .map { it.trim().removePrefix(".").lowercase(Locale.getDefault()) }
+        .filter { it.isNotEmpty() }
+        .toSet()
+
+    /**
+     * Updates the custom video extension set.
+     * @param raw comma-separated string like "iso,bin,dat" (dots/spaces/uppercase tolerated)
+     */
+    fun setCustomVideoExtensions(raw: String) {
+        customVideoExtensions = parseExtensions(raw)
+    }
+
     // Audio file extensions
     val AUDIO_EXTENSIONS = setOf(
         "mp3", "flac", "wav", "m4a", "ogg", "opus", "wma", "aac", "aiff", "alac",
@@ -28,11 +56,11 @@ object FileTypeUtils {
     )
 
     /**
-     * Checks if a file is a video based on extension
+     * Checks if a file is a video based on extension (built-in + custom)
      */
     fun isVideoFile(file: File): Boolean {
         val extension = file.extension.lowercase(Locale.getDefault())
-        return VIDEO_EXTENSIONS.contains(extension)
+        return VIDEO_EXTENSIONS.contains(extension) || customVideoExtensions.contains(extension)
     }
 
     /**
@@ -80,6 +108,6 @@ object FileTypeUtils {
             "m4a" -> "audio/mp4"
             "ogg", "opus", "oga" -> "audio/ogg"
             "mka" -> "audio/x-matroska"
-            else -> if (VIDEO_EXTENSIONS.contains(ext)) "video/*" else if (AUDIO_EXTENSIONS.contains(ext)) "audio/*" else "*/*"
+            else -> if (VIDEO_EXTENSIONS.contains(ext) || customVideoExtensions.contains(ext)) "video/*" else if (AUDIO_EXTENSIONS.contains(ext)) "audio/*" else "*/*"
         }
 }

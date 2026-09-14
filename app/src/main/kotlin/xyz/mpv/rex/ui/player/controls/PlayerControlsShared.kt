@@ -55,6 +55,7 @@ import androidx.compose.material.icons.filled.HeadsetOff
 import androidx.compose.material.icons.filled.BlurOn
 import androidx.compose.material.icons.outlined.BlurOn
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.ui.draw.rotate
 import androidx.compose.material3.CircularProgressIndicator
@@ -1256,6 +1257,58 @@ fun RenderPlayerButton(
               imageVector = Icons.Outlined.Timer,
               contentDescription = stringResource(R.string.sleep_timer),
               tint = if (isActive) activeContentColor else contentColor,
+              modifier = Modifier.size(24.dp),
+            )
+          }
+        }
+      }
+    }
+
+    PlayerButton.POSITION_BOOKMARKS -> {
+      val onClick = { onOpenSheet(Sheets.PositionBookmarks) }
+      if (isMoreSheet) {
+        Surface(
+          shape = CircleShape,
+          color = surfaceColor,
+          contentColor = contentColor,
+          border = borderColor,
+          modifier = Modifier
+            .height(buttonSize)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
+        ) {
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+            modifier = Modifier.padding(horizontal = MaterialTheme.spacing.smaller)
+          ) {
+            Icon(
+              imageVector = Icons.Outlined.BookmarkBorder,
+              contentDescription = null,
+              modifier = Modifier.size(24.dp)
+            )
+            Text(
+              text = stringResource(R.string.btn_label_position_bookmarks),
+              style = MaterialTheme.typography.bodyMedium,
+              maxLines = 1,
+            )
+          }
+        }
+      } else {
+        Surface(
+          shape = CircleShape,
+          color = surfaceColor,
+          border = borderColor,
+          modifier = Modifier
+            .size(buttonSize)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
+        ) {
+          Box(contentAlignment = Alignment.Center) {
+            Icon(
+              imageVector = Icons.Outlined.BookmarkBorder,
+              contentDescription = stringResource(R.string.btn_label_position_bookmarks),
+              tint = contentColor,
               modifier = Modifier.size(24.dp),
             )
           }

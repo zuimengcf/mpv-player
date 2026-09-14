@@ -28,6 +28,7 @@ import xyz.mpv.rex.ui.player.controls.components.sheets.PlaylistSheet
 import xyz.mpv.rex.ui.player.controls.components.sheets.SubtitlesSheet
 import xyz.mpv.rex.ui.player.controls.components.sheets.OnlineSubtitleSearchSheet
 import xyz.mpv.rex.ui.player.controls.components.sheets.ClipExportSheet
+import xyz.mpv.rex.ui.player.controls.components.sheets.PositionBookmarksSheet
 import xyz.mpv.rex.utils.media.MediaInfoParser
 import dev.vivvvek.seeker.Segment
 import kotlinx.collections.immutable.ImmutableList
@@ -502,6 +503,66 @@ fun PlayerSheets(
         endSec = endSec,
         onExport = { mode ->
           viewModel.cutABLoopClip(context, mode)
+        },
+        onDismissRequest = onDismissRequest,
+      )
+    }
+
+    Sheets.PositionBookmarks -> {
+      val playerPreferences = koinInject<xyz.mpv.rex.preferences.PlayerPreferences>()
+      val currentPos = (viewModel.pos ?: 0).toFloat()
+      val currentFileKey =
+        runCatching { `is`.xyz.mpv.MPVLib.getPropertyString("path") }.getOrNull() ?: ""
+      val bookmarks = listOf(
+        playerPreferences.bookmarkPosition0.get() to playerPreferences.bookmarkFile0.get(),
+        playerPreferences.bookmarkPosition1.get() to playerPreferences.bookmarkFile1.get(),
+        playerPreferences.bookmarkPosition2.get() to playerPreferences.bookmarkFile2.get(),
+        playerPreferences.bookmarkPosition3.get() to playerPreferences.bookmarkFile3.get(),
+      )
+      PositionBookmarksSheet(
+        currentPositionSeconds = currentPos,
+        currentFileKey = currentFileKey,
+        bookmarks = bookmarks,
+        onSave = { slot ->
+          val posPref = when (slot) {
+            0 -> playerPreferences.bookmarkPosition0
+            1 -> playerPreferences.bookmarkPosition1
+            2 -> playerPreferences.bookmarkPosition2
+            else -> playerPreferences.bookmarkPosition3
+          }
+          val filePref = when (slot) {
+            0 -> playerPreferences.bookmarkFile0
+            1 -> playerPreferences.bookmarkFile1
+            2 -> playerPreferences.bookmarkFile2
+            else -> playerPreferences.bookmarkFile3
+          }
+          posPref.set(currentPos)
+          filePref.set(currentFileKey)
+        },
+        onSeek = { slot ->
+          val pos = when (slot) {
+            0 -> playerPreferences.bookmarkPosition0.get()
+            1 -> playerPreferences.bookmarkPosition1.get()
+            2 -> playerPreferences.bookmarkPosition2.get()
+            else -> playerPreferences.bookmarkPosition3.get()
+          }
+          if (pos >= 0f) viewModel.seekTo(pos.toInt())
+        },
+        onClear = { slot ->
+          val posPref = when (slot) {
+            0 -> playerPreferences.bookmarkPosition0
+            1 -> playerPreferences.bookmarkPosition1
+            2 -> playerPreferences.bookmarkPosition2
+            else -> playerPreferences.bookmarkPosition3
+          }
+          val filePref = when (slot) {
+            0 -> playerPreferences.bookmarkFile0
+            1 -> playerPreferences.bookmarkFile1
+            2 -> playerPreferences.bookmarkFile2
+            else -> playerPreferences.bookmarkFile3
+          }
+          posPref.set(-1f)
+          filePref.set("")
         },
         onDismissRequest = onDismissRequest,
       )

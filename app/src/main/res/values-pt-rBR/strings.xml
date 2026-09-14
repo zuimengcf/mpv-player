@@ -807,14 +807,7 @@
     <string name="mark_as_new_desc">Remova todas as marcas e marque como novo</string>
     <string name="folders_count">Pastas (%1$d)</string>
     <string name="media_count">Mídia (%1$d)</string>
-    <string name="drag_to_reorder">Arraste para reordenar</string>
-    <string name="community_links">Links da comunidade</string>
-    <string name="community_hub">Centro Comunitário</string>
-    <string name="connect_social_media">Conecte-se conosco nas redes sociais</string>
-    <string name="community_already_joined">Já aderiu</string>
-    <string name="community_never_show_again">Nunca mais mostre</string>
-    <string name="community_already_joined_message">Você também pode encontrar esses links da comunidade em Preferências → Sobre.</string>
-    <string name="sort_and_view_options">Opções de classificação e visualização</string>
+    <string name="drag_to_reorder">Arraste para reordenar</string><string name="connect_social_media">Conecte-se conosco nas redes sociais</string><string name="sort_and_view_options">Opções de classificação e visualização</string>
     <string name="view_options">Ver opções</string>
     <string name="pref_category_ui_appearance">IU e aparência</string>
     <string name="pref_category_playback_controls">Reprodução e controles</string>

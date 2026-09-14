@@ -823,15 +823,7 @@
     <string name="mark_as_new_desc">সমস্ত চিহ্ন সরান এবং নতুন হিসাবে চিহ্নিত করুন</string>
     <string name="folders_count">ফোল্ডার (%1$d)</string>
     <string name="media_count">মিডিয়া (%1$d)</string>
-    <string name="drag_to_reorder">পুনরায় সাজাতে টেনে আনুন</string>
-    <string name="community_links">কমিউনিটি লিংক</string>
-    <string name="community_hub">কমিউনিটি হাব</string>
-    <string name="connect_social_media">সোশ্যাল মিডিয়ায় আমাদের সাথে যোগাযোগ করুন</string>
-    <string name="community_already_joined">ইতিমধ্যে যোগদান করেছেন</string>
-    <string name="community_never_show_again">আর কখনো দেখাবেন না</string>
-    <string name="community_not_now">এখন নয়</string>
-    <string name="community_already_joined_message">এছাড়াও আপনি পছন্দসমূহ → সম্পর্ক থেকে এই সম্প্রদায়ের লিঙ্কগুলি খুঁজে পেতে পারেন।</string>
-    <string name="sort_and_view_options">বাছাই করুন এবং বিকল্পগুলি দেখুন</string>
+    <string name="drag_to_reorder">পুনরায় সাজাতে টেনে আনুন</string><string name="connect_social_media">সোশ্যাল মিডিয়ায় আমাদের সাথে যোগাযোগ করুন</string><string name="sort_and_view_options">বাছাই করুন এবং বিকল্পগুলি দেখুন</string>
     <string name="view_options">বিকল্পগুলি দেখুন</string>
     <string name="pref_category_ui_appearance">UI এবং চেহারা</string>
     <string name="pref_category_playback_controls">প্লেব্যাক এবং নিয়ন্ত্রণ</string>

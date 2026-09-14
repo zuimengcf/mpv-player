@@ -921,16 +921,7 @@
 	<string name="mark_as_new_desc">Видалити всі позначки та позначити як нове</string>
 	<string name="folders_count">Теки (%1$d)</string>
 	<string name="media_count">Медіа (%1$d)</string>
-	<string name="drag_to_reorder">Перетягніть для зміни порядку</string>
-	<string name="community_links">Посилання спільноти</string>
-	<string name="community_hub">Хаб спільноти</string>
-	<string name="connect_social_media">З\'єднайтеся з нами в соціальних мережах</string>
-	<string name="community_already_joined">Вже приєднано</string>
-	<string name="community_never_show_again">Більше не показувати</string>
-	<string name="community_not_now">Не зараз</string>
-	<string name="community_already_joined_message">Ви також можете знайти ці посилання спільноти в Налаштування → Про програму.</string>
-
-	<!-- Sort Dialog Strings -->
+	<string name="drag_to_reorder">Перетягніть для зміни порядку</string><string name="connect_social_media">З\'єднайтеся з нами в соціальних мережах</string><!-- Sort Dialog Strings -->
 	<string name="sort_and_view_options">Сортування та параметри перегляду</string>
 	<string name="view_options">Параметри перегляду</string>
 

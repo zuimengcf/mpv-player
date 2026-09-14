@@ -67,6 +67,16 @@ class PlayerPreferences(
   val defaultVideoScaleX = preferenceStore.getFloat("default_video_scale_x", 1f)
   val defaultVideoScaleY = preferenceStore.getFloat("default_video_scale_y", 1f)
 
+  // 播放位置书签（4 槽）：存秒数 + 关联的文件标识，换文件后槽位自动失效
+  val bookmarkPosition0 = preferenceStore.getFloat("bookmark_position_0", -1f)
+  val bookmarkPosition1 = preferenceStore.getFloat("bookmark_position_1", -1f)
+  val bookmarkPosition2 = preferenceStore.getFloat("bookmark_position_2", -1f)
+  val bookmarkPosition3 = preferenceStore.getFloat("bookmark_position_3", -1f)
+  val bookmarkFile0 = preferenceStore.getString("bookmark_file_0", "")
+  val bookmarkFile1 = preferenceStore.getString("bookmark_file_1", "")
+  val bookmarkFile2 = preferenceStore.getString("bookmark_file_2", "")
+  val bookmarkFile3 = preferenceStore.getString("bookmark_file_3", "")
+
   val includeSubtitlesInSnapshot = preferenceStore.getBoolean("include_subtitles_in_snapshot", false)
 
   val playlistMode = preferenceStore.getBoolean("playlist_mode", true)

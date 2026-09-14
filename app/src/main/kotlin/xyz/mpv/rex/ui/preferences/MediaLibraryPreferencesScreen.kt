@@ -59,6 +59,7 @@ object MediaLibraryPreferencesScreen : Screen {
     val includeNoMediaContent by browserPreferences.includeNoMediaContent.collectAsState()
     val showAudioFiles by browserPreferences.showAudioFiles.collectAsState()
     val libraryScanRoots by foldersPreferences.libraryScanRoots.collectAsState()
+    val customVideoExtensionsPref by browserPreferences.customVideoExtensions.collectAsState()
 
     Scaffold(
       topBar = {
@@ -99,6 +100,23 @@ object MediaLibraryPreferencesScreen : Screen {
           item {
             GroupedListColumn {
               GroupedPreferenceCard(position = GroupPosition.FIRST) {
+                Preference(
+                  title = { Text(stringResource(R.string.pref_custom_video_extensions_title)) },
+                  summary = {
+                    Text(
+                      text = if (customVideoExtensionsPref.isBlank()) {
+                        stringResource(R.string.pref_custom_video_extensions_hint)
+                      } else {
+                        customVideoExtensionsPref
+                      },
+                      color = MaterialTheme.colorScheme.outline,
+                    )
+                  },
+                  onClick = { backstack.add(CustomVideoExtensionsScreen) },
+                )
+              }
+
+              GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
                 SwitchPreference(
                   value = includeNoMediaContent,
                   onValueChange = { newValue ->

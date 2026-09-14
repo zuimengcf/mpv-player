@@ -296,7 +296,7 @@ object MetadataRetrieval {
             }
 
             val videoFiles = directory.listFiles()?.filter { file ->
-                file.isFile && file.extension.lowercase() in VIDEO_EXTENSIONS
+                file.isFile && xyz.mpv.rex.utils.storage.FileTypeUtils.isVideoFile(file)
             } ?: emptyList()
 
             if (videoFiles.isEmpty()) {
@@ -361,12 +361,5 @@ object MetadataRetrieval {
             enrichedMap[folder.path] ?: folder
         }
     }
-
-    // Helper: Video file extensions
-    private val VIDEO_EXTENSIONS = setOf(
-        "mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v",
-        "3gp", "3g2", "mpg", "mpeg", "m2v", "ogv", "ts", "mts",
-        "m2ts", "vob", "divx", "xvid", "f4v", "rm", "rmvb", "asf"
-    )
 
 }

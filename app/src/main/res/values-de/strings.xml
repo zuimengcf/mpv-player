@@ -825,15 +825,7 @@
     <string name="mark_as_new_desc">Entferne alle Markierungen und kennzeichne es als neu</string>
     <string name="folders_count">Ordner (%1$d)</string>
     <string name="media_count">Medien (%1$d)</string>
-    <string name="drag_to_reorder">Zum Neuanordnen ziehen</string>
-    <string name="community_links">Community-Links</string>
-    <string name="community_hub">Community-Hub</string>
-    <string name="connect_social_media">Vernetze dich mit uns in den sozialen Medien</string>
-    <string name="community_already_joined">Bereits beigetreten</string>
-    <string name="community_never_show_again">Nie wieder zeigen</string>
-    <string name="community_not_now">Nicht jetzt</string>
-    <string name="community_already_joined_message">Diese Community-Links finden sie auch unter „Einstellungen“ → „Info“.</string>
-    <string name="sort_and_view_options">Sortier- und Anzeigeoptionen</string>
+    <string name="drag_to_reorder">Zum Neuanordnen ziehen</string><string name="connect_social_media">Vernetze dich mit uns in den sozialen Medien</string><string name="sort_and_view_options">Sortier- und Anzeigeoptionen</string>
     <string name="view_options">Optionen anzeigen</string>
     <string name="pref_category_ui_appearance">Benutzeroberfläche und Erscheinungsbild</string>
     <string name="pref_category_playback_controls">Wiedergabe und Steuerung</string>

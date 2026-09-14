@@ -748,6 +748,15 @@
     <string name="hello_world">Hello world</string>
 
     <!-- Browser Preferences -->
+    <string name="pref_custom_video_extensions_title">Video extensions</string>
+    <string name="pref_custom_video_extensions_hint">Add custom video file extensions to recognize (e.g. iso, bin, dat)</string>
+    <string name="pref_custom_video_extensions_editor_title">Add extension</string>
+    <string name="pref_custom_video_extensions_placeholder">e.g. iso</string>
+    <string name="pref_custom_video_extensions_add">Add</string>
+    <string name="pref_custom_video_extensions_custom_title">Custom</string>
+    <string name="pref_custom_video_extensions_custom_empty">No custom extensions yet. Add one above.</string>
+    <string name="pref_custom_video_extensions_builtin_title">Built-in</string>
+    <string name="pref_custom_video_extensions_remove">Remove %1$s</string>
     <string name="pref_show_audio_files_title">Show audio files</string>
     <string name="pref_show_audio_files_summary">Show and index audio files in the browser and playlists</string>
     <string name="pref_include_no_media_content_title">Include &#96;.nomedia&#96; content</string>
@@ -952,16 +961,7 @@
     <string name="mark_as_new_desc">Remove all marks and mark as new</string>
     <string name="folders_count">Folders (%1$d)</string>
     <string name="media_count">Media (%1$d)</string>
-    <string name="drag_to_reorder">Drag to reorder</string>
-    <string name="community_links">Community Links</string>
-    <string name="community_hub">Community Hub</string>
-    <string name="connect_social_media">Connect with us on social media</string>
-    <string name="community_already_joined">Already joined</string>
-    <string name="community_never_show_again">Never show again</string>
-    <string name="community_not_now">Not now</string>
-    <string name="community_already_joined_message">You can also find these community links in Preferences → About.</string>
-
-    <!-- Sort Dialog Strings -->
+    <string name="drag_to_reorder">Drag to reorder</string><string name="connect_social_media">Connect with us on social media</string><!-- Sort Dialog Strings -->
     <string name="sort_and_view_options">Sort &amp; View Options</string>
     <string name="view_options">View Options</string>
 
@@ -1049,6 +1049,14 @@
     <string name="btn_label_background_playback">Background Playback</string>
     <string name="btn_label_ambient_mode">Ambience Mode</string>
     <string name="btn_label_sleep_timer">Sleep Timer</string>
+    <string name="btn_label_position_bookmarks">Position Bookmarks</string>
+    <string name="position_bookmarks_title">Position Bookmarks</string>
+    <string name="position_bookmarks_current_pos">Current: %1$s</string>
+    <string name="position_bookmarks_slot">Slot %1$d</string>
+    <string name="position_bookmarks_empty">Empty</string>
+    <string name="position_bookmarks_go">Go</string>
+    <string name="position_bookmarks_save">Save current position</string>
+    <string name="position_bookmarks_clear">Clear bookmark</string>
     <string name="btn_label_none">None</string>
 
 

@@ -48,6 +48,8 @@ import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.res.stringResource
+import xyz.mpv.rex.R
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -584,7 +586,7 @@ fun MiniPlayer(
             )
 
             Text(
-              text = state.artist.ifBlank { "REX Player" },
+              text = state.artist.ifBlank { stringResource(R.string.app_name) },
               style = MaterialTheme.typography.bodySmall,
               maxLines = 1,
               overflow = TextOverflow.Ellipsis,

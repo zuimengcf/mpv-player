@@ -2,6 +2,7 @@ package xyz.mpv.rex.preferences
 
 import xyz.mpv.rex.preferences.preference.PreferenceStore
 import xyz.mpv.rex.preferences.preference.getEnum
+import xyz.mpv.rex.utils.storage.FileTypeUtils
 
 /**
  * Preferences for the video browser (folder and video lists)
@@ -55,6 +56,14 @@ class BrowserPreferences(
   val showAudioFiles = preferenceStore.getBoolean("show_audio_files", false)
   val includeNoMediaContent = preferenceStore.getBoolean("include_no_media_content", false)
   val showTreeViewPath = preferenceStore.getBoolean("show_tree_view_path", false)
+
+  // Custom video extensions (comma-separated, e.g. "iso,bin,dat")
+  val customVideoExtensions = preferenceStore.getString("custom_video_extensions", "")
+
+  // Keep FileTypeUtils in sync at startup so custom extensions apply before any scan
+  init {
+    FileTypeUtils.setCustomVideoExtensions(customVideoExtensions.get())
+  }
 
   // RexShorts preferences
   val enableShorts = preferenceStore.getBoolean("enable_shorts", true)
