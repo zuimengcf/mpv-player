@@ -53,8 +53,6 @@ android {
       keyPassword = "android"
     }
   }
-    }
-  }
 
   buildTypes {
     named("release") {
