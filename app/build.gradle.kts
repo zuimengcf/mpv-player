@@ -1,5 +1,7 @@
 import com.android.build.api.variant.FilterConfiguration
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+import java.io.FileInputStream
 
 plugins {
   alias(libs.plugins.android.application)
@@ -7,6 +9,14 @@ plugins {
   alias(libs.plugins.kotlinx.serialization)
   alias(libs.plugins.ksp)
   alias(libs.plugins.room)
+}
+
+// 读取本地配置（用于注入 dandanplay AppId/Secret 等敏感信息）
+val localProperties = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) {
+        FileInputStream(f).use { load(it) }
+    }
 }
 
 android {
@@ -29,6 +39,9 @@ android {
     // Enable update feature by default
     buildConfigField("boolean", "ENABLE_UPDATE_FEATURE", "false")
     buildConfigField("boolean", "SCOPED_STORAGE_ONLY", "false")
+    // DanDanPlay API 凭证（从 local.properties 注入：dandanplay.appId / dandanplay.appSecret）
+    buildConfigField("String", "DANDANPLAY_APP_ID", "\"${localProperties.getProperty("dandanplay.appId", "")}\"")
+    buildConfigField("String", "DANDANPLAY_APP_SECRET", "\"${localProperties.getProperty("dandanplay.appSecret", "")}\"")
   }
 
   dependenciesInfo {

@@ -478,7 +478,7 @@
     <string name="player_sheets_stats_page_chip">Page %d</string>
     <string name="player_sheets_stats_page_0_desc">Disabled. No overlay statistics.</string>
     <string name="danmaku_section_title">Danmaku (弹幕)</string>
-    <string name="danmaku_load_button">Load danmaku file</string>
+    <string name="danmaku_load_button">在线搜索弹幕 (弹弹play)</string>
     <string name="danmaku_show_switch">Show danmaku</string>
     <string name="danmaku_show_switch_summary">Display loaded danmaku overlays during playback.</string>
     <string name="danmaku_toast_loaded">Danmaku loaded</string>

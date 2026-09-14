@@ -115,6 +115,26 @@ class DanmakuManager(
         }
     }
 
+    /**
+     * 从 XML 字符串加载弹幕（用于 dandanplay 在线获取）。
+     * 写入应用缓存目录后复用 loadDanmaku。
+     */
+    fun loadDanmakuFromXml(content: String, title: String): Boolean {
+        return try {
+            val dir = File(context.cacheDir, "danmaku")
+            if (!dir.exists()) dir.mkdirs()
+            val cleanName = title.replace(Regex("[^a-zA-Z0-9_\\u4e00-\\u9fa5]"), "_")
+            val file = File(dir, "${cleanName}_${System.currentTimeMillis()}.xml")
+            file.writeText(content)
+            loadDanmaku(file.absolutePath)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error writing danmaku xml", e)
+            Toast.makeText(context, "弹幕写入失败: ${e.message}", Toast.LENGTH_SHORT).show()
+            false
+        }
+    }
+
+
     fun startDanmaku() {
         if (danmakuLoaded && trackSelected) {
             danmakuView.start()

@@ -3,12 +3,7 @@ package xyz.mpv.rex.ui.player.controls.components.sheets
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import android.text.format.DateUtils
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import android.net.Uri
 import android.widget.Toast
-import java.io.File
-import java.io.FileOutputStream
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -1301,33 +1296,14 @@ private fun PlayerTimeToDisappearPreferenceItem() {
 }
 
 /**
- * 弹幕控制区块 — 加载 B站 XML 弹幕文件、显示/隐藏开关。
+ * 弹幕控制区块 — 在线获取（弹弹play/dandanplay）+ 显示/隐藏开关。
  * 挂在 SettingsTab 内，复用现有 SwitchPreference 视觉风格。
  */
 @Composable
 private fun DanmakuSection(activity: PlayerActivity) {
   val context = LocalContext.current
   val danmakuManager = activity.danmakuManager
-
-  // 弹幕文件选择器（B站 XML）
-  val danmakuPicker = rememberLauncherForActivityResult(
-    contract = ActivityResultContracts.OpenDocument(),
-  ) { uri ->
-    if (uri == null) return@rememberLauncherForActivityResult
-    // 拷贝到应用缓存目录，DanmakuFlameMaster 需要本地文件路径
-    val localFile = File(context.cacheDir, "danmaku_${System.currentTimeMillis()}.xml")
-    runCatching {
-      context.contentResolver.openInputStream(uri)?.use { input ->
-        FileOutputStream(localFile).use { output -> input.copyTo(output) }
-      }
-      if (danmakuManager.loadDanmaku(localFile.absolutePath)) {
-        Toast.makeText(context, R.string.danmaku_toast_loaded, Toast.LENGTH_SHORT).show()
-      }
-    }.onFailure { e ->
-      android.util.Log.e("DanmakuSection", "Failed to copy danmaku file", e)
-      Toast.makeText(context, "弹幕文件读取失败", Toast.LENGTH_SHORT).show()
-    }
-  }
+  var showSearchDialog by remember { mutableStateOf(false) }
 
   // 弹幕显示状态（跟随 manager）
   var danmakuVisible by remember { mutableStateOf(danmakuManager.isTrackSelected()) }
@@ -1344,7 +1320,7 @@ private fun DanmakuSection(activity: PlayerActivity) {
       color = MaterialTheme.colorScheme.primary,
     )
 
-    // 加载按钮
+    // 在线搜索弹幕按钮
     Surface(
       shape = MaterialTheme.shapes.medium,
       color = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -1353,7 +1329,7 @@ private fun DanmakuSection(activity: PlayerActivity) {
       ListItem(
         modifier = Modifier
           .fillMaxWidth()
-          .clickable { danmakuPicker.launch(arrayOf("application/xml", "text/xml", "text/plain", "*/*")) },
+          .clickable { showSearchDialog = true },
         leadingContent = {
           Icon(
             imageVector = Icons.Default.Subtitles,
@@ -1390,6 +1366,20 @@ private fun DanmakuSection(activity: PlayerActivity) {
       onCheckedChange = { on ->
         danmakuVisible = on
         if (on) danmakuManager.showDanmaku() else danmakuManager.hideDanmaku()
+      },
+    )
+  }
+
+  // 在线搜索弹幕对话框
+  if (showSearchDialog) {
+    DanmakuSearchDialog(
+      onDismiss = { showSearchDialog = false },
+      onDanmakuXml = { xml, title ->
+        if (danmakuManager.loadDanmakuFromXml(xml, title)) {
+          danmakuVisible = true
+          Toast.makeText(context, "已加载弹幕: $title", Toast.LENGTH_SHORT).show()
+        }
+        showSearchDialog = false
       },
     )
   }
