@@ -207,6 +207,18 @@ class PlayerActivity :
    */
   val player by lazy { binding.player }
 
+  /**
+   * Danmaku (弹幕) view — sits between MPVView and Compose controls.
+   */
+  val danmakuView by lazy { binding.danmakuView }
+
+  val danmakuManager by lazy {
+    xyz.mpv.rex.danmaku.DanmakuManager(this, danmakuView)
+  }
+
+  /** 上一次弹幕 seek 同步位置（毫秒），用于检测跳变。 */
+  private var lastDanmakuSyncPosMs: Long = 0L
+
   // ==================== State Management ====================
 
   /**
@@ -363,6 +375,7 @@ class PlayerActivity :
     setupAudio()
     setupBackPressHandler()
     setupPlayerControls()
+    setupDanmaku()
     setupPipHelper()
     setupMediaSession()
     viewModel.setupScreenStateReceiver()
@@ -648,6 +661,29 @@ class PlayerActivity :
     pipHelper = MPVPipHelper(activity = this, mpvView = player)
   }
 
+  /**
+   * Initializes the danmaku (弹幕) manager with playback position sync.
+   */
+  private fun setupDanmaku() {
+    danmakuManager.setPositionProvider(object : xyz.mpv.rex.danmaku.DanmakuManager.PlaybackPositionProvider {
+      override fun getCurrentPositionMs(): Long {
+        return runCatching {
+          (MPVLib.getPropertyDouble("time-pos") ?: 0.0) * 1000
+        }.getOrDefault(0.0).toLong()
+      }
+      override fun isPlaying(): Boolean {
+        return runCatching { MPVLib.getPropertyBoolean("pause") == false }.getOrDefault(false)
+      }
+    })
+  }
+
+  /**
+   * Releases danmaku resources on activity destroy.
+   */
+  private fun cleanupDanmaku() {
+    runCatching { danmakuManager.release() }
+  }
+
   private fun setupAudio() {
     audioPreferences.audioChannels.get().let {
       runCatching {
@@ -748,6 +784,7 @@ class PlayerActivity :
       }
 
       cleanupMPV()
+      cleanupDanmaku()
       cleanupAudio()
       cleanupReceivers()
       releaseMediaSession()
@@ -1651,6 +1688,18 @@ class PlayerActivity :
         // Re-check ambient stretch — handles portrait videos and new content
         viewModel.updateAmbientStretch()
       }
+
+      "time-pos" -> {
+        // Sync danmaku on significant position jumps (seek / chapter skip).
+        // Tolerate small drift from normal playback so we don't seek every frame.
+        if (danmakuManager.isDanmakuLoaded()) {
+          val jump = kotlin.math.abs(value - lastDanmakuSyncPosMs)
+          if (jump > 3000) {
+            danmakuManager.seekTo(value)
+          }
+          lastDanmakuSyncPosMs = value
+        }
+      }
     }
   }
 
@@ -1690,6 +1739,10 @@ class PlayerActivity :
       }
     } else {
       window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+    // Sync danmaku playback with mpv pause state
+    runCatching {
+      if (isPaused) danmakuManager.pauseDanmaku() else danmakuManager.resumeDanmaku()
     }
     updateMediaSessionPlaybackState(!isPaused)
     runCatching {

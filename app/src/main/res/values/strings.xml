@@ -477,6 +477,12 @@
     <string name="player_sheets_stats_page_title">Default statistics page</string>
     <string name="player_sheets_stats_page_chip">Page %d</string>
     <string name="player_sheets_stats_page_0_desc">Disabled. No overlay statistics.</string>
+    <string name="danmaku_section_title">Danmaku (弹幕)</string>
+    <string name="danmaku_load_button">Load danmaku file</string>
+    <string name="danmaku_show_switch">Show danmaku</string>
+    <string name="danmaku_show_switch_summary">Display loaded danmaku overlays during playback.</string>
+    <string name="danmaku_toast_loaded">Danmaku loaded</string>
+    <string name="danmaku_toast_removed">Danmaku removed</string>
     <string name="player_sheets_stats_page_1_desc">Overview. CPU/GPU usage, A/V sync, dropped frames, clock speed.</string>
     <string name="player_sheets_stats_page_2_desc">Frame timing. Decode/render times, scaler info.</string>
     <string name="player_sheets_stats_page_3_desc">Cache status. Buffer health, demuxer cache, seekable ranges.</string>

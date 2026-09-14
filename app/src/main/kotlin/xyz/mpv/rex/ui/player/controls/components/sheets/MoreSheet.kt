@@ -3,6 +3,12 @@ package xyz.mpv.rex.ui.player.controls.components.sheets
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import android.text.format.DateUtils
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.net.Uri
+import android.widget.Toast
+import java.io.File
+import java.io.FileOutputStream
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -32,6 +38,8 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Subtitles
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Widgets
@@ -337,6 +345,9 @@ fun SettingsTab(
           )
         }
       }
+
+      // Danmaku controls
+      DanmakuSection(activity = activity)
 
       // Shaders Controls
       if (enableAnime4K && (!gpuNext || useVulkan)) {
@@ -1285,6 +1296,101 @@ private fun PlayerTimeToDisappearPreferenceItem() {
           Text(stringResource(R.string.generic_cancel))
         }
       }
+    )
+  }
+}
+
+/**
+ * 弹幕控制区块 — 加载 B站 XML 弹幕文件、显示/隐藏开关。
+ * 挂在 SettingsTab 内，复用现有 SwitchPreference 视觉风格。
+ */
+@Composable
+private fun DanmakuSection(activity: PlayerActivity) {
+  val context = LocalContext.current
+  val danmakuManager = activity.danmakuManager
+
+  // 弹幕文件选择器（B站 XML）
+  val danmakuPicker = rememberLauncherForActivityResult(
+    contract = ActivityResultContracts.OpenDocument(),
+  ) { uri ->
+    if (uri == null) return@rememberLauncherForActivityResult
+    // 拷贝到应用缓存目录，DanmakuFlameMaster 需要本地文件路径
+    val localFile = File(context.cacheDir, "danmaku_${System.currentTimeMillis()}.xml")
+    runCatching {
+      context.contentResolver.openInputStream(uri)?.use { input ->
+        FileOutputStream(localFile).use { output -> input.copyTo(output) }
+      }
+      if (danmakuManager.loadDanmaku(localFile.absolutePath)) {
+        Toast.makeText(context, R.string.danmaku_toast_loaded, Toast.LENGTH_SHORT).show()
+      }
+    }.onFailure { e ->
+      android.util.Log.e("DanmakuSection", "Failed to copy danmaku file", e)
+      Toast.makeText(context, "弹幕文件读取失败", Toast.LENGTH_SHORT).show()
+    }
+  }
+
+  // 弹幕显示状态（跟随 manager）
+  var danmakuVisible by remember { mutableStateOf(danmakuManager.isTrackSelected()) }
+
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(vertical = MaterialTheme.spacing.smaller),
+    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
+  ) {
+    Text(
+      text = stringResource(R.string.danmaku_section_title),
+      style = MaterialTheme.typography.titleMedium,
+      color = MaterialTheme.colorScheme.primary,
+    )
+
+    // 加载按钮
+    Surface(
+      shape = MaterialTheme.shapes.medium,
+      color = MaterialTheme.colorScheme.surfaceContainerLow,
+      modifier = Modifier.fillMaxWidth(),
+    ) {
+      ListItem(
+        modifier = Modifier
+          .fillMaxWidth()
+          .clickable { danmakuPicker.launch(arrayOf("application/xml", "text/xml", "text/plain", "*/*")) },
+        leadingContent = {
+          Icon(
+            imageVector = Icons.Default.Subtitles,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+          )
+        },
+        headlineContent = {
+          Text(
+            text = stringResource(R.string.danmaku_load_button),
+            style = MaterialTheme.typography.bodyLarge,
+          )
+        },
+        trailingContent = {
+          if (danmakuManager.isDanmakuLoaded()) {
+            IconButton(onClick = {
+              danmakuManager.releaseDanmaku()
+              danmakuVisible = false
+              Toast.makeText(context, R.string.danmaku_toast_removed, Toast.LENGTH_SHORT).show()
+            }) {
+              Icon(imageVector = Icons.Default.Close, contentDescription = null)
+            }
+          }
+        },
+      )
+    }
+
+    // 显示开关
+    InteractionSwitch(
+      label = stringResource(R.string.danmaku_show_switch),
+      description = stringResource(R.string.danmaku_show_switch_summary),
+      checked = danmakuVisible,
+      enabled = danmakuManager.isDanmakuLoaded(),
+      onCheckedChange = { on ->
+        danmakuVisible = on
+        if (on) danmakuManager.showDanmaku() else danmakuManager.hideDanmaku()
+      },
     )
   }
 }

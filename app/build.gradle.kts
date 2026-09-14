@@ -161,6 +161,9 @@ room {
 }
 
 dependencies {
+  // DanmakuFlameMaster (弹幕引擎)
+  implementation(mapOf("name" to "DanmakuFlameMaster", "ext" to "aar"))
+
   implementation(libs.splashScreen)
   implementation(libs.androidx.activity.compose)
   implementation(platform(libs.androidx.compose.bom))
