@@ -1438,6 +1438,7 @@ private fun DanmakuSection(activity: PlayerActivity) {
         }
         showSearchDialog = false
       },
+      initialKeyword = activity.fileName,
     )
   }
 }

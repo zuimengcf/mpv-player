@@ -230,7 +230,7 @@ class PlayerActivity :
   /**
    * Current video file name being played.
    */
-  private var fileName = ""
+  internal var fileName = ""
 
   /**
    * Unique identifier for the current media, used for saving/loading playback state.

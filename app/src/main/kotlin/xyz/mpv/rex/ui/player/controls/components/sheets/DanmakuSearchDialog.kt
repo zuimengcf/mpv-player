@@ -39,11 +39,13 @@ import xyz.mpv.rex.repository.dandanplay.EpisodeInfo
 
 /**
  * 弹弹play 在线弹幕搜索对话框：配置凭证 → 搜索动漫 → 选剧集 → 回调加载。
+ * @param initialKeyword 初始搜索词（通常为当前播放文件名），打开时自动填充。
  */
 @Composable
 fun DanmakuSearchDialog(
     onDismiss: () -> Unit,
     onDanmakuXml: (xml: String, title: String) -> Unit,
+    initialKeyword: String = "",
 ) {
     val context = LocalContext.current
     val api = koinInject<DanDanPlayApi>()
@@ -54,7 +56,11 @@ fun DanmakuSearchDialog(
     var appIdInput by remember { mutableStateOf(advancedPrefs.dandanplayAppId.get()) }
     var appSecretInput by remember { mutableStateOf(advancedPrefs.dandanplayAppSecret.get()) }
 
-    var keyword by remember { mutableStateOf("") }
+    // 用当前播放文件名预填搜索词（去掉扩展名，如 .mp4/.mkv）
+    val cleanedInitial = remember(initialKeyword) {
+        initialKeyword.substringBeforeLast('.').trim().ifBlank { initialKeyword.trim() }
+    }
+    var keyword by remember { mutableStateOf(cleanedInitial) }
     var isSearching by remember { mutableStateOf(false) }
     var results by remember { mutableStateOf<List<AnimeSearchInfo>>(emptyList()) }
     var selectedAnime by remember { mutableStateOf<AnimeSearchInfo?>(null) }
