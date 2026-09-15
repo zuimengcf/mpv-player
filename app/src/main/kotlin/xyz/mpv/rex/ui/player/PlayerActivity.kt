@@ -442,6 +442,12 @@ class PlayerActivity :
     lifecycleScope.launch {
       danmakuPreferences.shadowRadius.changes().collect { danmakuManager.applyPreferences() }
     }
+    lifecycleScope.launch {
+      danmakuPreferences.overrideColor.changes().collect { danmakuManager.applyPreferences() }
+    }
+    lifecycleScope.launch {
+      danmakuPreferences.fontColor.changes().collect { danmakuManager.applyPreferences() }
+    }
 
     val playlistId = intent.getIntExtra("playlist_id", -1).takeIf { it != -1 }
     val playlistIndex = intent.getIntExtra("playlist_index", 0)

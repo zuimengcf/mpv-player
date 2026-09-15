@@ -121,13 +121,33 @@ mpvRex 是一款先进、高度可定制的 Android 视频播放器。它将 lib
 
 ## 致谢
 
+## 致谢
 mpvRex 的根基是 **[mpvEx](https://github.com/marlboro-advance/mpvEx)**，而 mpvEx 又构建于 **[mpv-android](https://github.com/mpv-android/mpv-android)** 之上。我们感谢他们打下的基础。
-
 其他灵感与参考：
 [mpvKt](https://github.com/abdallahmehiz/mpvKt) · [Next Player](https://github.com/anilbeesetti/nextplayer) · [Gramophone](https://github.com/FoedusProgramme/Gramophone)
-
 ---
 
-## 许可证
+## 开源声明
 
-基于 **Apache License 2.0** 分发。详见 `LICENSE`。
+本项目是 **[mpvRex](https://github.com/sfsakhawat999/mpvRex)**（源自 mpvEx / mpv-android）的**独立分支/换名续作**，以 **Re播放器** 名义继续维护。我们尊重并保留所有上游项目的开源精神与许可协议。
+
+### 第三方组件
+- **libmpv** — 播放引擎（[mpv-android](https://github.com/mpv-android/mpv-android)，LGPL-2.1+ / ISC）
+- **DanmakuFlameMaster** — 弹幕渲染引擎，随包附带于 `app/libs/DanmakuFlameMaster.aar`（Apache License 2.0，原作者 Bilibili / Chen Hui）
+- **BiliDanmakuParser** — 改编自 DanmakuFlameMaster 解析器（Apache License 2.0，Copyright (C) 2013 Chen Hui）
+- **Jetpack Compose / Material 3** — UI 框架（Apache License 2.0）
+- **Koin、kotlinx、Coil、ExoPlayer 等其他依赖** — 详见 `gradle/libs.versions.toml` 及各自许可
+
+### 在线弹幕服务
+在线搜索弹幕功能依赖第三方 **[弹弹play API](https://api.dandanplay.net)**，仅作为便利功能提供：
+- **不内置** API 凭证（AppId/AppSecret），可自行填写。
+- 弹幕内容归各自上传者所有；本项目不托管、不转发任何内容。
+- 服务可用性与条款以第三方提供方为准，请自行斟酌使用。
+
+### 商标与免责声明
+- **Re播放器** 是独立社区项目，**与 mpvRex、mpv-android 或任何商业实体无隶属关系，亦未获其背书**。
+- 本应用按 **「AS IS」** 提供，不作任何明示或默示担保；作者不对使用产生的任何损害负责。
+- 文中引用的第三方商标与标识归各自权利人所有，此处仅作识别用途。
+
+### 许可证
+基于 **Apache License 2.0** 分发。详见 `LICENSE`。上述第三方组件均保留各自许可。

@@ -38,6 +38,9 @@ class DanmakuManager(
     private var trackSelected = false
     private var positionProvider: PlaybackPositionProvider? = null
 
+    /** 上次应用的覆盖颜色（-1=未覆盖），用于检测颜色变化是否需要重载弹幕 */
+    private var lastAppliedOverrideColor = -1
+
     var onPreparedListener: (() -> Unit)? = null
 
     init {
@@ -143,7 +146,25 @@ class DanmakuManager(
             // 统一颜色覆盖
             val overrideColor = prefs.overrideColor.get()
             val fontColor = prefs.fontColor.get()
-            BiliDanmakuParser.setOverrideColor(if (overrideColor) fontColor else -1)
+            val newOverrideColor = if (overrideColor) fontColor else -1
+            BiliDanmakuParser.setOverrideColor(newOverrideColor)
+
+            // 颜色覆盖变化且已加载弹幕 → 自动重载以应用新颜色（保持播放位置与显示状态）
+            if (danmakuLoaded && newOverrideColor != lastAppliedOverrideColor) {
+                val currentPath = currentDanmakuPath
+                val currentPos = positionProvider?.getCurrentPositionMs() ?: 0L
+                val wasSelected = trackSelected
+                if (currentPath != null) {
+                    Log.d(TAG, "Override color changed ($lastAppliedOverrideColor -> $newOverrideColor), reloading danmaku")
+                    loadDanmaku(currentPath)
+                    // loadDanmaku 内部 release 会重置显示状态，这里恢复并同步位置
+                    if (wasSelected) {
+                        showDanmaku()
+                        danmakuView.seekTo(currentPos)
+                    }
+                }
+            }
+            lastAppliedOverrideColor = newOverrideColor
 
             // 显示类型过滤（滚动/顶部/底部）
             val showScroll = prefs.showScrollDanmaku.get()

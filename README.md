@@ -120,14 +120,31 @@ If you would like to contribute to translating mpvRex into your language, please
 ---
 
 ## Credits
-
 mpvRex has its roots in **[mpvEx](https://github.com/marlboro-advance/mpvEx)**, which itself builds on **[mpv-android](https://github.com/mpv-android/mpv-android)**. We're grateful for the foundation they laid.
-
 Additional inspiration and reference:
 [mpvKt](https://github.com/abdallahmehiz/mpvKt) · [Next Player](https://github.com/anilbeesetti/nextplayer) · [Gramophone](https://github.com/FoedusProgramme/Gramophone)
-
 ---
+## Open Source Notices
 
-## License
+This project is an independent **fork/rebrand** of **[mpvRex](https://github.com/sfsakhawat999/mpvRex)** (originally derived from mpvEx / mpv-android), continued under the name **RePlayer**. We respect and retain the original open-source spirit and licenses of all upstream projects.
 
-Distributed under the **Apache License 2.0**. See `LICENSE` for details.
+### Third-Party Components
+- **libmpv** — the playback engine ([mpv-android](https://github.com/mpv-android/mpv-android), LGPL-2.1+ / ISC)
+- **DanmakuFlameMaster** — danmaku (bullet comment) rendering engine, bundled as `app/libs/DanmakuFlameMaster.aar` (Apache License 2.0, originally by Bilibili / Chen Hui)
+- **BiliDanmakuParser** — adapted from the DanmakuFlameMaster parser (Apache License 2.0, Copyright (C) 2013 Chen Hui)
+- **Jetpack Compose / Material 3** — UI framework (Apache License 2.0)
+- **Koin, kotlinx, Coil, ExoPlayer, and other libraries** — see `gradle/libs.versions.toml` and their respective licenses
+
+### Online Danmaku Service
+The online danmaku search feature relies on the third-party **[DanDanPlay API](https://api.dandanplay.net)** (弹弹play). It is provided as a convenience only:
+- API credentials (AppId/AppSecret) are **not bundled**; you may supply your own.
+- Danmaku content is owned by its respective uploaders; this project does not host or redistribute any content.
+- Service availability and terms are subject to the third-party provider. Use at your own discretion.
+
+### Trademark & Disclaimer
+- **RePlayer** is an independent community project and is **not affiliated with or endorsed by** mpvRex, mpv-android, or any commercial entity.
+- The app is provided **"AS IS"**, without warranty of any kind, express or implied. The authors are not liable for any damages arising from its use.
+- Some third-party trademarks and logos referenced herein belong to their respective owners; their use here is for identification purposes only.
+
+### License
+Distributed under the **Apache License 2.0**. See `LICENSE` for details. All third-party components retain their own licenses as noted above.

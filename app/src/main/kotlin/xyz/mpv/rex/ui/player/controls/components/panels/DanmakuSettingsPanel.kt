@@ -1,7 +1,11 @@
 package xyz.mpv.rex.ui.player.controls.components.panels
 
 import android.content.res.Configuration
+import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -44,11 +48,13 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Opacity
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -69,6 +75,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import java.io.File
+import java.io.FileOutputStream
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.zhanghai.compose.preference.ListPreference
@@ -81,6 +89,8 @@ import xyz.mpv.rex.preferences.DanmakuPreferences
 import xyz.mpv.rex.preferences.preference.collectAsState
 import xyz.mpv.rex.presentation.components.PlayerSheet
 import xyz.mpv.rex.presentation.components.SliderItem
+import xyz.mpv.rex.ui.player.PlayerActivity
+import xyz.mpv.rex.ui.player.controls.components.sheets.DanmakuSearchDialog
 import xyz.mpv.rex.ui.preferences.components.SwitchPreference
 import xyz.mpv.rex.ui.theme.spacing
 
@@ -92,16 +102,17 @@ import xyz.mpv.rex.ui.theme.spacing
 fun DanmakuSettingsPanel(
   onDismissRequest: () -> Unit,
   modifier: Modifier = Modifier,
+  activity: PlayerActivity? = null,
 ) {
   val configuration = LocalConfiguration.current
   val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
   if (isPortrait) {
     PlayerSheet(onDismissRequest = onDismissRequest) {
-      DanmakuSettingsContent(modifier)
+      DanmakuSettingsContent(modifier, activity)
     }
   } else {
-    DanmakuSettingsSideSheet(onDismissRequest = onDismissRequest, modifier = modifier)
+    DanmakuSettingsSideSheet(onDismissRequest = onDismissRequest, modifier = modifier, activity = activity)
   }
 }
 
@@ -109,6 +120,7 @@ fun DanmakuSettingsPanel(
 private fun DanmakuSettingsSideSheet(
   onDismissRequest: () -> Unit,
   modifier: Modifier = Modifier,
+  activity: PlayerActivity? = null,
 ) {
   val scope = rememberCoroutineScope()
   var isVisible by remember { mutableStateOf(false) }
@@ -179,7 +191,7 @@ private fun DanmakuSettingsSideSheet(
             .fillMaxHeight()
             .verticalScroll(rememberScrollState()),
         ) {
-          DanmakuSettingsHeader(onDismissRequest = { dismissWithAnimation() })
+          DanmakuSettingsHeader(onDismissRequest = { dismissWithAnimation() }, activity = activity)
         }
       }
     }
@@ -187,7 +199,7 @@ private fun DanmakuSettingsSideSheet(
 }
 
 @Composable
-private fun DanmakuSettingsHeader(onDismissRequest: () -> Unit) {
+private fun DanmakuSettingsHeader(onDismissRequest: () -> Unit, activity: PlayerActivity? = null) {
   Row(
     modifier = Modifier
       .fillMaxWidth()
@@ -210,11 +222,11 @@ private fun DanmakuSettingsHeader(onDismissRequest: () -> Unit) {
 
   Spacer(Modifier.height(MaterialTheme.spacing.small))
 
-  DanmakuSettingsContent()
+  DanmakuSettingsContent(activity = activity)
 }
 
 @Composable
-private fun DanmakuSettingsContent(modifier: Modifier = Modifier) {
+private fun DanmakuSettingsContent(modifier: Modifier = Modifier, activity: PlayerActivity? = null) {
   val preferences = koinInject<DanmakuPreferences>()
   val context = androidx.compose.ui.platform.LocalContext.current
 
@@ -225,8 +237,12 @@ private fun DanmakuSettingsContent(modifier: Modifier = Modifier) {
       .padding(bottom = MaterialTheme.spacing.large),
     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
   ) {
-    // ── 显示 ──
+    // ── 加载弹幕 ──
     SectionTitle(stringResource(R.string.danmaku_section_show), Icons.Default.ChatBubbleOutline)
+
+    if (activity != null) {
+      DanmakuLoadSection(activity)
+    }
 
     ProvidePreferenceLocals(theme = preferenceTheme(iconContainerMinWidth = 48.dp)) {
       val showScroll by preferences.showScrollDanmaku.collectAsState()
@@ -467,5 +483,140 @@ private fun DanmakuColorPicker(
         )
       }
     }
+  }
+}
+
+/**
+ * 弹幕加载区块：在线搜索（弹弹play）+ 导入本地 XML + 显示开关。
+ * 逻辑与 MoreSheet 的 DanmakuSection 一致，入口统一收进播放器弹幕面板。
+ */
+@Composable
+private fun DanmakuLoadSection(activity: PlayerActivity) {
+  val context = androidx.compose.ui.platform.LocalContext.current
+  val danmakuManager = activity.danmakuManager
+  var showSearchDialog by remember { mutableStateOf(false) }
+  var danmakuVisible by remember { mutableStateOf(danmakuManager.isTrackSelected()) }
+
+  val danmakuFilePicker = rememberLauncherForActivityResult(
+    ActivityResultContracts.OpenDocument()
+  ) { uri: Uri? ->
+    if (uri != null) {
+      val success = try {
+        val input = context.contentResolver.openInputStream(uri)
+        if (input == null) false else {
+          val dir = File(context.cacheDir, "danmaku")
+          if (!dir.exists()) dir.mkdirs()
+          val outFile = File(dir, "local_${System.currentTimeMillis()}.xml")
+          FileOutputStream(outFile).use { out -> input.copyTo(out) }
+          input.close()
+          danmakuManager.loadDanmaku(outFile.absolutePath)
+        }
+      } catch (e: Exception) {
+        Toast.makeText(context, "导入弹幕失败: ${e.message}", Toast.LENGTH_SHORT).show()
+        false
+      }
+      if (success) {
+        danmakuVisible = true
+        Toast.makeText(context, R.string.danmaku_toast_loaded, Toast.LENGTH_SHORT).show()
+      }
+    }
+  }
+
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(vertical = MaterialTheme.spacing.smaller),
+    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
+  ) {
+    // 在线搜索弹幕（弹弹play）
+    Surface(
+      shape = MaterialTheme.shapes.medium,
+      color = MaterialTheme.colorScheme.surfaceContainerLow,
+      modifier = Modifier.fillMaxWidth(),
+    ) {
+      ListItem(
+        modifier = Modifier
+          .fillMaxWidth()
+          .clickable { showSearchDialog = true },
+        leadingContent = {
+          Icon(
+            imageVector = Icons.Default.Subtitles,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+          )
+        },
+        headlineContent = {
+          Text(
+            text = stringResource(R.string.danmaku_load_button),
+            style = MaterialTheme.typography.bodyLarge,
+          )
+        },
+        trailingContent = {
+          if (danmakuManager.isDanmakuLoaded()) {
+            IconButton(onClick = {
+              danmakuManager.releaseDanmaku()
+              danmakuVisible = false
+              Toast.makeText(context, R.string.danmaku_toast_removed, Toast.LENGTH_SHORT).show()
+            }) {
+              Icon(imageVector = Icons.Default.Close, contentDescription = null)
+            }
+          }
+        },
+      )
+    }
+
+    // 导入本地弹幕文件（XML）
+    Surface(
+      shape = MaterialTheme.shapes.medium,
+      color = MaterialTheme.colorScheme.surfaceContainerLow,
+      modifier = Modifier.fillMaxWidth(),
+    ) {
+      ListItem(
+        modifier = Modifier
+          .fillMaxWidth()
+          .clickable { danmakuFilePicker.launch(arrayOf("application/xml", "text/xml", "text/plain", "*/*")) },
+        leadingContent = {
+          Icon(
+            imageVector = Icons.Default.Tune,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+          )
+        },
+        headlineContent = {
+          Text(
+            text = stringResource(R.string.danmaku_import_button),
+            style = MaterialTheme.typography.bodyLarge,
+          )
+        },
+      )
+    }
+
+    // 显示开关（仅弹幕已加载时可用）
+    val loaded = danmakuManager.isDanmakuLoaded()
+    ProvidePreferenceLocals(theme = preferenceTheme(iconContainerMinWidth = 48.dp)) {
+      SwitchPreference(
+        value = danmakuVisible,
+        onValueChange = { on ->
+          danmakuVisible = on
+          if (on) danmakuManager.showDanmaku() else danmakuManager.hideDanmaku()
+        },
+        title = { Text(stringResource(R.string.danmaku_show_switch)) },
+        summary = { Text(stringResource(R.string.danmaku_show_switch_summary)) },
+        enabled = loaded,
+      )
+    }
+  }
+
+  if (showSearchDialog) {
+    DanmakuSearchDialog(
+      onDismiss = { showSearchDialog = false },
+      onDanmakuXml = { xml, title ->
+        if (danmakuManager.loadDanmakuFromXml(xml, title)) {
+          danmakuVisible = true
+          Toast.makeText(context, "已加载弹幕: $title", Toast.LENGTH_SHORT).show()
+        }
+        showSearchDialog = false
+      },
+    )
   }
 }

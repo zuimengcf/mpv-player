@@ -30,6 +30,7 @@ fun PlayerPanels(
   panelShown: Panels,
   onDismissRequest: () -> Unit,
   modifier: Modifier = Modifier,
+  activity: xyz.mpv.rex.ui.player.PlayerActivity? = null,
 ) {
   when (panelShown) {
     Panels.None -> {}
@@ -46,7 +47,7 @@ fun PlayerPanels(
       VideoSettingsPanel(onDismissRequest, modifier)
     }
     Panels.DanmakuSettings -> {
-      DanmakuSettingsPanel(onDismissRequest, modifier)
+      DanmakuSettingsPanel(onDismissRequest, modifier, activity)
     }
   }
 }

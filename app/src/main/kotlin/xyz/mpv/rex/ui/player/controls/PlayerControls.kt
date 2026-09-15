@@ -1902,9 +1902,11 @@ fun PlayerControls(
     )
 
     val panel by viewModel.panelShown.collectAsState()
+    val activity = LocalActivity.current as? PlayerActivity
     PlayerPanels(
       panelShown = panel,
       onDismissRequest = { onOpenPanel(Panels.None) },
+      activity = activity,
     )
 
     val resumePrompt by viewModel.resumePrompt.collectAsState()
