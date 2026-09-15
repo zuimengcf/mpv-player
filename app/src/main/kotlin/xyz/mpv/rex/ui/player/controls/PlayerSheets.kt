@@ -1,6 +1,8 @@
 package xyz.mpv.rex.ui.player.controls
 
 import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -14,6 +16,7 @@ import xyz.mpv.rex.ui.player.Sheets
 import xyz.mpv.rex.ui.player.TrackNode
 import androidx.navigation3.runtime.NavBackStack
 import xyz.mpv.rex.presentation.Screen
+import xyz.mpv.rex.R
 import xyz.mpv.rex.ui.player.controls.components.sheets.AspectRatioSheet
 import xyz.mpv.rex.ui.player.controls.components.sheets.AudioTracksSheet
 import xyz.mpv.rex.ui.player.controls.components.sheets.ChaptersSheet
@@ -92,6 +95,30 @@ fun PlayerSheets(
       val customFolder = subtitlesPreferences.customSubtitleFolder.get()
       val openAtVideoLocation = subtitlesPreferences.openPickerAtVideoLocation.get()
 
+      // 并列入口：加载本地弹幕 XML（与加载字幕同级）
+      val context = androidx.compose.ui.platform.LocalContext.current
+      val activity = LocalActivity.current as xyz.mpv.rex.ui.player.PlayerActivity
+      val danmakuFilePicker =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+          if (uri != null) {
+            try {
+              val input = context.contentResolver.openInputStream(uri)
+              if (input != null) {
+                val dir = java.io.File(context.cacheDir, "danmaku")
+                if (!dir.exists()) dir.mkdirs()
+                val outFile = java.io.File(dir, "local_${System.currentTimeMillis()}.xml")
+                java.io.FileOutputStream(outFile).use { out -> input.copyTo(out) }
+                input.close()
+                if (activity.danmakuManager.loadDanmaku(outFile.absolutePath)) {
+                  Toast.makeText(context, R.string.danmaku_toast_loaded, Toast.LENGTH_SHORT).show()
+                }
+              }
+            } catch (e: Exception) {
+              Toast.makeText(context, "导入弹幕失败: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+          }
+        }
+
       val currentMediaTitle = viewModel.currentMediaTitle
       val matchToName = if (currentMediaTitle.isNotBlank()) {
           // Remove extension if present to improve matching
@@ -146,6 +173,7 @@ fun PlayerSheets(
         onToggleSubtitle = onToggleSubtitle,
         isSubtitleSelected = isSubtitleSelected,
         onAddSubtitle = { showFilePicker = true },
+        onAddDanmaku = { danmakuFilePicker.launch(arrayOf("application/xml", "text/xml", "text/plain", "*/*")) },
         onRemoveSubtitle = onRemoveSubtitle,
         onOpenSubtitleSettings = { onOpenPanel(Panels.SubtitleSettings) },
         onOpenSubtitleDelay = { onOpenPanel(Panels.SubtitleDelay) },
