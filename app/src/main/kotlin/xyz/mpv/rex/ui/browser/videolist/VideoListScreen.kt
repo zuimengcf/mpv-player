@@ -417,8 +417,6 @@ data class VideoListScreen(
                 onClick = { selectionManager.shareSelected() },
               )
             )
-              )
-            )
             val selectedVideos = selectionManager.getSelectedItems()
             if (selectedVideos.isNotEmpty()) {
               add(

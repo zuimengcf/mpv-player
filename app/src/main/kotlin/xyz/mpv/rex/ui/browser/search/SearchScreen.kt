@@ -370,9 +370,10 @@ data class SearchScreen(
               )
               val selectedVideos = videoSelectionManager.getSelectedItems()
               val selectedFolders = folderSelectionManager.getSelectedItems()
-              add(
-                SelectionOverflowAction(
-                  icon = Icons.Filled.ContentCopy,
+              if (selectedVideos.isNotEmpty() || selectedFolders.isNotEmpty()) {
+                add(
+                  SelectionOverflowAction(
+                    icon = Icons.Filled.ContentCopy,
                     label = if (selectedVideos.isNotEmpty() && selectedFolders.isEmpty()) {
                       stringResource(R.string.copy_video_path)
                     } else if (selectedFolders.isNotEmpty() && selectedVideos.isEmpty()) {

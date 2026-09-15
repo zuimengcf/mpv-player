@@ -630,7 +630,6 @@ fun FileSystemBrowserScreen(path: String? = null) {
                   }
                 },
               ))
-              ))
               if (folderSelectionManager.isInSelectionMode && !videoSelectionManager.isInSelectionMode) {
                 add(SelectionOverflowAction(
                   icon = Icons.Filled.Block,
