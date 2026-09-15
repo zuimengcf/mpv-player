@@ -1804,7 +1804,7 @@ mp.add_key_binding(nil, "display-page-next", function()
         process_key_binding(false)
     end
     mp.osd_message("监测页 " .. target, 1)
-end, {repeatable=true})
+end, {repeatable=false})
 
 -- ============================================================================
 -- Custom: close/hide stats overlay (关闭监测面板)
@@ -1826,7 +1826,7 @@ mp.add_key_binding(nil, "display-stats-close", function()
         end
         mp.osd_message("监测面板已关闭", 1)
     end
-end, {repeatable=true})
+end, {repeatable=false})
 
 -- Reprint stats immediately when VO was reconfigured, only when toggled
 mp.register_event("video-reconfig",
