@@ -549,7 +549,7 @@ object SubtitlesPreferencesScreen : Screen {
                     horizontalArrangement = Arrangement.SpaceBetween
                   ) {
                     Text(
-                      text = "Advanced Search Filters",
+                      text = stringResource(R.string.advanced_search_filters),
                       style = MaterialTheme.typography.labelLarge,
                       color = MaterialTheme.colorScheme.primary,
                       fontWeight = FontWeight.Bold
@@ -738,7 +738,7 @@ object SubtitlesPreferencesScreen : Screen {
                     verticalAlignment = Alignment.CenterVertically
                   ) {
                     Text(
-                      text = "Subtitle Search provided by",
+                      text = stringResource(R.string.subtitle_search_provided_by),
                       style = MaterialTheme.typography.bodySmall,
                       color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

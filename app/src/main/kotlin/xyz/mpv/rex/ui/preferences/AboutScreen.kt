@@ -264,7 +264,7 @@ object AboutScreen : Screen {
                         ),
                     ) {
                       Text(
-                        text = "GitHub",
+                        text = stringResource(R.string.github),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                       )

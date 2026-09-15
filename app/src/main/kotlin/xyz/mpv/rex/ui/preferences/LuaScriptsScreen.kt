@@ -54,6 +54,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import org.koin.compose.koinInject
+import androidx.compose.ui.res.stringResource
 
 @Serializable
 object LuaScriptsScreen : Screen {
@@ -186,7 +187,7 @@ object LuaScriptsScreen : Screen {
         TopAppBar(
           title = {
             Text(
-              text = "Lua Scripts",
+              text = stringResource(R.string.lua_scripts),
               style = MaterialTheme.typography.headlineSmall,
               fontWeight = FontWeight.ExtraBold,
               color = MaterialTheme.colorScheme.primary,

@@ -375,7 +375,7 @@ fun MiniPlayer(
                       color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                      text = "Swipe to play next",
+                      text = stringResource(R.string.swipe_to_play_next),
                       style = MaterialTheme.typography.bodySmall,
                       maxLines = 1,
                       overflow = TextOverflow.Ellipsis,
@@ -430,7 +430,7 @@ fun MiniPlayer(
                       color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                      text = "Swipe to play previous",
+                      text = stringResource(R.string.swipe_to_play_previous),
                       style = MaterialTheme.typography.bodySmall,
                       maxLines = 1,
                       overflow = TextOverflow.Ellipsis,

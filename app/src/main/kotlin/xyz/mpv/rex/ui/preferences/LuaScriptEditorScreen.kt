@@ -59,6 +59,7 @@ import java.io.File
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.outputStream
 import kotlin.io.path.readLines
+import androidx.compose.ui.res.stringResource
 
 @Serializable
 data class LuaScriptEditorScreen(
@@ -301,7 +302,7 @@ data class LuaScriptEditorScreen(
                 Box {
                   if (fileName.isEmpty()) {
                     Text(
-                      text = "Script name",
+                      text = stringResource(R.string.script_name),
                       style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
@@ -314,7 +315,7 @@ data class LuaScriptEditorScreen(
             )
             if (hasUnsavedChanges) {
               Text(
-                text = "Unsaved changes",
+                text = stringResource(R.string.unsaved_changes),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.secondary,
               )

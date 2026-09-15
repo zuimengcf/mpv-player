@@ -48,6 +48,7 @@ import xyz.mpv.rex.ui.utils.LocalBackStack
 import kotlinx.serialization.Serializable
 import androidx.compose.foundation.layout.fillMaxHeight
 import xyz.mpv.rex.ui.browser.components.FastScrollbar
+import androidx.compose.ui.res.stringResource
 
 @Serializable
 data class NetworkBrowserScreen(
@@ -248,7 +249,7 @@ private fun NetworkBrowserContent(
             if (folders.isNotEmpty()) {
               item {
                 Text(
-                  text = "Folders",
+                  text = stringResource(R.string.folders),
                   style = MaterialTheme.typography.titleMedium,
                   color = MaterialTheme.colorScheme.primary,
                   modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
@@ -270,7 +271,7 @@ private fun NetworkBrowserContent(
             if (videos.isNotEmpty()) {
               item {
                 Text(
-                  text = "Videos",
+                  text = stringResource(R.string.videos),
                   style = MaterialTheme.typography.titleMedium,
                   color = MaterialTheme.colorScheme.primary,
                   modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp),

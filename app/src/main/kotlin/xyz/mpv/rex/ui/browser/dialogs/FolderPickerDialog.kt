@@ -236,7 +236,7 @@ fun FolderPickerDialog(
             if (storageVolumes.isEmpty()) {
               item {
                 Text(
-                  text = "No storage devices found",
+                  text = stringResource(R.string.no_storage_devices_found),
                   style = MaterialTheme.typography.bodyLarge,
                   fontWeight = FontWeight.Medium,
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -256,7 +256,7 @@ fun FolderPickerDialog(
             if (folders.isEmpty()) {
               item {
                 Text(
-                  text = "No subfolders",
+                  text = stringResource(R.string.no_subfolders),
                   style = MaterialTheme.typography.bodyLarge,
                   fontWeight = FontWeight.Medium,
                   color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -157,7 +157,7 @@ object GesturePreferencesScreen : Screen {
                   title = { Text(text = stringResource(R.string.pref_gesture_double_tap_seek_area_width_title)) },
                   summary = {
                     Text(
-                      text = "Current: ${doubleTapSeekAreaWidth}%",
+                      text = stringResource(R.string.current_value_format, doubleTapSeekAreaWidth),
                       color = MaterialTheme.colorScheme.outline,
                     )
                   },
