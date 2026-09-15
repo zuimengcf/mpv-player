@@ -147,7 +147,6 @@
     <string name="pref_clear_thumbnail_cache_title">Clear thumbnail cache</string>
     <string name="pref_clear_thumbnail_cache_summary">Delete all cached video thumbnails (will regenerate as you browse folders)</string>
 
-
     <string name="pref_layout_title">Player Layout</string>
     <string name="pref_layout_summary">Customize player button layout</string>
     <string name="pref_layout_reset_default">Reset to default</string>
@@ -395,11 +394,6 @@
     <string name="pref_about_donate_upi">UPI</string>
     <string name="pref_about_donate_upi_id" translatable="false">aadiinarvekar@upi</string>
 
-    <string name="pref_about_telegram_title">Telegram</string>
-    <string name="pref_about_telegram_channel">Telegram Channel</string>
-    <string name="pref_about_telegram_channel_summary">Join our channel for updates and news</string>
-    <string name="pref_about_telegram_group">Telegram Chat Group</string>
-    <string name="pref_about_telegram_group_summary">Discuss and chat with the community</string>
     <string name="pref_about_telegram_url" translatable="false">https://t.me/mpvRex</string>
     <string name="pref_about_telegram_chat_url" translatable="false">https://t.me/mpvRex_chat</string>
 
@@ -553,7 +547,7 @@
     <string name="volume_slider_absolute_value" translatable="false">%d</string>
     <string name="value_percentage_int" translatable="false">%d%%</string>
 
-    <string name="github_repo_url" translatable="false">https://github.com/sfsakhawat999/mpvRex</string>
+    <string name="github_repo_url" translatable="false">https://github.com/zuimengcf/mpv-player</string>
     <string name="swap_the_volume_and_brightness_slider">Swap volume and brightness slider</string>
     <string name="pref_player_display_reduce_player_animation">Reduce player animation</string>
     <string name="pref_player_display_hide_player_control_time">Hide player control time</string>
@@ -1163,7 +1157,6 @@
     <string name="position_bookmarks_save">Save current position</string>
     <string name="position_bookmarks_clear">Clear bookmark</string>
     <string name="btn_label_none">None</string>
-
 
     <string name="timer_start">Start Timer</string>
     <string name="slide_to_unlock">Slide to Unlock</string>

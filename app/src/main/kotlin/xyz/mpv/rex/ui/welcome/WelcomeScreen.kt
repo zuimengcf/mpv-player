@@ -525,7 +525,7 @@ object WelcomeScreen : Screen {
     // Explanation Dialog
     if (showExplanationDialog) {
       val uriHandler = LocalUriHandler.current
-      val githubUrl = "https://github.com/sfsakhawat999/mpvRex"
+      val githubUrl = "https://github.com/zuimengcf/mpv-player"
       val isPlayStoreBuild = BuildConfig.SCOPED_STORAGE_ONLY
 
       AlertDialog(

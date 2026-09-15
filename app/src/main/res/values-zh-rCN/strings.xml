@@ -144,7 +144,6 @@
     <string name="pref_clear_thumbnail_cache_title">清除缩略图缓存</string>
     <string name="pref_clear_thumbnail_cache_summary">删除所有视频缩略图缓存（浏览文件夹时会重新生成）</string>
 
-
     <string name="pref_layout_title">播放器布局</string>
     <string name="pref_layout_summary">自定义播放器按钮布局</string>
     <string name="pref_layout_reset_default">恢复默认</string>
@@ -362,12 +361,6 @@
     <string name="pref_about_donate_paypal">PayPal</string>
     <string name="pref_about_donate_paypal_summary">通过 PayPal 支持开发者</string>
     <string name="pref_about_donate_upi">UPI</string>
-
-    <string name="pref_about_telegram_title">电报社群</string>
-    <string name="pref_about_telegram_channel">电报通知频道</string>
-    <string name="pref_about_telegram_channel_summary">加入频道获取版本更新与资讯</string>
-    <string name="pref_about_telegram_group">电报交流群</string>
-    <string name="pref_about_telegram_group_summary">和其他用户交流讨论</string>
 
     <string name="player_sheets_add_ext_sub">加载外部字幕</string>
     <string name="player_sheets_add_ext_audio">加载外置音轨</string>
@@ -957,7 +950,6 @@
     <string name="btn_label_sleep_timer">睡眠定时</string>
     <string name="btn_label_none">无</string>
 
-
     <string name="timer_start">启动定时</string>
     <string name="slide_to_unlock">滑动解锁</string>
 
@@ -1258,7 +1250,6 @@
     <string name="filter_preset_deep_black">深邃黑场</string>
     <string name="filter_preset_deep_black_desc">加深黑色画面，适配 OLED 屏幕</string>
 
-
     <string name="ab_loop_clip_error">导出片段失败：%s</string>
     <string name="ab_loop_clip_saved">片段已保存到 %s</string>
     <string name="ab_loop_cut_clip">截取片段</string>
@@ -1325,7 +1316,7 @@
     <string name="danmaku_density_dense">密集</string>
     <string name="danmaku_scroll_speed_title">滚动速度</string>
     <string name="generic_off">关闭</string>
-    <string name="github_repo_url">https://github.com/sfsakhawat999/mpvRex</string>
+    <string name="github_repo_url">https://github.com/zuimengcf/mpv-player</string>
     <string name="open_with_mini_player">用迷你播放器打开</string>
     <string name="player_gesture_seek_indicator">[%1$s%2$s] (%3$s)</string>
     <string name="player_restart_action">重新播放</string>
@@ -1367,8 +1358,7 @@
     <string name="pref_about_donate_kofi_url">https://ko-fi.com/adityanarvekar</string>
     <string name="pref_about_donate_paypal_url">https://paypal.me/aadinarvekar</string>
     <string name="pref_about_donate_upi_id">aadiinarvekar@upi</string>
-    <string name="pref_about_telegram_chat_url">https://t.me/mpvRex_chat</string>
-    <string name="pref_about_telegram_url">https://t.me/mpvRex</string>
+
     <string name="pref_add_library_root">添加媒体库文件夹</string>
     <string name="pref_appearance_language_summary">更改应用的显示语言</string>
     <string name="pref_appearance_language_title">应用语言</string>
