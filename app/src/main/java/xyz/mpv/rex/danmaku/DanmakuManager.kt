@@ -34,6 +34,7 @@ class DanmakuManager(
     private val danmakuLoader = BiliDanmakuLoader.instance()
 
     private var currentDanmakuPath: String? = null
+    private var currentDanmakuTitle: String? = null
     private var danmakuLoaded = false
     private var trackSelected = false
     private var positionProvider: PlaybackPositionProvider? = null
@@ -156,7 +157,7 @@ class DanmakuManager(
                 val wasSelected = trackSelected
                 if (currentPath != null) {
                     Log.d(TAG, "Override color changed ($lastAppliedOverrideColor -> $newOverrideColor), reloading danmaku")
-                    loadDanmaku(currentPath)
+                    loadDanmaku(currentPath, currentDanmakuTitle)
                     // loadDanmaku 内部 release 会重置显示状态，这里恢复并同步位置
                     if (wasSelected) {
                         showDanmaku()
@@ -189,8 +190,9 @@ class DanmakuManager(
 
     /**
      * 加载弹幕文件（B站 XML 格式）
+     * @param title 弹幕标题（如 "番剧名 - 第x集"），用于持久化绑定展示，可为空
      */
-    fun loadDanmaku(filePath: String): Boolean {
+    fun loadDanmaku(filePath: String, title: String? = null): Boolean {
         try {
             Log.d(TAG, "Loading danmaku: $filePath")
             val file = File(filePath)
@@ -210,6 +212,7 @@ class DanmakuManager(
             }
 
             currentDanmakuPath = filePath
+            currentDanmakuTitle = title
             // enabledByDefault=false 时加载但不自动显示（需手动开"显示弹幕"）
             val enabledByDefault = danmakuPreferences?.enabledByDefault?.get() ?: true
             trackSelected = enabledByDefault
@@ -229,16 +232,16 @@ class DanmakuManager(
 
     /**
      * 从 XML 字符串加载弹幕（用于 dandanplay 在线获取）。
-     * 写入应用缓存目录后复用 loadDanmaku。
+     * 写入应用文件目录（filesDir，持久存储，系统清理缓存不丢失）后复用 loadDanmaku。
      */
     fun loadDanmakuFromXml(content: String, title: String): Boolean {
         return try {
-            val dir = File(context.cacheDir, "danmaku")
+            val dir = File(context.filesDir, "danmaku")
             if (!dir.exists()) dir.mkdirs()
             val cleanName = title.replace(Regex("[^a-zA-Z0-9_\\u4e00-\\u9fa5]"), "_")
             val file = File(dir, "${cleanName}_${System.currentTimeMillis()}.xml")
             file.writeText(content)
-            loadDanmaku(file.absolutePath)
+            loadDanmaku(file.absolutePath, title)
         } catch (e: Exception) {
             Log.e(TAG, "Error writing danmaku xml", e)
             Toast.makeText(context, "弹幕写入失败: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -301,12 +304,19 @@ class DanmakuManager(
     fun isDanmakuLoaded(): Boolean = danmakuLoaded
     fun isTrackSelected(): Boolean = trackSelected
 
+    /** 当前已加载弹幕的文件路径（null=未加载） */
+    fun getCurrentDanmakuPath(): String? = currentDanmakuPath
+
+    /** 当前已加载弹幕的标题（如 "番剧名 - 第x集"，null=未加载/无标题） */
+    fun getCurrentDanmakuTitle(): String? = currentDanmakuTitle
+
     fun releaseDanmaku() {
         if (danmakuLoaded) {
             danmakuView.release()
             danmakuLoaded = false
             trackSelected = false
             currentDanmakuPath = null
+            currentDanmakuTitle = null
             danmakuView.visibility = android.view.View.GONE
             Log.d(TAG, "Danmaku released")
         }

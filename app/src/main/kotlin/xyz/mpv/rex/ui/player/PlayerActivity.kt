@@ -2484,6 +2484,14 @@ class PlayerActivity :
 
               isCurrentlyWatched || isFinished || wasWatchedThisSession || (oldState?.hasBeenWatched == true)
             },
+            // 弹幕持久化绑定：写入当前绑定（若管理器未加载弹幕则继承旧绑定，避免进度保存清空绑定）
+            danmakuPath = danmakuManager.getCurrentDanmakuPath() ?: oldState?.danmakuPath ?: "",
+            danmakuTitle = danmakuManager.getCurrentDanmakuTitle() ?: oldState?.danmakuTitle ?: "",
+            danmakuSelected = if (danmakuManager.getCurrentDanmakuPath() != null) {
+              danmakuManager.isTrackSelected()
+            } else {
+              oldState?.danmakuSelected ?: false
+            },
           ),
         )
       }.onFailure { e ->
@@ -2505,11 +2513,122 @@ class PlayerActivity :
 
       applyPlaybackState(state)
       applyDefaultSettings(state)
+      restoreBoundDanmaku(state)
 
       state != null
     }.onFailure { e ->
       Log.e(TAG, "Error loading playback state", e)
     }.getOrDefault(false)
+  }
+
+  /**
+   * 恢复持久化的弹幕绑定：播放历史中绑定的弹幕（路径+标题+显示状态）。
+   * 退出播放器不解绑；仅手动解除会清空绑定（此时 path 为空，不恢复）。
+   */
+  private fun restoreBoundDanmaku(state: PlaybackStateEntity?) {
+    val boundPath = state?.danmakuPath
+    if (boundPath.isNullOrBlank()) {
+      // 未绑定：确保不残留上个视频的弹幕
+      if (danmakuManager.isDanmakuLoaded()) danmakuManager.releaseDanmaku()
+      return
+    }
+    val file = File(boundPath)
+    if (!file.exists()) {
+      Log.w(TAG, "Bound danmaku file missing, skip restore: $boundPath")
+      return
+    }
+    Log.d(TAG, "Restoring bound danmaku: $boundPath (title=${state.danmakuTitle})")
+    val loaded = danmakuManager.loadDanmaku(boundPath, state.danmakuTitle)
+    if (loaded) {
+      if (state.danmakuSelected) {
+        danmakuManager.showDanmaku()
+      } else {
+        danmakuManager.hideDanmaku()
+      }
+    }
+  }
+
+  /**
+   * 保存当前弹幕绑定到播放历史（加载弹幕后调用）。
+   * 绑定持久化：退出不解绑，手动解除才清空。
+   */
+  internal fun saveDanmakuBinding() {
+    val identifier = mediaIdentifier
+    if (identifier.isBlank()) return
+    lifecycleScope.launch(Dispatchers.IO) {
+      runCatching {
+        val oldState = playbackStateRepository.getVideoDataByTitle(identifier)
+        val path = danmakuManager.getCurrentDanmakuPath()
+        val title = danmakuManager.getCurrentDanmakuTitle()
+        val selected = danmakuManager.isTrackSelected()
+        playbackStateRepository.upsert(
+          PlaybackStateEntity(
+            mediaTitle = identifier,
+            lastPosition = oldState?.lastPosition ?: 0,
+            playbackSpeed = oldState?.playbackSpeed ?: 1.0,
+            videoZoom = oldState?.videoZoom ?: 0f,
+            sid = oldState?.sid ?: -1,
+            secondarySid = oldState?.secondarySid ?: -1,
+            subDelay = oldState?.subDelay ?: 0,
+            subSpeed = oldState?.subSpeed ?: 1.0,
+            aid = oldState?.aid ?: -1,
+            audioDelay = oldState?.audioDelay ?: 0,
+            timeRemaining = oldState?.timeRemaining ?: 0,
+            savedOrientation = oldState?.savedOrientation,
+            externalSubtitles = oldState?.externalSubtitles ?: "",
+            externalAudioTracks = oldState?.externalAudioTracks ?: "",
+            hasBeenWatched = oldState?.hasBeenWatched ?: false,
+            // 弹幕绑定：手动解除时 path/title 置空即清空绑定
+            danmakuPath = path ?: "",
+            danmakuTitle = title ?: "",
+            danmakuSelected = selected,
+          ),
+        )
+        Log.d(TAG, "Danmaku binding saved: path=$path title=$title selected=$selected")
+      }.onFailure { e ->
+        Log.e(TAG, "Error saving danmaku binding", e)
+      }
+    }
+  }
+
+  /**
+   * 手动解除弹幕绑定：清空播放历史中的弹幕绑定字段（路径/标题/显示状态）。
+   * 与 saveDanmakuBinding 相对，仅在用户主动点解除按钮时调用。
+   */
+  internal fun clearDanmakuBinding() {
+    val identifier = mediaIdentifier
+    if (identifier.isBlank()) return
+    lifecycleScope.launch(Dispatchers.IO) {
+      runCatching {
+        val oldState = playbackStateRepository.getVideoDataByTitle(identifier)
+        playbackStateRepository.upsert(
+          PlaybackStateEntity(
+            mediaTitle = identifier,
+            lastPosition = oldState?.lastPosition ?: 0,
+            playbackSpeed = oldState?.playbackSpeed ?: 1.0,
+            videoZoom = oldState?.videoZoom ?: 0f,
+            sid = oldState?.sid ?: -1,
+            secondarySid = oldState?.secondarySid ?: -1,
+            subDelay = oldState?.subDelay ?: 0,
+            subSpeed = oldState?.subSpeed ?: 1.0,
+            aid = oldState?.aid ?: -1,
+            audioDelay = oldState?.audioDelay ?: 0,
+            timeRemaining = oldState?.timeRemaining ?: 0,
+            savedOrientation = oldState?.savedOrientation,
+            externalSubtitles = oldState?.externalSubtitles ?: "",
+            externalAudioTracks = oldState?.externalAudioTracks ?: "",
+            hasBeenWatched = oldState?.hasBeenWatched ?: false,
+            // 手动解除：清空弹幕绑定
+            danmakuPath = "",
+            danmakuTitle = "",
+            danmakuSelected = false,
+          ),
+        )
+        Log.d(TAG, "Danmaku binding cleared")
+      }.onFailure { e ->
+        Log.e(TAG, "Error clearing danmaku binding", e)
+      }
+    }
   }
 
   /**

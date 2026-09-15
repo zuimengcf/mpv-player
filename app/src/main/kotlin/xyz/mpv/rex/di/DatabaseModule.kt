@@ -547,6 +547,21 @@ val MIGRATION_14_15 = object : Migration(14, 15) {
   }
 }
 
+/**
+ * Migration from version 15 to version 16
+ *
+ * Changes:
+ * - Adds danmakuPath, danmakuTitle, danmakuSelected columns to PlaybackStateEntity
+ *   to persist danmaku binding per video (bound danmaku survives exit, only manual unbind clears it)
+ */
+val MIGRATION_15_16 = object : Migration(15, 16) {
+  override fun migrate(db: SupportSQLiteDatabase) {
+    db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `danmakuPath` TEXT NOT NULL DEFAULT ''")
+    db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `danmakuTitle` TEXT NOT NULL DEFAULT ''")
+    db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `danmakuSelected` INTEGER NOT NULL DEFAULT 0")
+  }
+}
+
 val DatabaseModule =
   module {
     single<Json> {
@@ -561,7 +576,7 @@ val DatabaseModule =
       Room
         .databaseBuilder(context, MpvExDatabase::class.java, "mpvex.db")
         .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
-        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16)
         .fallbackToDestructiveMigration(false) // This is now safe
         .build()
     }

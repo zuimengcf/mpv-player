@@ -104,12 +104,14 @@ fun PlayerSheets(
             try {
               val input = context.contentResolver.openInputStream(uri)
               if (input != null) {
-                val dir = java.io.File(context.cacheDir, "danmaku")
+                // 写入持久目录（filesDir），确保绑定弹幕不被系统缓存清理
+                val dir = java.io.File(context.filesDir, "danmaku")
                 if (!dir.exists()) dir.mkdirs()
                 val outFile = java.io.File(dir, "local_${System.currentTimeMillis()}.xml")
                 java.io.FileOutputStream(outFile).use { out -> input.copyTo(out) }
                 input.close()
-                if (activity.danmakuManager.loadDanmaku(outFile.absolutePath)) {
+                if (activity.danmakuManager.loadDanmaku(outFile.absolutePath, "本地弹幕")) {
+                  activity.saveDanmakuBinding()
                   Toast.makeText(context, R.string.danmaku_toast_loaded, Toast.LENGTH_SHORT).show()
                 }
               }

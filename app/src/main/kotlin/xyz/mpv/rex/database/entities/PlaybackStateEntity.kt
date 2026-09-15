@@ -20,4 +20,7 @@ data class PlaybackStateEntity(
   val externalSubtitles: String = "", // Pipe-separated list of external subtitle URIs
   val externalAudioTracks: String = "", // Pipe-separated list of external audio URIs
   val hasBeenWatched: Boolean = false, // Persistent flag: true if video has ever reached the watched threshold
+  val danmakuPath: String = "", // 绑定的弹幕文件路径（空=未绑定）。持久化绑定，退出不解绑，手动解除才清空
+  val danmakuTitle: String = "", // 绑定的弹幕标题（如 "番剧名 - 第x集"）
+  val danmakuSelected: Boolean = false, // 弹幕是否显示（绑定但可临时隐藏，切换状态持久化）
 )

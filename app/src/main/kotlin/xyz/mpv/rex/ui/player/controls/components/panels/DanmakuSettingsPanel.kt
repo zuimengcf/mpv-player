@@ -504,12 +504,13 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
       val success = try {
         val input = context.contentResolver.openInputStream(uri)
         if (input == null) false else {
-          val dir = File(context.cacheDir, "danmaku")
+          // 写入持久目录（filesDir），确保绑定弹幕不被系统缓存清理
+          val dir = File(context.filesDir, "danmaku")
           if (!dir.exists()) dir.mkdirs()
           val outFile = File(dir, "local_${System.currentTimeMillis()}.xml")
           FileOutputStream(outFile).use { out -> input.copyTo(out) }
           input.close()
-          danmakuManager.loadDanmaku(outFile.absolutePath)
+          danmakuManager.loadDanmaku(outFile.absolutePath, "本地弹幕")
         }
       } catch (e: Exception) {
         Toast.makeText(context, "导入弹幕失败: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -517,6 +518,7 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
       }
       if (success) {
         danmakuVisible = true
+        activity.saveDanmakuBinding()
         Toast.makeText(context, R.string.danmaku_toast_loaded, Toast.LENGTH_SHORT).show()
       }
     }
@@ -554,8 +556,10 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
         trailingContent = {
           if (danmakuManager.isDanmakuLoaded()) {
             IconButton(onClick = {
+              // 手动解除：释放弹幕并清空持久化绑定
               danmakuManager.releaseDanmaku()
               danmakuVisible = false
+              activity.clearDanmakuBinding()
               Toast.makeText(context, R.string.danmaku_toast_removed, Toast.LENGTH_SHORT).show()
             }) {
               Icon(imageVector = Icons.Default.Close, contentDescription = null)
@@ -599,6 +603,8 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
         onValueChange = { on ->
           danmakuVisible = on
           if (on) danmakuManager.showDanmaku() else danmakuManager.hideDanmaku()
+          // 显示开关切换也持久化（绑定但可临时隐藏）
+          activity.saveDanmakuBinding()
         },
         title = { Text(stringResource(R.string.danmaku_show_switch)) },
         summary = { Text(stringResource(R.string.danmaku_show_switch_summary)) },
@@ -613,6 +619,7 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
       onDanmakuXml = { xml, title ->
         if (danmakuManager.loadDanmakuFromXml(xml, title)) {
           danmakuVisible = true
+          activity.saveDanmakuBinding()
           Toast.makeText(context, "已加载弹幕: $title", Toast.LENGTH_SHORT).show()
         }
         showSearchDialog = false

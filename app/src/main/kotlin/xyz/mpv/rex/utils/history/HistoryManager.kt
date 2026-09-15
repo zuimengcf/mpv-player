@@ -220,6 +220,9 @@ class HistoryManager(
                         audioDelay = existing?.audioDelay ?: 0,
                         timeRemaining = -1,
                         hasBeenWatched = false,
+                        danmakuPath = existing?.danmakuPath ?: "",
+                        danmakuTitle = existing?.danmakuTitle ?: "",
+                        danmakuSelected = existing?.danmakuSelected ?: false,
                     )
                 )
                 recentlyPlayedRepository.deleteByFilePath(filePath)
@@ -242,6 +245,9 @@ class HistoryManager(
                         audioDelay = existing?.audioDelay ?: 0,
                         timeRemaining = durationSeconds,
                         hasBeenWatched = false,
+                        danmakuPath = existing?.danmakuPath ?: "",
+                        danmakuTitle = existing?.danmakuTitle ?: "",
+                        danmakuSelected = existing?.danmakuSelected ?: false,
                     )
                 )
                 // Upsert a RecentlyPlayed entry with timestamp = now so the file surfaces
@@ -270,6 +276,9 @@ class HistoryManager(
                         audioDelay = existing?.audioDelay ?: 0,
                         timeRemaining = 0,
                         hasBeenWatched = true,
+                        danmakuPath = existing?.danmakuPath ?: "",
+                        danmakuTitle = existing?.danmakuTitle ?: "",
+                        danmakuSelected = existing?.danmakuSelected ?: false,
                     )
                 )
                 // Also add/bump in recently played history
@@ -298,6 +307,9 @@ class HistoryManager(
                         audioDelay = existing?.audioDelay ?: 0,
                         timeRemaining = durationSeconds,
                         hasBeenWatched = false,
+                        danmakuPath = existing?.danmakuPath ?: "",
+                        danmakuTitle = existing?.danmakuTitle ?: "",
+                        danmakuSelected = existing?.danmakuSelected ?: false,
                     )
                 )
                 // Also clear from recently played history
