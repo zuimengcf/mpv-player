@@ -518,6 +518,7 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
       }
       if (success) {
         danmakuVisible = true
+        danmakuManager.showDanmaku()
         activity.saveDanmakuBinding()
         Toast.makeText(context, R.string.danmaku_toast_loaded, Toast.LENGTH_SHORT).show()
       }

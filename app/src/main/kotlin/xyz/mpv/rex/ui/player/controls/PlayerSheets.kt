@@ -95,32 +95,6 @@ fun PlayerSheets(
       val customFolder = subtitlesPreferences.customSubtitleFolder.get()
       val openAtVideoLocation = subtitlesPreferences.openPickerAtVideoLocation.get()
 
-      // 并列入口：加载本地弹幕 XML（与加载字幕同级）
-      val context = androidx.compose.ui.platform.LocalContext.current
-      val activity = LocalActivity.current as xyz.mpv.rex.ui.player.PlayerActivity
-      val danmakuFilePicker =
-        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-          if (uri != null) {
-            try {
-              val input = context.contentResolver.openInputStream(uri)
-              if (input != null) {
-                // 写入持久目录（filesDir），确保绑定弹幕不被系统缓存清理
-                val dir = java.io.File(context.filesDir, "danmaku")
-                if (!dir.exists()) dir.mkdirs()
-                val outFile = java.io.File(dir, "local_${System.currentTimeMillis()}.xml")
-                java.io.FileOutputStream(outFile).use { out -> input.copyTo(out) }
-                input.close()
-                if (activity.danmakuManager.loadDanmaku(outFile.absolutePath, "本地弹幕")) {
-                  activity.saveDanmakuBinding()
-                  Toast.makeText(context, R.string.danmaku_toast_loaded, Toast.LENGTH_SHORT).show()
-                }
-              }
-            } catch (e: Exception) {
-              Toast.makeText(context, "导入弹幕失败: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-          }
-        }
-
       val currentMediaTitle = viewModel.currentMediaTitle
       val matchToName = if (currentMediaTitle.isNotBlank()) {
           // Remove extension if present to improve matching
@@ -175,7 +149,6 @@ fun PlayerSheets(
         onToggleSubtitle = onToggleSubtitle,
         isSubtitleSelected = isSubtitleSelected,
         onAddSubtitle = { showFilePicker = true },
-        onAddDanmaku = { danmakuFilePicker.launch(arrayOf("application/xml", "text/xml", "text/plain", "*/*")) },
         onRemoveSubtitle = onRemoveSubtitle,
         onOpenSubtitleSettings = { onOpenPanel(Panels.SubtitleSettings) },
         onOpenSubtitleDelay = { onOpenPanel(Panels.SubtitleDelay) },

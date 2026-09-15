@@ -76,8 +76,8 @@ class DanmakuManager(
                 }
                 danmakuView.visibility = if (trackSelected) android.view.View.VISIBLE else android.view.View.GONE
                 // 关键修复：prepared 后必须 start 才能真正渲染弹幕
-                // 若当前正在播放则立即启动渲染循环
-                if (trackSelected && (positionProvider?.isPlaying() ?: true)) {
+                // 只要 trackSelected 就启动渲染循环，暂停状态由 pauseDanmaku/resumeDanmaku 同步
+                if (trackSelected) {
                     danmakuView.start()
                     Log.d(TAG, "Danmaku started after prepare")
                 }
