@@ -1783,11 +1783,11 @@ end
 
 -- ============================================================================
 -- Custom: cycle through pages 0,1,2,3,4,5 in order (循环切换监测页面 012345)
--- Invoked via: script-binding stats/display-page-next
+-- Invoked via: script-binding stats/display-page-next  OR  script-message stats-cycle
 -- ============================================================================
 local page_cycle = {0, 1, 2, 3, 4, 5}
 local cycle_pos = 1
-mp.add_key_binding(nil, "display-page-next", function()
+local function cycle_stats_page()
     cycle_pos = cycle_pos % #page_cycle + 1
     local target = page_cycle[cycle_pos]
     for k, page in pairs(pages) do
@@ -1804,13 +1804,16 @@ mp.add_key_binding(nil, "display-page-next", function()
         process_key_binding(false)
     end
     mp.osd_message("监测页 " .. target, 1)
-end, {repeatable=false})
+end
+-- Reliable path for the app's custom button (no repeatable keybinding semantics)
+mp.register_script_message("stats-cycle", cycle_stats_page)
+mp.add_key_binding(nil, "display-page-next", cycle_stats_page, {repeatable=false})
 
 -- ============================================================================
 -- Custom: close/hide stats overlay (关闭监测面板)
--- Invoked via: script-binding stats/display-stats-close
+-- Invoked via: script-binding stats/display-stats-close  OR  script-message stats-close
 -- ============================================================================
-mp.add_key_binding(nil, "display-stats-close", function()
+local function close_stats()
     if display_timer:is_enabled() then
         display_timer:kill()
         cache_recorder_timer:stop()
@@ -1826,7 +1829,10 @@ mp.add_key_binding(nil, "display-stats-close", function()
         end
         mp.osd_message("监测面板已关闭", 1)
     end
-end, {repeatable=false})
+end
+-- Reliable path for the app's custom button (no repeatable keybinding semantics)
+mp.register_script_message("stats-close", close_stats)
+mp.add_key_binding(nil, "display-stats-close", close_stats, {repeatable=false})
 
 -- Reprint stats immediately when VO was reconfigured, only when toggled
 mp.register_event("video-reconfig",
