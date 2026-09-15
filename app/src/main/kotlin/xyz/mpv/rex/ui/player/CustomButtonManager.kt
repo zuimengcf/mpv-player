@@ -171,11 +171,27 @@ class CustomButtonManager(
     }
 
     fun callButton(id: String) {
+        // 监测按钮走系统原生 script-binding 调用，与 MoreSheet 完全一致
+        when (id) {
+            "stats-cycle" -> {
+                MPVLib.command("script-binding", "stats/display-stats-toggle")
+                return
+            }
+            "stats-close" -> {
+                MPVLib.command("script-binding", "stats/display-stats-close")
+                return
+            }
+        }
         val safeId = id.replace("-", "_")
         MPVLib.command("script-message", "call_button_$safeId")
     }
 
     fun callButtonLongPress(id: String) {
+        // 长按监测循环 = 循环切换监测页（系统 display-page-next 绑定）
+        if (id == "stats-cycle") {
+            MPVLib.command("script-binding", "stats/display-page-next")
+            return
+        }
         val safeId = id.replace("-", "_")
         MPVLib.command("script-message", "call_button_long_$safeId")
     }
