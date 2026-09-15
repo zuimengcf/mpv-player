@@ -122,14 +122,14 @@ class PlayerPreferences(
 
   companion object {
     const val DEFAULT_CUSTOM_BUTTONS_JSON = """{"slots":[
-      {"id":"sub-prev","title":"上一句字幕","content":"mp.osd_message('上一句字幕',1) mp.command('sub-seek','-1')","longPressContent":"mp.osd_message('后退5句',1) mp.command('sub-seek','-5')","enabled":true},
+      {"id":"sub-prev","title":"上一句字幕","content":"mp.osd_message('上一句字幕',1) mp.commandv('sub-seek','-1')","longPressContent":"mp.osd_message('后退5句',1) mp.commandv('sub-seek','-5')","enabled":true},
       {"id":"speed-3x","title":"3倍速","content":"mp.osd_message('3倍速',1) mp.set_property('speed','3.0')","longPressContent":"mp.osd_message('恢复1倍速',1) mp.set_property('speed','1.0')","enabled":true},
       {"id":"mute","title":"静音","content":"mp.osd_message('已静音',1) mp.set_property('mute','yes')","longPressContent":"mp.osd_message('取消静音',1) mp.set_property('mute','no')","enabled":true},
-      {"id":"stats-cycle","title":"监测循环","content":"mp.command('script-binding','stats/display-page-next')","longPressContent":"mp.command('script-binding','stats/display-stats-toggle')","enabled":true},
-      {"id":"stats-close","title":"关闭监测","content":"mp.command('script-binding','stats/display-stats-close')","longPressContent":"mp.command('script-binding','stats/display-stats-close')","enabled":true},
-      {"id":"frame-back","title":"上一帧","content":"mp.osd_message('上一帧',1) mp.command('no-osd','frame-back-step')","longPressContent":"mp.osd_message('上一帧',1) mp.command('no-osd','frame-back-step')","enabled":true},
-      {"id":"step-fwd","title":"下一帧","content":"mp.osd_message('下一帧',1) mp.command('no-osd','frame-step')","longPressContent":"mp.osd_message('下一帧',1) mp.command('no-osd','frame-step')","enabled":true},
-      {"id":"screenshot","title":"截图","content":"mp.osd_message('已截图(带字幕)',1) mp.command('screenshot','subtitles')","longPressContent":"mp.osd_message('已截图(无字幕)',1) mp.command('screenshot','video')","enabled":true}
+      {"id":"stats-cycle","title":"监测循环","content":"mp.commandv('script-binding','stats/display-page-next')","longPressContent":"mp.commandv('script-binding','stats/display-stats-toggle')","enabled":true},
+      {"id":"stats-close","title":"关闭监测","content":"mp.commandv('script-binding','stats/display-stats-close')","longPressContent":"mp.commandv('script-binding','stats/display-stats-close')","enabled":true},
+      {"id":"frame-back","title":"上一帧","content":"mp.osd_message('上一帧',1) mp.commandv('no-osd','frame-back-step')","longPressContent":"mp.osd_message('上一帧',1) mp.commandv('no-osd','frame-back-step')","enabled":true},
+      {"id":"step-fwd","title":"下一帧","content":"mp.osd_message('下一帧',1) mp.commandv('no-osd','frame-step')","longPressContent":"mp.osd_message('下一帧',1) mp.commandv('no-osd','frame-step')","enabled":true},
+      {"id":"screenshot","title":"截图","content":"mp.osd_message('已截图(带字幕)',1) mp.commandv('screenshot','subtitles')","longPressContent":"mp.osd_message('已截图(无字幕)',1) mp.commandv('screenshot','video')","enabled":true}
     ]}"""
   }
 
