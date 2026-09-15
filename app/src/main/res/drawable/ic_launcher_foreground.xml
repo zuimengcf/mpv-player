@@ -4,20 +4,19 @@
     android:height="108dp"
     android:viewportWidth="512"
     android:viewportHeight="512">
-
+    <!-- 方案e：白色播放三角 + 底部品牌条（安全区内居中） -->
     <group
-        android:scaleX="0.55"
-        android:scaleY="0.55"
-        android:translateX="120.12"
-        android:translateY="95.12">
+        android:scaleX="0.62"
+        android:scaleY="0.62"
+        android:translateX="97.3"
+        android:translateY="86.7">
+        <!-- 播放三角（白色） -->
         <path
-            android:fillColor="#F4C542"
-            android:pathData="M215,135 L245,55 L275,127 L355,95 L365,175 L450,170 L385,235 L215,135 Z" />
+            android:fillColor="#FFFFFF"
+            android:pathData="M215,165 Q215,152 233,161 L345,256 L233,351 Q215,360 215,347 Z" />
+        <!-- 底部品牌条（白色半透明） -->
         <path
-            android:strokeColor="#ffffff"
-            android:strokeWidth="50"
-            android:strokeLineJoin="round"
-            android:strokeLineCap="round"
-            android:pathData="M150,165 Q150,145,170,155 L385,280 Q410,295,385,310 L175,430 Q150,445,150,415 Z" />
+            android:fillColor="#66FFFFFF"
+            android:pathData="M140,392 L372,392 L372,402 L140,402 Z" />
     </group>
 </vector>
