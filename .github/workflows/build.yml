@@ -1,4 +1,4 @@
-name: Build Debug APK
+name: Build APK
 on:
   push:
     branches: [main, lite-offline]
@@ -24,11 +24,11 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle (debug)
-        run: ./gradlew assembleDebug --no-daemon --no-configuration-cache
+      - name: Build with Gradle (release)
+        run: ./gradlew assembleRelease --no-daemon --no-configuration-cache
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/*.apk
+          name: app-release
+          path: app/build/outputs/apk/release/*.apk

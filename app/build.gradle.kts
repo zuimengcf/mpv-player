@@ -69,6 +69,9 @@ android {
 
   buildTypes {
     named("release") {
+      // lite 正式版：.lite 后缀实现与主版本双装共存
+      applicationIdSuffix = ".lite"
+      versionNameSuffix = "-lite"
       signingConfig = signingConfigs.getByName("release")
       isMinifyEnabled = true
       isShrinkResources = true
