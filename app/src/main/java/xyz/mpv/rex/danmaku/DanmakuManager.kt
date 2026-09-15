@@ -238,7 +238,7 @@ class DanmakuManager(
     fun resumeDanmaku() {
         if (danmakuLoaded && trackSelected) {
             // 若渲染循环未启动（例如加载时处于暂停状态），resume 前先 start
-            if (!danmakuView.isStarted()) {
+            if (!danmakuView.isPrepared()) {
                 danmakuView.start()
                 Log.d(TAG, "Danmaku started (resume fallback)")
             }
@@ -257,7 +257,7 @@ class DanmakuManager(
     fun showDanmaku() {
         trackSelected = true
         if (danmakuLoaded) {
-            if (!danmakuView.isStarted()) {
+            if (!danmakuView.isPrepared()) {
                 danmakuView.start()
                 Log.d(TAG, "Danmaku started (show fallback)")
             }

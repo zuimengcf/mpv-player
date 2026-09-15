@@ -121,7 +121,7 @@ class PlayerPreferences(
   val customButtons = preferenceStore.getString("custom_buttons_json", DEFAULT_CUSTOM_BUTTONS_JSON)
 
   companion object {
-    private const val DEFAULT_CUSTOM_BUTTONS_JSON = """{"slots":[
+    const val DEFAULT_CUSTOM_BUTTONS_JSON = """{"slots":[
       {"id":"sub-prev","title":"上一句字幕","content":"mp.osd_message('上一句字幕',1) mp.command('sub-seek','-1')","longPressContent":"mp.osd_message('后退5句',1) mp.command('sub-seek','-5')","enabled":true},
       {"id":"speed-3x","title":"3倍速","content":"mp.osd_message('3倍速',1) mp.set_property('speed','3.0')","longPressContent":"mp.osd_message('恢复1倍速',1) mp.set_property('speed','1.0')","enabled":true},
       {"id":"mute","title":"静音","content":"mp.osd_message('已静音',1) mp.set_property('mute','yes')","longPressContent":"mp.osd_message('取消静音',1) mp.set_property('mute','no')","enabled":true},
