@@ -1,8 +1,7 @@
 name: Build Debug APK
-
 on:
   push:
-    branches: [main]
+    branches: [main, lite-offline]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
