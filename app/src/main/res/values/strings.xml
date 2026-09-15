@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">REX Player</string>
     <string name="author_name" translatable="false">Sakhawat</string>
 
@@ -10,6 +10,8 @@
     <string name="generic_ok">OK</string>
     <string name="generic_unit_ms">ms</string>
     <string name="generic_disabled">Disabled</string>
+    <string name="ui_loading">Loading…</string>
+    <string name="ui_loading_percent">Loading %d%%</string>
 
     <string name="pref_preferences">Preferences</string>
 
@@ -32,15 +34,14 @@
     <string name="pref_appearance_darkmode_dark">Dark</string>
     <string name="pref_appearance_amoled_mode_title">AMOLED Black Mode</string>
     <string name="pref_appearance_amoled_mode_summary">Use pure black background for dark themes</string>
-    <string name="pref_appearance_material_you_title">Material You</string>
-    <string name="pref_appearance_material_you_summary">Enable dynamic colors</string>
-    <string name="pref_appearance_material_you_summary_disabled">Only available on Android 12 and above</string>
     <string name="pref_appearance_unlimited_name_lines_title">Show full names</string>
     <string name="pref_appearance_unlimited_name_lines_summary">Show full folder and video names without truncation</string>
     <string name="pref_appearance_enable_bounce_animation_title">Enable bouncy animations</string>
     <string name="pref_appearance_enable_bounce_animation_summary">Seekbar and volume/brightness sliders animate with a bounce effect</string>
     <string name="pref_appearance_hide_player_buttons_background_title">Hide player buttons background</string>
     <string name="pref_appearance_hide_player_buttons_background_summary">Hide the background of all player control buttons</string>
+    <string name="pref_appearance_show_next_previous_buttons_title">Show next/previous buttons</string>
+    <string name="pref_appearance_show_next_previous_buttons_summary">Show next and previous skip buttons in the player controls overlay</string>
     <string name="pref_appearance_enable_glass_player_controls_title">Glass player controls</string>
     <string name="pref_appearance_enable_glass_player_controls_summary">Apply glass-morphism style to player control buttons</string>
     <string name="pref_appearance_enable_glass_seekbar_title">Glass seekbar background</string>
@@ -49,11 +50,10 @@
     <string name="pref_appearance_match_player_controls_to_theme_summary">Color player buttons using the current theme colors</string>
     <string name="pref_appearance_player_always_dark_mode_title">Player always dark mode</string>
     <string name="pref_appearance_player_always_dark_mode_summary">Keep player controls in dark theme regardless of app theme</string>
+    <string name="pref_appearance_player_always_dark_mode_disabled_toast">Player always dark mode is required when glass player controls are enabled</string>
     <string name="pref_appearance_use_system_font_title">Use system font</string>
     <string name="pref_appearance_use_system_font_summary">Use your device\'s default font instead of the app font</string>  
     <string name="pref_appearance_category_file_browser">File Browser</string>
-    <string name="pref_appearance_show_hidden_files_title">Show Hidden Files</string>
-    <string name="pref_appearance_show_hidden_files_summary">Show hidden folders starting with a dot (.) including android, data, system folders and .nomedia files</string>
     <string name="pref_appearance_show_unplayed_old_video_label_title">Show label for new unplayed videos</string>
     <string name="pref_appearance_show_unplayed_old_video_label_summary">Display a \"New\" label on videos added within specified days that have never been played</string>
     <string name="pref_appearance_unplayed_old_video_days_title">Days threshold for new video label</string>
@@ -61,15 +61,6 @@
     <string name="pref_appearance_category_thumbnails">Thumbnail</string>
     <string name="pref_appearance_show_network_thumbnails_title">Show network thumbnails (Experimental)</string>
     <string name="pref_appearance_show_network_thumbnails_summary">Generate thumbnails for network streams (May increase data usage on mobile networks)</string>
-    <string name="pref_appearance_thumbnail_strategy_title">Thumbnail generation strategy</string>
-    <string name="pref_appearance_thumbnail_strategy_summary">Choose how thumbnails are extracted from videos</string>
-    <string name="pref_appearance_thumbnail_strategy_first_frame_title">First Frame</string>
-    <string name="pref_appearance_thumbnail_strategy_first_frame_summary">Quickest extraction. Uses the 10-second mark of the video.</string>
-    <string name="pref_appearance_thumbnail_strategy_position_title">Frame at Position</string>
-    <string name="pref_appearance_thumbnail_strategy_position_summary">Requires more processing. Extracts a frame from further into the video to avoid blank title cards.</string>
-    <string name="pref_appearance_thumbnail_position_title">Thumbnail frame position</string>
-    <string name="pref_appearance_thumbnail_position_summary">Extract thumbnail at %d%% of the video duration</string>
-    <string name="pref_appearance_thumbnail_position_reset">Reset thumbnail position to default</string>
     <string name="pref_appearance_theme_picker_label">App Theme</string>
     <string name="pref_appearance_auto_scroll_title">Auto-scroll to last played</string>
     <string name="pref_appearance_auto_scroll_summary">Automatically scroll to the last played video when opening video lists</string>
@@ -116,15 +107,12 @@
     <string name="settings_search_title">Search</string>
 
     <!-- Player Preferences -->
-    <string name="pref_autoplay_title">Enable next/previous navigation</string>
-    <string name="pref_autoplay_summary">Show next/previous buttons for all videos in folder</string>
-    <string name="pref_autoplay_next_video_title">Autoplay next video</string>
-    <string name="pref_autoplay_next_video_summary">Automatically play next video when current ends</string>
+    <string name="pref_autoplay_title">Auto-queue folder videos</string>
+    <string name="pref_autoplay_summary">Automatically queue all videos in folder into a playlist</string>
+    <string name="pref_autoplay_on_open_title">Autoplay on open</string>
+    <string name="pref_autoplay_on_open_summary">Automatically begin playback when media is opened</string>
     <string name="pref_auto_pip_title">Auto Picture-in-Picture</string>
     <string name="pref_auto_pip_summary">Automatically enter PIP mode when pressing home or back</string>
-    <string name="pref_player_resume_on_unlock_title">Resume on unlock</string>
-    <string name="pref_player_resume_on_unlock_summary_on">Resume video automatically after unlocking if it was playing before the screen locked</string>
-    <string name="pref_player_resume_on_unlock_summary_off">Keep video paused after the screen is unlocked</string>
     <string name="pref_dynamic_speed_overlay_title">Dynamic Speed Overlay</string>
     <string name="pref_dynamic_speed_overlay_summary">Show advance overlay for speed control during long press and swipe</string>
     <string name="pref_show_navigation_bar_title">Show navigation bar with controls</string>
@@ -150,14 +138,10 @@
 
     <string name="pref_layout_title">Player Layout</string>
     <string name="pref_layout_summary">Customize player button layout</string>
-    <string name="pref_layout_reset_default">Reset to default</string>
     <string name="pref_layout_top_right_controls">Top Right Controls</string>
     <string name="pref_layout_bottom_right_controls">Bottom Right Controls</string>
     <string name="pref_layout_bottom_left_controls">Bottom Left Controls</string>
     <string name="pref_layout_portrait_bottom_controls">Portrait Bottom Controls</string>
-    <string name="pref_layout_preview">Preview</string>
-    <string name="pref_layout_reset_title">Reset layout?</string>
-    <string name="pref_layout_reset_summary">All customized player control layouts will be reset to default positions</string>
 
     <string name="pref_player">Player</string>
     <string name="pref_player_summary">Orientation, gestures and controls</string>
@@ -172,7 +156,6 @@
     <string name="pref_player_orientation_landscape">Landscape</string>
     <string name="pref_player_orientation_reverse_landscape">Reverse landscape</string>
     <string name="pref_player_orientation_sensor_landscape">Sensor landscape</string>
-    <string name="pref_player_save_position_on_quit">Save position on quit</string>
     <string name="pref_player_resume_playback_title">Resume playback</string>
     <string name="pref_player_resume_playback_summary">Choose how previously watched videos are opened</string>
     <string name="pref_player_resume_mode_always">Always resume</string>
@@ -188,6 +171,10 @@
     <string name="player_resume_action_start_over">Start afresh</string>
     <string name="player_resumed_from_pill">Resumed from %1$s</string>
     <string name="player_restart_action">Restart</string>
+    <string name="pref_player_auto_resume_on_ask_title">Auto resume playback</string>
+    <string name="pref_player_auto_resume_on_ask_summary_on">Automatically resume and offer to start afresh</string>
+    <string name="pref_player_auto_resume_on_ask_summary_off">Start afresh and offer to resume playback</string>
+    <string name="player_prompt_resume_pill">Watched up to %1$s</string>
     <string name="pref_player_section_mini_player">Mini Player</string>
     <string name="pref_player_play_in_mini_player">Play audio in mini player</string>
     <string name="pref_player_play_in_mini_player_summary_on">Tapping an audio file starts playback directly in the bottom mini player bar</string>
@@ -198,6 +185,9 @@
     <string name="pref_player_seeking_title">Seeking</string>
     <string name="pref_player_close_after_eof">Close after the end of playback</string>
     <string name="pref_player_remember_brightness">Remember display brightness</string>
+    <string name="pref_player_default_aspect_ratio" tools:ignore="MissingTranslation">Default aspect ratio</string>
+    <string name="pref_player_remember_aspect_ratio" tools:ignore="MissingTranslation">Remember aspect ratio across videos</string>
+    <string name="pref_player_remember_aspect_ratio_summary" tools:ignore="MissingTranslation">Save the aspect ratio used in the player for subsequent videos</string>
 
     <string name="pref_player_gestures">Gestures</string>
     <string name="pref_player_gestures_brightness">Brightness gestures</string>
@@ -256,13 +246,16 @@
     <string name="pref_gesture_enable_release_to_cancel_title">Enable "Release to cancel"</string>
     <string name="pref_gesture_enable_release_to_cancel_summary">Revert seek position when releasing near the drag start location</string>
 
-    <string name="pref_gesture_double_tap_custom_info">You can bind custom actions to these gestures in input.conf using the following key codes:\n\nLeft: MBTN_LEFT_DBL\nCenter: MBTN_MID_DBL\nRight: MBTN_RIGHT_DBL</string>
+    <string name="pref_gesture_double_tap_custom_info">You can bind custom actions to these gestures in input.conf using the following key codes:</string>
+    <string name="pref_gesture_double_tap_left">Left</string>
+    <string name="pref_gesture_double_tap_center">Center</string>
+    <string name="pref_gesture_double_tap_right">Right</string>
 
     <string name="pref_gesture_media_title">Media controls</string>
     <string name="pref_gesture_media_previous">Previous</string>
     <string name="pref_gesture_media_play">Play/Pause</string>
     <string name="pref_gesture_media_next">Next</string>
-    <string name="pref_gesture_media_custom_info">You can bind custom actions to media controls in input.conf using the following key codes:\n\nPrevious: PREV\nPlay/Pause: PLAYPAUSE\nNext: NEXT</string>
+    <string name="pref_gesture_media_custom_info">You can bind custom actions to media controls in input.conf using the following key codes:</string>
 
     <string name="pref_gesture_view_title">View</string>
     <string name="pref_gesture_tap_thumbnail_to_select_title">Tap thumbnail to select</string>
@@ -355,6 +348,10 @@
     <string name="pref_advanced_cleared_fonts_cache">Cleared cached fonts</string>
     <string name="pref_advanced_enable_recently_played_title">Recently Played</string>
     <string name="pref_advanced_enable_recently_played_summary">Track and display recently played videos and playlists</string>
+    <string name="pref_advanced_history_auto_remove_deleted_title">Auto-remove deleted files</string>
+    <string name="pref_advanced_history_auto_remove_deleted_summary">Automatically remove and clean up deleted media from Recently Played</string>
+    <string name="pref_advanced_history_exclude_external_title">Exclude external &amp; shared media</string>
+    <string name="pref_advanced_history_exclude_external_summary">Do not add media to Recently Played when opened from other apps or share sheet</string>
 
     <string name="pref_advanced_features_tooltip">Enable experimental or advanced features such as stats page and Anime4K upscaling</string>
     <string name="pref_anime4k_title">Anime4K upscaling (Experimental)</string>
@@ -482,6 +479,16 @@
     <string name="player_sheets_stats_page_3_desc">Cache status. Buffer health, demuxer cache, seekable ranges.</string>
     <string name="player_sheets_stats_page_4_desc">Current keybindings. List of mapped keyboard shortcuts.</string>
     <string name="player_sheets_stats_page_5_desc">Track list. Details of video, audio and subtitle tracks.</string>
+    <string name="player_sheets_stats_page_6_desc">System stats. Battery level, power draw, temperature, RAM, display.</string>
+    <string name="diagnostics_playback_decoder_header">PLAYBACK &amp; DECODER</string>
+    <string name="diagnostics_power_thermals_header">POWER &amp; THERMALS</string>
+    <string name="diagnostics_session_header">SESSION</string>
+    <string name="diagnostics_app_cpu">App CPU</string>
+    <string name="diagnostics_memory_cache_header">MEMORY &amp; CACHE</string>
+    <string name="diagnostics_process_memory">Process</string>
+    <string name="diagnostics_process_memory_value">PSS %1$s | Java %2$s/%3$s | Native %4$s</string>
+    <string name="diagnostics_playback_cache">Playback</string>
+    <string name="diagnostics_playback_cache_value">Buffered %1$.1f s | Packets %2$s | File %3$s</string>
     <string name="player_speed" translatable="false">%.2fx</string>
 
     <string name="playlist_now_playing">Now Playing</string>
@@ -513,7 +520,7 @@
     <string name="volume_slider_absolute_value" translatable="false">%d</string>
     <string name="value_percentage_int" translatable="false">%d%%</string>
 
-    <string name="github_repo_url" translatable="false">https://github.com/sfsakhawat999/mpvRex</string>
+    <string name="github_repo_url" translatable="false">https://github.com/mpvRex/REX-Player</string>
     <string name="swap_the_volume_and_brightness_slider">Swap volume and brightness slider</string>
     <string name="pref_player_display_reduce_player_animation">Reduce player animation</string>
     <string name="pref_player_display_hide_player_control_time">Hide player control time</string>
@@ -635,7 +642,6 @@
     <string name="pref_player_hide_osd_text_summary">Hide the default mpv OSD text during seeking or subtitle seeking</string>
     <string name="pref_player_keep_screen_on_when_paused_title">Keep screen on when paused</string>
     <string name="pref_player_keep_screen_on_when_paused_summary">Prevents screen timeout during pause</string>
-    <string name="pref_player_save_position_on_quit_summary">Remember where you left off</string>
     <string name="pref_player_interaction_header">Player Interaction</string>
 
     <!-- Folders Preferences -->
@@ -707,10 +713,7 @@
     <string name="export_complete">Export complete</string>
     <string name="import_complete">Import complete</string>
     <string name="auto_picture_in_picture">Auto picture-in-picture</string>
-    <string name="dynamic_speed_overlay">Dynamic speed overlay</string>
     <string name="show_navigation_bar_with_controls">Show navigation bar with controls</string>
-    <string name="enable_lua_scripts">Enable Lua scripts</string>
-    <string name="manage_lua_scripts">Manage Lua scripts</string>
     <string name="rename_playlist">Rename playlist</string>
     <string name="create_playlist">Create playlist</string>
     <string name="add_connection">Add connection</string>
@@ -745,7 +748,6 @@
     <string name="filter_presets">Filter presets</string>
     <string name="no_storage_devices_found">No storage devices found</string>
     <string name="no_folders_or_supported_files">No folders or supported files</string>
-    <string name="hello_world">Hello world</string>
 
     <!-- Browser Preferences -->
     <string name="pref_show_audio_files_title">Show audio files</string>
@@ -1161,6 +1163,7 @@
     <!-- Network Streaming Screen -->
     <string name="network_recent_links">Recent Links</string>
     <string name="network_local_network">Local Network</string>
+    <string name="network_share_unreachable">Can\'t reach the network share.</string>
     <string name="network_empty_title">No network connections</string>
     <string name="network_empty_description">Add SMB, FTP, or WebDAV connections to browse network files</string>
     <string name="network_remove_link_action">Remove Link</string>
@@ -1168,11 +1171,6 @@
     <!-- Appearance Preferences Screen -->
     <string name="pref_appearance_network_thumbnails_dialog_title">Enable Network Thumbnails?</string>
     <string name="pref_appearance_network_thumbnails_dialog_message">Generating thumbnails for network streams (M3U/HTTP) may significantly increase background data usage and loading times. Proceed?</string>
-    <string name="pref_appearance_thumbnail_strategy_dialog_title">Change Thumbnail Strategy?</string>
-    <string name="pref_appearance_thumbnail_strategy_dialog_message">Changing the extraction strategy will clear your currently saved thumbnail cache. New thumbnails will be generated automatically as you browse.</string>
-    <string name="pref_appearance_thumbnail_position_dialog_title">Update Thumbnail Position?</string>
-    <string name="pref_appearance_thumbnail_position_reset_confirm">Reset thumbnail at %1$d%% of the video duration.</string>
-    <string name="pref_appearance_thumbnail_position_dialog_message">Changing the extraction position will clear your currently saved thumbnail cache. New thumbnails will be generated automatically as you browse.</string>
 
     <!-- Control Layout Editor Screen -->
     <string name="control_layout_edit_title_top_right">Edit Top Right</string>
@@ -1206,11 +1204,12 @@
     <string name="tree_view">Tree View</string>
 
     <string name="pref_player_general">General</string>
-    <string name="pref_player_autoplay_next_video">Autoplay next video</string>
-    <string name="pref_player_autoplay_next_video_summary_on">Automatically play next video when current ends</string>
-    <string name="pref_player_autoplay_next_video_summary_off">Stay on current video when it ends</string>
-    <string name="pref_player_playlist_mode_summary_on">Show next/previous buttons for all videos in folder</string>
-    <string name="pref_player_playlist_mode_summary_off">Play videos individually (select multiple for playlist)</string>
+    <string name="pref_player_autoplay_on_open">Autoplay on open</string>
+    <string name="pref_player_autoplay_on_open_summary">Automatically begin playback when media is opened</string>
+    <string name="pref_player_autoplay_on_open_summary_on">Automatically begin playback when media is opened</string>
+    <string name="pref_player_autoplay_on_open_summary_off">Open media in a paused state</string>
+    <string name="pref_player_playlist_mode_summary_on">Automatically queue all videos in folder into a playlist</string>
+    <string name="pref_player_playlist_mode_summary_off">Play videos individually (select multiple to play as a playlist)</string>
     <string name="pref_player_keep_screen_on_when_paused_summary_on">Screen stays awake while video is paused</string>
     <string name="pref_player_keep_screen_on_when_paused_summary_off">Screen can turn off while video is paused</string>
     <string name="pref_player_auto_pip">Auto Picture-in-Picture</string>
@@ -1307,6 +1306,8 @@
     <string name="shorts_no_vertical_videos_found">No vertical videos found</string>
     <string name="shorts_all_finished_title">All videos finished</string>
     <string name="shorts_all_finished_message">You\'ve seen all vertical videos for now.</string>
+    <string name="shorts_restart_from_beginning">Restart from Beginning</string>
+    <string name="shorts_reshuffle_feed">Re-shuffle Feed</string>
 
         <!-- Shorts Video Info Dialog -->
     <string name="shorts_video_info_title">Video Info</string>
@@ -1389,5 +1390,73 @@
     <string name="welcome_grant_permission">Grant Permission</string>
     <string name="welcome_get_started">Get Started</string>
     <string name="welcome_skip_permission">Continue without storage access</string>
+
+    <!-- PlayerButtonChip Preview Strings -->
+    <string name="preview_chapter_chip">1:06 • Chapter 1</string>
+
+    <!-- Sort & View Dialog Strings (Issue #318) -->
+    <string name="sort_by">Sort by</string>
+    <string name="cd_toggle_sort_order">Toggle Sort Order</string>
+    <string name="cd_expand">Expand</string>
+    <string name="cd_collapse">Collapse</string>
+
+    <!-- Sort Types -->
+    <string name="sort_type_title">Title</string>
+    <string name="sort_type_duration">Duration</string>
+    <string name="sort_type_date">Date</string>
+    <string name="sort_type_size">Size</string>
+    <string name="sort_type_count">Count</string>
+    <string name="sort_order_ascending">Ascending</string>
+    <string name="sort_order_descending">Descending</string>
+
+    <!-- Sort Direction Labels -->
+    <string name="sort_order_az">A-Z</string>
+    <string name="sort_order_za">Z-A</string>
+    <string name="sort_order_shortest">Shortest</string>
+    <string name="sort_order_longest">Longest</string>
+    <string name="sort_order_oldest">Oldest</string>
+    <string name="sort_order_newest">Newest</string>
+    <string name="sort_order_smallest">Smallest</string>
+    <string name="sort_order_largest">Largest</string>
+    <string name="sort_order_asc_abbrev">Asc</string>
+    <string name="sort_order_desc_abbrev">Desc</string>
+
+    <!-- View Mode Selector -->
+    <string name="view_mode">View Mode</string>
+    <string name="view_mode_folder">Folder</string>
+    <string name="view_mode_tree">Tree</string>
+    <string name="view_mode_library">Library</string>
+
+    <!-- Layout Selector -->
+    <string name="layout">Layout</string>
+    <string name="layout_mode_list">List</string>
+    <string name="layout_mode_grid">Grid</string>
+
+    <!-- Grid Columns -->
+    <string name="grid_columns">Grid Columns</string>
+    <string name="folder_grid">Folder Grid</string>
+    <string name="video_grid">Video Grid</string>
+    <plurals name="num_columns">
+        <item quantity="one">%1$d column</item>
+        <item quantity="other">%1$d columns</item>
+    </plurals>
+
+    <!-- Content Filter Toggles -->
+    <string name="filters">Filters</string>
+    <string name="filter_audio_files">Audio Files</string>
+    <string name="filter_show_nomedia_folders">Show .nomedia Folders</string>
+
+    <!-- Visibility Field Toggles -->
+    <string name="fields">Fields</string>
+    <string name="field_video_thumbnails">Video Thumbnails</string>
+    <string name="field_full_name">Full Name</string>
+    <string name="field_total_videos">Total Videos</string>
+    <string name="field_total_duration">Total Duration</string>
+    <string name="field_folder_size">Folder Size</string>
+    <string name="field_file_size">File Size</string>
+    <string name="field_resolution">Resolution</string>
+    <string name="field_framerate">Framerate</string>
+    <string name="field_progress_bar">Progress Bar</string>
+    <string name="field_subtitle_indicator">Subtitle Indicator</string>
 
 </resources>

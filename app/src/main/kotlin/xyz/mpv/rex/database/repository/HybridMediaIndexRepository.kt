@@ -361,8 +361,7 @@ class HybridMediaIndexRepository(
       thresholdDays,
       watchedThreshold,
     )
-    tree.values
-      .filter { File(it.path).parent == parentPath }
+    getEffectiveChildren(parentPath, tree)
       .map { it.toMediaFolder(recursive = true) }
       .sortedBy { it.name.lowercase() }
   }
@@ -392,6 +391,11 @@ class HybridMediaIndexRepository(
       .map { it.toVideo() }
       .sortedBy { it.displayName.lowercase() }
       .toList()
+  }
+
+  suspend fun getVideoByLocation(path: String): Video? = withContext(Dispatchers.IO) {
+    val normalized = path.removePrefix("file://")
+    (dao.getMediaByLocation(normalized) ?: dao.getMediaByLocation(path))?.toVideo()
   }
 
   suspend fun searchMedia(
@@ -745,9 +749,11 @@ class HybridMediaIndexRepository(
     thresholdMillis: Long,
     now: Long,
   ): Pair<Int, Int> {
+    val showAudioFiles = browserPreferences.showAudioFiles.get()
     var newCount = 0
     var unwatchedCount = 0
     items.forEach { item ->
+      if (!showAudioFiles && item.isAudio) return@forEach
       val fileName = java.io.File(item.location).name
       val state = stateByIdentity[item.location] ?: stateByIdentity[item.displayName] ?: stateByIdentity[fileName]
       val watched = state?.hasBeenWatched == true ||
@@ -775,11 +781,15 @@ class HybridMediaIndexRepository(
 
     fileItems.groupBy { it.parentIdentity }.forEach { (path, directItems) ->
       val counts = presentationCounts(directItems, stateByIdentity, watchedThreshold, thresholdMillis, now)
+      val directVideos = directItems.count { !it.isAudio }
+      val directAudios = directItems.count { it.isAudio }
       tree[path] = FolderStats(
         path = path,
         name = File(path).name,
-        videoCount = directItems.count { !it.isAudio },
-        audioCount = directItems.count { it.isAudio },
+        directVideoCount = directVideos,
+        directAudioCount = directAudios,
+        videoCount = directVideos,
+        audioCount = directAudios,
         totalSize = directItems.sumOf { it.size },
         totalDuration = directItems.sumOf { it.duration },
         lastModified = directItems.maxOfOrNull { it.dateModified } ?: 0,
@@ -813,7 +823,49 @@ class HybridMediaIndexRepository(
       parent.newCount += node.newCount
       parent.unwatchedCount += node.unwatchedCount
     }
+
+    // SMART TREE FLATTENING:
+    // A folder should be hidden (flattened) if it has NO direct media AND only has one child folder with media.
+    // This brings nested folders forward in tree navigation.
+    val sortedForFlattening = tree.keys.sortedBy { it.length }
+    for (path in sortedForFlattening) {
+      val node = tree[path] ?: continue
+      if (node.directVideoCount > 0 || node.directAudioCount > 0) continue
+
+      val childrenWithMedia = tree.values.filter {
+        File(it.path).parent == path && (it.videoCount > 0 || it.audioCount > 0)
+      }
+
+      if (childrenWithMedia.size < 2) {
+        val isStorageRoot = StorageVolumeUtils.isStorageRoot(context, path)
+        if (!isStorageRoot) {
+          node.isFlattened = true
+        }
+      }
+    }
+
     return tree
+  }
+
+  private fun getEffectiveChildren(
+    parentPath: String,
+    allNodes: Map<String, FolderStats>,
+    visited: Set<String> = emptySet(),
+  ): List<FolderStats> {
+    val normalizedParent = normalizePath(File(parentPath))
+    val directChildren = allNodes.values.filter {
+      File(it.path).parent?.let { p -> normalizePath(File(p)) } == normalizedParent
+    }
+    val result = mutableListOf<FolderStats>()
+    for (child in directChildren) {
+      if (child.path in visited) continue
+      if (child.isFlattened) {
+        result.addAll(getEffectiveChildren(child.path, allNodes, visited + child.path))
+      } else {
+        result.add(child)
+      }
+    }
+    return result
   }
 
   private fun HybridMediaEntity.toVideo(): Video {
@@ -857,6 +909,8 @@ class HybridMediaIndexRepository(
   private data class FolderStats(
     val path: String,
     val name: String,
+    val directVideoCount: Int = 0,
+    val directAudioCount: Int = 0,
     var videoCount: Int = 0,
     var audioCount: Int = 0,
     var totalSize: Long = 0,
@@ -865,6 +919,7 @@ class HybridMediaIndexRepository(
     var hasSubfolders: Boolean = false,
     var newCount: Int = 0,
     var unwatchedCount: Int = 0,
+    var isFlattened: Boolean = false,
   ) {
     fun toMediaFolder(recursive: Boolean) = MediaFolder(
       id = path,

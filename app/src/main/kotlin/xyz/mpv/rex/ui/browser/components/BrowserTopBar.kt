@@ -27,6 +27,16 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.ViewComfy
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -35,6 +45,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -43,6 +54,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,6 +75,9 @@ import xyz.mpv.rex.preferences.AppearancePreferences
 import xyz.mpv.rex.preferences.preference.collectAsState
 import xyz.mpv.rex.ui.theme.DarkMode
 import xyz.mpv.rex.ui.theme.LocalThemeTransitionState
+import xyz.mpv.rex.ui.theme.pillShape
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -110,37 +125,50 @@ fun BrowserTopBar(
   deleteInOverflow: Boolean = false,
   isHomeScreen: Boolean = false,
 ) {
-  if (isInSelectionMode) {
-    SelectionTopBar(
-      selectedCount = selectedCount,
-      totalCount = totalCount,
-      onCancel = onCancelSelection,
-      onDelete = onDeleteClick,
-      onRename = onRenameClick,
-      isSingleSelection = isSingleSelection,
-      onInfo = onInfoClick,
-      onPlay = onPlayClick,
-      onSelectAll = onSelectAll,
-      onInvertSelection = onInvertSelection,
-      onDeselectAll = onDeselectAll,
-      overflowActions = selectionOverflowActions,
-      modifier = modifier,
-      useRemoveIcon = useRemoveIcon,
-      deleteInOverflow = deleteInOverflow,
-    )
-  } else {
-    NormalTopBar(
-      title = title,
-      onBackClick = onBackClick,
-      onSortClick = onSortClick,
-      onSearchClick = onSearchClick,
-      onSettingsClick = onSettingsClick,
-      normalOverflowActions = normalOverflowActions,
-      additionalActions = additionalActions,
-      modifier = modifier,
-      onTitleLongPress = onTitleLongPress,
-      isHomeScreen = isHomeScreen,
-    )
+  AnimatedContent(
+    targetState = isInSelectionMode,
+    transitionSpec = {
+      (fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) +
+        slideInVertically(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) { -it / 4 })
+        .togetherWith(
+          fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) +
+            slideOutVertically(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) { -it / 4 }
+        )
+    },
+    label = "BrowserTopBarModeTransition",
+  ) { inSelection ->
+    if (inSelection) {
+      SelectionTopBar(
+        selectedCount = selectedCount,
+        totalCount = totalCount,
+        onCancel = onCancelSelection,
+        onDelete = onDeleteClick,
+        onRename = onRenameClick,
+        isSingleSelection = isSingleSelection,
+        onInfo = onInfoClick,
+        onPlay = onPlayClick,
+        onSelectAll = onSelectAll,
+        onInvertSelection = onInvertSelection,
+        onDeselectAll = onDeselectAll,
+        overflowActions = selectionOverflowActions,
+        modifier = modifier,
+        useRemoveIcon = useRemoveIcon,
+        deleteInOverflow = deleteInOverflow,
+      )
+    } else {
+      NormalTopBar(
+        title = title,
+        onBackClick = onBackClick,
+        onSortClick = onSortClick,
+        onSearchClick = onSearchClick,
+        onSettingsClick = onSettingsClick,
+        normalOverflowActions = normalOverflowActions,
+        additionalActions = additionalActions,
+        modifier = modifier,
+        onTitleLongPress = onTitleLongPress,
+        isHomeScreen = isHomeScreen,
+      )
+    }
   }
 }
 
@@ -168,7 +196,15 @@ private fun NormalTopBar(
   val darkTheme = isSystemInDarkTheme()
   val themeTransition = LocalThemeTransitionState.current
   val coroutineScope = rememberCoroutineScope()
+  val haptic = LocalHapticFeedback.current
   
+  val isCurrentlyDark = when (darkMode) {
+    DarkMode.Dark -> true
+    DarkMode.Light -> false
+    DarkMode.System -> darkTheme
+  }
+  val currentIsDark by rememberUpdatedState(isCurrentlyDark)
+
   // Track title bounds for animation position
   val titleBounds = remember { mutableStateOf(Rect.Zero) }
   
@@ -217,7 +253,9 @@ private fun NormalTopBar(
                 titleBounds.value.left + localOffset.x,
                 titleBounds.value.top + localOffset.y
               )
-              themeTransition?.startTransition(windowOffset)
+              // If currently dark, next theme is light: expand outwards (zoom out).
+              // If currently light, next theme is dark: contract inwards (reverse / zoom in).
+              themeTransition?.startTransition(windowOffset, isReverse = !currentIsDark)
               // Delay theme change to allow overlay to display first
               coroutineScope.launch {
                 kotlinx.coroutines.delay(50)
@@ -294,7 +332,10 @@ private fun NormalTopBar(
     navigationIcon = {
       if (onBackClick != null) {
         IconButton(
-          onClick = onBackClick,
+          onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onBackClick()
+          },
           modifier = Modifier.padding(horizontal = 2.dp),
         ) {
           Icon(
@@ -309,7 +350,10 @@ private fun NormalTopBar(
     actions = {
       if (onSearchClick != null) {
         IconButton(
-          onClick = onSearchClick,
+          onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onSearchClick()
+          },
           modifier = Modifier.padding(horizontal = 2.dp),
         ) {
           Icon(
@@ -322,7 +366,10 @@ private fun NormalTopBar(
       }
       if (onSortClick != null) {
         IconButton(
-          onClick = onSortClick,
+          onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onSortClick()
+          },
           modifier = Modifier.padding(horizontal = 2.dp),
         ) {
           Icon(
@@ -335,7 +382,10 @@ private fun NormalTopBar(
       }
       if (onSettingsClick != null) {
         IconButton(
-          onClick = onSettingsClick,
+          onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onSettingsClick()
+          },
           modifier = Modifier.padding(horizontal = 2.dp),
         ) {
           Icon(
@@ -351,7 +401,10 @@ private fun NormalTopBar(
         var showNormalOverflowMenu by remember { mutableStateOf(false) }
         Box(modifier = Modifier.padding(start = 0.dp, end = 4.dp)) {
           IconButton(
-            onClick = { showNormalOverflowMenu = true },
+            onClick = {
+              haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+              showNormalOverflowMenu = true
+            },
           ) {
             Icon(
               Icons.Filled.MoreVert,
@@ -363,6 +416,7 @@ private fun NormalTopBar(
           DropdownMenu(
             expanded = showNormalOverflowMenu,
             onDismissRequest = { showNormalOverflowMenu = false },
+            shape = RoundedCornerShape(16.dp),
           ) {
             normalOverflowActions.forEach { action ->
               DropdownMenuItem(
@@ -413,6 +467,7 @@ private fun SelectionTopBar(
 ) {
   var showDropdown by remember { mutableStateOf(false) }
   var showOverflowMenu by remember { mutableStateOf(false) }
+  val haptic = LocalHapticFeedback.current
 
   TopAppBar(
     colors = TopAppBarDefaults.topAppBarColors(
@@ -423,32 +478,49 @@ private fun SelectionTopBar(
       },
     ),
     title = {
-      Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.clickable { showDropdown = true },
-      ) {
-        Text(
-          stringResource(R.string.selected_items, selectedCount, totalCount),
-          style = MaterialTheme.typography.titleMedium,
-          color = MaterialTheme.colorScheme.primary,
-          maxLines = 1,
-          overflow = TextOverflow.Ellipsis,
-        )
-        Icon(
-          Icons.Filled.ArrowDropDown,
-          contentDescription = stringResource(R.string.selection_options),
-          modifier = Modifier.size(24.dp),
-          tint = MaterialTheme.colorScheme.primary,
-        )
+      Box {
+        Surface(
+          shape = pillShape,
+          color = MaterialTheme.colorScheme.primaryContainer,
+          contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+          onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            showDropdown = true
+          },
+          modifier = Modifier.animateContentSize(),
+        ) {
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+          ) {
+            Text(
+              text = stringResource(R.string.selected_items, selectedCount, totalCount),
+              style = MaterialTheme.typography.titleSmall,
+              fontWeight = FontWeight.Bold,
+              color = MaterialTheme.colorScheme.onPrimaryContainer,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+            )
+            Icon(
+              imageVector = Icons.Filled.ArrowDropDown,
+              contentDescription = stringResource(R.string.selection_options),
+              modifier = Modifier.size(20.dp),
+              tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+          }
+        }
 
         DropdownMenu(
           expanded = showDropdown,
           onDismissRequest = { showDropdown = false },
+          shape = RoundedCornerShape(16.dp),
         ) {
           if (onSelectAll != null) {
             DropdownMenuItem(
               text = { Text(stringResource(R.string.select_all)) },
               onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onSelectAll()
                 showDropdown = false
               },
@@ -458,6 +530,7 @@ private fun SelectionTopBar(
             DropdownMenuItem(
               text = { Text(stringResource(R.string.invert_selection)) },
               onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onInvertSelection()
                 showDropdown = false
               },
@@ -467,6 +540,7 @@ private fun SelectionTopBar(
             DropdownMenuItem(
               text = { Text(stringResource(R.string.deselect_all)) },
               onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onDeselectAll()
                 showDropdown = false
               },
@@ -477,13 +551,16 @@ private fun SelectionTopBar(
     },
     navigationIcon = {
       IconButton(
-        onClick = onCancel,
+        onClick = {
+          haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+          onCancel()
+        },
         modifier = Modifier.padding(horizontal = 2.dp),
       ) {
         Icon(
           Icons.Filled.Close,
           contentDescription = stringResource(R.string.generic_cancel),
-          modifier = Modifier.size(28.dp),
+          modifier = Modifier.size(24.dp),
           tint = MaterialTheme.colorScheme.secondary,
         )
       }
@@ -492,13 +569,16 @@ private fun SelectionTopBar(
       // Play icon
       if (onPlay != null) {
         IconButton(
-          onClick = onPlay,
+          onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onPlay()
+          },
           modifier = Modifier.padding(horizontal = 2.dp),
         ) {
           Icon(
             Icons.Filled.PlayArrow,
             contentDescription = stringResource(R.string.play),
-            modifier = Modifier.size(28.dp),
+            modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.primary,
           )
         }
@@ -507,7 +587,10 @@ private fun SelectionTopBar(
       // Rename icon
       if (onRename != null) {
         IconButton(
-          onClick = onRename,
+          onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onRename()
+          },
           enabled = isSingleSelection,
           modifier = Modifier.padding(horizontal = 2.dp),
         ) {
@@ -528,7 +611,10 @@ private fun SelectionTopBar(
       // Remove icon (playlist style) — shown before Info for muscle-memory consistency
       if (onDelete != null && useRemoveIcon) {
         IconButton(
-          onClick = onDelete,
+          onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onDelete()
+          },
           modifier = Modifier.padding(horizontal = 2.dp),
         ) {
           Icon(
@@ -543,7 +629,10 @@ private fun SelectionTopBar(
       // Info icon
       if (onInfo != null) {
         IconButton(
-          onClick = onInfo,
+          onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onInfo()
+          },
           modifier = Modifier.padding(horizontal = 2.dp),
         ) {
           Icon(
@@ -558,7 +647,10 @@ private fun SelectionTopBar(
       // Delete icon — inline only when not using remove icon and not delegated to overflow
       if (onDelete != null && !useRemoveIcon && !deleteInOverflow) {
         IconButton(
-          onClick = onDelete,
+          onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            onDelete()
+          },
           modifier = Modifier.padding(horizontal = 2.dp),
         ) {
           Icon(
@@ -575,7 +667,10 @@ private fun SelectionTopBar(
       if (overflowActions.isNotEmpty() || hasDeleteInOverflow) {
         Box(modifier = Modifier.padding(start = 0.dp, end = 4.dp)) {
           IconButton(
-            onClick = { showOverflowMenu = true },
+            onClick = {
+              haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+              showOverflowMenu = true
+            },
           ) {
             Icon(
               Icons.Filled.MoreVert,
@@ -587,6 +682,7 @@ private fun SelectionTopBar(
           DropdownMenu(
             expanded = showOverflowMenu,
             onDismissRequest = { showOverflowMenu = false },
+            shape = RoundedCornerShape(16.dp),
           ) {
             // Delete shown first in overflow when deleteInOverflow is set
             if (hasDeleteInOverflow) {
@@ -627,6 +723,6 @@ private fun SelectionTopBar(
         }
       }
     },
-    modifier = modifier.clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)),
+    modifier = modifier,
   )
 }

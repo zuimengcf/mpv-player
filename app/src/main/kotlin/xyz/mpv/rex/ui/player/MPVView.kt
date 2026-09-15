@@ -143,6 +143,9 @@ class MPVView(
 
     MPVLib.setPropertyBoolean("keep-open", true)
     MPVLib.setPropertyBoolean("input-default-bindings", true)
+    if (!playerPreferences.autoplayOnOpen.get()) {
+      MPVLib.setPropertyBoolean("pause", true)
+    }
 
     MPVLib.setOptionString("tls-verify", "yes")
     MPVLib.setOptionString("tls-ca-file", "${context.filesDir.path}/cacert.pem")
@@ -280,6 +283,8 @@ class MPVView(
     mapOf(
       "pause" to MPVLib.MpvFormat.MPV_FORMAT_FLAG,
       "paused-for-cache" to MPVLib.MpvFormat.MPV_FORMAT_FLAG,
+      "seeking" to MPVLib.MpvFormat.MPV_FORMAT_FLAG,
+      "core-idle" to MPVLib.MpvFormat.MPV_FORMAT_FLAG,
       "video-params/aspect" to MPVLib.MpvFormat.MPV_FORMAT_DOUBLE,
       "video-params/w" to MPVLib.MpvFormat.MPV_FORMAT_INT64,
       "video-params/h" to MPVLib.MpvFormat.MPV_FORMAT_INT64,
@@ -294,6 +299,7 @@ class MPVView(
       "volume" to MPVLib.MpvFormat.MPV_FORMAT_INT64,
       "hwdec-current" to MPVLib.MpvFormat.MPV_FORMAT_STRING,
       "media-title" to MPVLib.MpvFormat.MPV_FORMAT_STRING,
+      "path" to MPVLib.MpvFormat.MPV_FORMAT_STRING,
       "demuxer-cache-duration" to MPVLib.MpvFormat.MPV_FORMAT_DOUBLE,
       "cache-buffering-state" to MPVLib.MpvFormat.MPV_FORMAT_INT64,
       "audio-delay" to MPVLib.MpvFormat.MPV_FORMAT_DOUBLE,
