@@ -1311,6 +1311,9 @@
     <string name="danmaku_alpha_title">透明度</string>
     <string name="danmaku_border_size_title">描边宽度</string>
     <string name="danmaku_shadow_radius_title">阴影半径</string>
+    <string name="danmaku_override_color_title">统一颜色</string>
+    <string name="danmaku_override_color_summary">所有弹幕使用同一颜色</string>
+    <string name="danmaku_font_color_title">弹幕颜色</string>
     <string name="danmaku_area_title">显示区域</string>
     <string name="danmaku_area_all">全屏</string>
     <string name="danmaku_area_top">顶部四分之一</string>

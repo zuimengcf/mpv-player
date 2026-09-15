@@ -41,4 +41,10 @@ class DanmakuPreferences(
 
   /** 弹幕阴影半径（0-10），默认 3 */
   val shadowRadius = preferenceStore.getInt("danmaku_shadow_radius", 3)
+
+  /** 是否覆盖弹幕颜色（统一颜色），默认 false */
+  val overrideColor = preferenceStore.getBoolean("danmaku_override_color", false)
+
+  /** 弹幕统一颜色 ARGB，默认白色 0xFFFFFFFF */
+  val fontColor = preferenceStore.getInt("danmaku_font_color", 0xFFFFFFFF.toInt())
 }

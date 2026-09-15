@@ -140,6 +140,11 @@ class DanmakuManager(
             // 透明度：alpha 0-255 → 0.0-1.0
             danmakuContext.setDanmakuTransparency(alpha / 255f)
 
+            // 统一颜色覆盖
+            val overrideColor = prefs.overrideColor.get()
+            val fontColor = prefs.fontColor.get()
+            BiliDanmakuParser.setOverrideColor(if (overrideColor) fontColor else -1)
+
             // 显示类型过滤（滚动/顶部/底部）
             val showScroll = prefs.showScrollDanmaku.get()
             val showTop = prefs.showTopDanmaku.get()

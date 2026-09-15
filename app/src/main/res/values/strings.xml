@@ -504,6 +504,9 @@
     <string name="danmaku_alpha_title">Opacity</string>
     <string name="danmaku_border_size_title">Border width</string>
     <string name="danmaku_shadow_radius_title">Shadow radius</string>
+    <string name="danmaku_override_color_title">Override color</string>
+    <string name="danmaku_override_color_summary">Use a single color for all danmaku</string>
+    <string name="danmaku_font_color_title">Font color</string>
     <string name="danmaku_area_title">Display area</string>
     <string name="danmaku_area_all">Full screen</string>
     <string name="danmaku_area_top">Top quarter</string>

@@ -13,7 +13,10 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -305,6 +308,27 @@ private fun DanmakuSettingsContent(modifier: Modifier = Modifier) {
       icon = { Icon(Icons.Default.Tune, null) },
     )
 
+    // ── 弹幕颜色覆盖 ──
+    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.15f))
+    Spacer(Modifier.height(MaterialTheme.spacing.smaller))
+
+    ProvidePreferenceLocals(theme = preferenceTheme(iconContainerMinWidth = 48.dp)) {
+      val overrideColor by preferences.overrideColor.collectAsState()
+      SwitchPreference(
+        overrideColor,
+        onValueChange = { preferences.overrideColor.set(it) },
+        { Text(stringResource(R.string.danmaku_override_color_title)) },
+        summary = { Text(stringResource(R.string.danmaku_override_color_summary)) },
+      )
+    }
+
+    if (preferences.overrideColor.get()) {
+      DanmakuColorPicker(
+        currentColor = preferences.fontColor.get(),
+        onColorSelected = { preferences.fontColor.set(it) },
+      )
+    }
+
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
 
     // ── 行为 ──
@@ -379,8 +403,69 @@ private fun densityLabel(value: Int, context: android.content.Context): String =
 }
 
 private fun areaLabel(value: Int, context: android.content.Context): String = when (value) {
-  1 -> context.getString(R.string.danmaku_area_top)
-  2 -> context.getString(R.string.danmaku_area_bottom)
-  3 -> context.getString(R.string.danmaku_area_middle)
-  else -> context.getString(R.string.danmaku_area_all)
+   1 -> context.getString(R.string.danmaku_area_top)
+   2 -> context.getString(R.string.danmaku_area_bottom)
+   3 -> context.getString(R.string.danmaku_area_middle)
+   else -> context.getString(R.string.danmaku_area_all)
+ }
+
+@Composable
+private fun DanmakuColorPicker(
+  currentColor: Int,
+  onColorSelected: (Int) -> Unit,
+) {
+  val presetColors = listOf(
+    0xFFFFFFFF.toInt() to "White",
+    0xFFFF0000.toInt() to "Red",
+    0xFFFFAA00.toInt() to "Orange",
+    0xFFFFFF00.toInt() to "Yellow",
+    0xFF00FF00.toInt() to "Green",
+    0xFF00FFFF.toInt() to "Cyan",
+    0xFF0000FF.toInt() to "Blue",
+    0xFFFF00FF.toInt() to "Magenta",
+    0xFF000000.toInt() to "Black",
+  )
+
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.smaller),
+  ) {
+    Text(
+      text = stringResource(R.string.danmaku_font_color_title),
+      style = MaterialTheme.typography.bodyMedium,
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+      modifier = Modifier.padding(bottom = 8.dp),
+    )
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      presetColors.forEach { (color, _) ->
+        val isSelected = currentColor == color
+        Box(
+          modifier = Modifier
+            .size(32.dp)
+            .clip(androidx.compose.foundation.shape.CircleShape)
+            .background(Color(color))
+            .clickable { onColorSelected(color) }
+            .then(
+              if (isSelected) {
+                Modifier.border(
+                  2.dp,
+                  MaterialTheme.colorScheme.primary,
+                  androidx.compose.foundation.shape.CircleShape,
+                )
+              } else {
+                Modifier.border(
+                  1.dp,
+                  MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                  androidx.compose.foundation.shape.CircleShape,
+                )
+              }
+            ),
+        )
+      }
+    }
+  }
 }

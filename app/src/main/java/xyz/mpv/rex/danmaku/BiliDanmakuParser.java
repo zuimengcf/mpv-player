@@ -54,12 +54,23 @@ public class BiliDanmakuParser extends BaseDanmakuParser {
     private static volatile boolean sRandomColorEnabled = false;
     private static final java.util.Random sColorRandom = new java.util.Random();
     
+    /** 是否启用统一颜色覆盖（-1 表示不覆盖） */
+    private static volatile int sOverrideColor = -1;
+    
     public static void setRandomColorEnabled(boolean enabled) {
         sRandomColorEnabled = enabled;
     }
     
     public static boolean isRandomColorEnabled() {
         return sRandomColorEnabled;
+    }
+    
+    public static void setOverrideColor(int color) {
+        sOverrideColor = color;
+    }
+    
+    public static int getOverrideColor() {
+        return sOverrideColor;
     }
 
     @Override
@@ -146,6 +157,11 @@ public class BiliDanmakuParser extends BaseDanmakuParser {
                             float hue = (sColorRandom.nextFloat() * 360f + index * 17f) % 360f;
                             color = android.graphics.Color.HSVToColor(
                                 new float[]{hue, 0.8f, 1.0f});
+                        }
+                        
+                        // 统一颜色覆盖（优先于随机色）
+                        if (sOverrideColor != -1) {
+                            color = sOverrideColor;
                         }
                         
                         item.textColor = color;
