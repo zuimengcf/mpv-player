@@ -844,6 +844,16 @@ fun FolderSortDialog(
   onSortOrderChange: (SortOrder) -> Unit,
 ) {
   val backstack = LocalBackStack.current
+  val labelAz = stringResource(R.string.sort_az)
+  val labelZa = stringResource(R.string.sort_za)
+  val labelShortest = stringResource(R.string.sort_shortest)
+  val labelLongest = stringResource(R.string.sort_longest)
+  val labelOldest = stringResource(R.string.sort_oldest)
+  val labelNewest = stringResource(R.string.sort_newest)
+  val labelSmallest = stringResource(R.string.sort_smallest)
+  val labelLargest = stringResource(R.string.sort_largest)
+  val labelAsc = stringResource(R.string.sort_asc)
+  val labelDesc = stringResource(R.string.sort_desc)
   val scope = rememberCoroutineScope()
   val browserPreferences = koinInject<BrowserPreferences>()
   val appearancePreferences = koinInject<AppearancePreferences>()
@@ -931,11 +941,11 @@ fun FolderSortDialog(
     ),
     getLabelForType = { type, _ ->
       when (type) {
-        FolderSortType.Title.displayName -> Pair(stringResource(R.string.sort_az), stringResource(R.string.sort_za))
-        FolderSortType.Duration.displayName -> Pair(stringResource(R.string.sort_shortest), stringResource(R.string.sort_longest))
-        FolderSortType.Date.displayName -> Pair(stringResource(R.string.sort_oldest), stringResource(R.string.sort_newest))
-        FolderSortType.Size.displayName -> Pair(stringResource(R.string.sort_smallest), stringResource(R.string.sort_largest))
-        else -> Pair(stringResource(R.string.sort_asc), stringResource(R.string.sort_desc))
+        FolderSortType.Title.displayName -> Pair(labelAz, labelZa)
+        FolderSortType.Duration.displayName -> Pair(labelShortest, labelLongest)
+        FolderSortType.Date.displayName -> Pair(labelOldest, labelNewest)
+        FolderSortType.Size.displayName -> Pair(labelSmallest, labelLargest)
+        else -> Pair(labelAsc, labelDesc)
       }
     },
     showSortOptions = isAlbumView,
@@ -1079,6 +1089,16 @@ fun VideoSortDialog(
   onSortOrderChange: (SortOrder) -> Unit,
 ) {
   val backstack = LocalBackStack.current
+  val labelAz = stringResource(R.string.sort_az)
+  val labelZa = stringResource(R.string.sort_za)
+  val labelShortest = stringResource(R.string.sort_shortest)
+  val labelLongest = stringResource(R.string.sort_longest)
+  val labelOldest = stringResource(R.string.sort_oldest)
+  val labelNewest = stringResource(R.string.sort_newest)
+  val labelSmallest = stringResource(R.string.sort_smallest)
+  val labelBiggest = stringResource(R.string.sort_biggest)
+  val labelAsc = stringResource(R.string.sort_asc)
+  val labelDesc = stringResource(R.string.sort_desc)
   val scope = rememberCoroutineScope()
   val browserPreferences = koinInject<BrowserPreferences>()
   val hybridMediaIndex = koinInject<HybridMediaIndexRepository>()
@@ -1164,11 +1184,11 @@ fun VideoSortDialog(
       ),
     getLabelForType = { type, _ ->
       when (type) {
-        VideoSortType.Title.displayName -> Pair(stringResource(R.string.sort_az), stringResource(R.string.sort_za))
-        VideoSortType.Duration.displayName -> Pair(stringResource(R.string.sort_shortest), stringResource(R.string.sort_longest))
-        VideoSortType.Date.displayName -> Pair(stringResource(R.string.sort_oldest), stringResource(R.string.sort_newest))
-        VideoSortType.Size.displayName -> Pair(stringResource(R.string.sort_smallest), stringResource(R.string.sort_biggest))
-        else -> Pair(stringResource(R.string.sort_asc), stringResource(R.string.sort_desc))
+        VideoSortType.Title.displayName -> Pair(labelAz, labelZa)
+        VideoSortType.Duration.displayName -> Pair(labelShortest, labelLongest)
+        VideoSortType.Date.displayName -> Pair(labelOldest, labelNewest)
+        VideoSortType.Size.displayName -> Pair(labelSmallest, labelBiggest)
+        else -> Pair(labelAsc, labelDesc)
       }
     },
     viewModeSelector = MultiViewModeSelector(
@@ -1211,8 +1231,8 @@ fun VideoSortDialog(
     ),
     layoutModeSelector = ViewModeSelector(
       label = stringResource(R.string.layout),
-      firstOptionLabel = "List",
-      secondOptionLabel = "Grid",
+      firstOptionLabel = stringResource(R.string.view_list),
+      secondOptionLabel = stringResource(R.string.view_grid),
       firstOptionIcon = Icons.AutoMirrored.Filled.ViewList,
       secondOptionIcon = Icons.Filled.GridView,
       isFirstOptionSelected = mediaLayoutMode == MediaLayoutMode.LIST,
@@ -1309,6 +1329,16 @@ fun FileSystemSortDialog(
   isAtRoot: Boolean = true,
 ) {
   val backstack = LocalBackStack.current
+  val labelAz = stringResource(R.string.sort_az)
+  val labelZa = stringResource(R.string.sort_za)
+  val labelShortest = stringResource(R.string.sort_shortest)
+  val labelLongest = stringResource(R.string.sort_longest)
+  val labelOldest = stringResource(R.string.sort_oldest)
+  val labelNewest = stringResource(R.string.sort_newest)
+  val labelSmallest = stringResource(R.string.sort_smallest)
+  val labelLargest = stringResource(R.string.sort_largest)
+  val labelAsc = stringResource(R.string.sort_asc)
+  val labelDesc = stringResource(R.string.sort_desc)
   val scope = rememberCoroutineScope()
   val browserPreferences = koinInject<BrowserPreferences>()
   val appearancePreferences = koinInject<AppearancePreferences>()
@@ -1398,11 +1428,11 @@ fun FileSystemSortDialog(
     ),
     getLabelForType = { type, _ ->
       when (type) {
-        FolderSortType.Title.displayName -> Pair(stringResource(R.string.sort_az), stringResource(R.string.sort_za))
-        FolderSortType.Duration.displayName -> Pair(stringResource(R.string.sort_shortest), stringResource(R.string.sort_longest))
-        FolderSortType.Date.displayName -> Pair(stringResource(R.string.sort_oldest), stringResource(R.string.sort_newest))
-        FolderSortType.Size.displayName -> Pair(stringResource(R.string.sort_smallest), stringResource(R.string.sort_largest))
-        else -> Pair(stringResource(R.string.sort_asc), stringResource(R.string.sort_desc))
+        FolderSortType.Title.displayName -> Pair(labelAz, labelZa)
+        FolderSortType.Duration.displayName -> Pair(labelShortest, labelLongest)
+        FolderSortType.Date.displayName -> Pair(labelOldest, labelNewest)
+        FolderSortType.Size.displayName -> Pair(labelSmallest, labelLargest)
+        else -> Pair(labelAsc, labelDesc)
       }
     },
     showSortOptions = true,
@@ -1446,8 +1476,8 @@ fun FileSystemSortDialog(
     ),
     layoutModeSelector = ViewModeSelector(
       label = stringResource(R.string.layout),
-      firstOptionLabel = "List",
-      secondOptionLabel = "Grid",
+      firstOptionLabel = stringResource(R.string.view_list),
+      secondOptionLabel = stringResource(R.string.view_grid),
       firstOptionIcon = Icons.AutoMirrored.Filled.ViewList,
       secondOptionIcon = Icons.Filled.GridView,
       isFirstOptionSelected = mediaLayoutMode == MediaLayoutMode.LIST,
