@@ -695,6 +695,9 @@
     <string name="videos">视频</string>
     <string name="subtitle_sync_assistant">字幕同步助手</string>
     <string name="github">GitHub</string>
+    <string name="community_links">Community Links</string>
+    <string name="community_links_placeholder_title">Coming Soon</string>
+    <string name="community_links_placeholder_summary">Community links will be available here</string>
     <string name="script_name">脚本名称</string>
     <string name="unsaved_changes">未保存的更改</string>
     <string name="lua_scripts">Lua 脚本</string>

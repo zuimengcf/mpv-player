@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -329,6 +330,31 @@ object AboutScreen : Screen {
                   )
                 },
                 onClick = { backstack.add(CodecInformationScreen) },
+              )
+            }
+          }
+
+          Spacer(Modifier.height(8.dp))
+
+          PreferenceSectionHeader(title = stringResource(R.string.community_links))
+          GroupedListColumn {
+            GroupedPreferenceCard(position = GroupPosition.ONLY) {
+              Preference(
+                title = { Text(text = stringResource(R.string.community_links_placeholder_title)) },
+                summary = {
+                  Text(
+                    text = stringResource(R.string.community_links_placeholder_summary),
+                    color = MaterialTheme.colorScheme.outline,
+                  )
+                },
+                icon = {
+                  Icon(
+                    imageVector = Icons.Filled.Forum,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                  )
+                },
+                enabled = false,
               )
             }
           }

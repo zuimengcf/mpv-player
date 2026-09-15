@@ -1317,6 +1317,9 @@
     <string name="danmaku_scroll_speed_title">滚动速度</string>
     <string name="generic_off">关闭</string>
     <string name="github_repo_url">https://github.com/zuimengcf/mpv-player</string>
+    <string name="community_links">社区链接</string>
+    <string name="community_links_placeholder_title">即将上线</string>
+    <string name="community_links_placeholder_summary">社区链接将在此处展示</string>
     <string name="open_with_mini_player">用迷你播放器打开</string>
     <string name="player_gesture_seek_indicator">[%1$s%2$s] (%3$s)</string>
     <string name="player_restart_action">重新播放</string>
