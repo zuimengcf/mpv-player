@@ -50,6 +50,7 @@ import xyz.mpv.rex.preferences.BrowserPreferences
 import xyz.mpv.rex.preferences.GesturePreferences
 import xyz.mpv.rex.preferences.PlayerPreferences
 import xyz.mpv.rex.preferences.SubtitlesPreferences
+import xyz.mpv.rex.preferences.DanmakuPreferences
 import xyz.mpv.rex.preferences.FolderSortType
 import xyz.mpv.rex.preferences.SortOrder
 import xyz.mpv.rex.database.repository.VideoMetadataCacheRepository
@@ -153,6 +154,11 @@ class PlayerActivity :
   private val subtitlesPreferences: SubtitlesPreferences by inject()
 
   /**
+   * Preferences for danmaku (弹幕) settings.
+   */
+  private val danmakuPreferences: DanmakuPreferences by inject()
+
+  /**
    * Preferences for advanced settings.
    */
   private val advancedPreferences: AdvancedPreferences by inject()
@@ -213,7 +219,7 @@ class PlayerActivity :
   val danmakuView by lazy { binding.danmakuView }
 
   val danmakuManager by lazy {
-    xyz.mpv.rex.danmaku.DanmakuManager(this, danmakuView)
+    xyz.mpv.rex.danmaku.DanmakuManager(this, danmakuView, danmakuPreferences)
   }
 
   /** 上一次弹幕 seek 同步位置（毫秒），用于检测跳变。 */
@@ -403,6 +409,38 @@ class PlayerActivity :
       viewModel.shuffleEnabled.collect {
         mediaPlaybackService?.updateMediaSession()
       }
+    }
+
+    // Observe danmaku preference changes to apply them live to the danmaku view
+    lifecycleScope.launch {
+      danmakuPreferences.fontSize.changes().collect { danmakuManager.applyPreferences() }
+    }
+    lifecycleScope.launch {
+      danmakuPreferences.alpha.changes().collect { danmakuManager.applyPreferences() }
+    }
+    lifecycleScope.launch {
+      danmakuPreferences.displayArea.changes().collect { danmakuManager.applyPreferences() }
+    }
+    lifecycleScope.launch {
+      danmakuPreferences.density.changes().collect { danmakuManager.applyPreferences() }
+    }
+    lifecycleScope.launch {
+      danmakuPreferences.scrollSpeed.changes().collect { danmakuManager.applyPreferences() }
+    }
+    lifecycleScope.launch {
+      danmakuPreferences.showTopDanmaku.changes().collect { danmakuManager.applyPreferences() }
+    }
+    lifecycleScope.launch {
+      danmakuPreferences.showBottomDanmaku.changes().collect { danmakuManager.applyPreferences() }
+    }
+    lifecycleScope.launch {
+      danmakuPreferences.showScrollDanmaku.changes().collect { danmakuManager.applyPreferences() }
+    }
+    lifecycleScope.launch {
+      danmakuPreferences.borderSize.changes().collect { danmakuManager.applyPreferences() }
+    }
+    lifecycleScope.launch {
+      danmakuPreferences.shadowRadius.changes().collect { danmakuManager.applyPreferences() }
     }
 
     val playlistId = intent.getIntExtra("playlist_id", -1).takeIf { it != -1 }

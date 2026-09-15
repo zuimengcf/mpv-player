@@ -204,6 +204,13 @@ object PreferencesScreen : Screen {
                   onClick = { backstack.add(SubtitlesPreferencesScreen) },
                 )
                 PreferenceItem(
+                  position = GroupPosition.MIDDLE,
+                  title = stringResource(id = R.string.pref_danmaku),
+                  summary = stringResource(id = R.string.pref_danmaku_summary),
+                  icon = Icons.Outlined.Subtitles,
+                  onClick = { backstack.add(DanmakuPreferencesScreen) },
+                )
+                PreferenceItem(
                   position = GroupPosition.LAST,
                   title = stringResource(id = R.string.pref_audio),
                   summary = stringResource(id = R.string.pref_audio_summary),

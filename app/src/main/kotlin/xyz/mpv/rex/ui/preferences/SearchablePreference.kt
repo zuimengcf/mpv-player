@@ -535,6 +535,15 @@ object SearchablePreferences {
                 screen = SubtitlesPreferencesScreen,
             ))
 
+            // Danmaku preferences
+            add(SearchablePreference(
+                titleRes = R.string.pref_danmaku,
+                summaryRes = R.string.pref_danmaku_summary,
+                keywords = listOf("danmaku", "弹幕", "bullet", "comment", "danmu", "subtitle"),
+                category = "Danmaku",
+                screen = DanmakuPreferencesScreen,
+            ))
+
             // Audio preferences
             add(SearchablePreference(
                 titleRes = R.string.pref_audio,

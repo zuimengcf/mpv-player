@@ -8,6 +8,7 @@ import androidx.compose.material.icons.outlined.Audiotrack
 import androidx.compose.material.icons.outlined.Bookmarks
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Camera
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.MoreVert
@@ -49,6 +50,7 @@ enum class PlayerButton(
   LOCK_CONTROLS(Icons.Outlined.LockOpen),
   AUDIO_TRACK(Icons.Outlined.Audiotrack),
   SUBTITLES(Icons.Outlined.Subtitles),
+  DANMAKU(Icons.Outlined.ChatBubbleOutline),
   MORE_OPTIONS(Icons.Outlined.MoreVert),
   CURRENT_CHAPTER(Icons.Outlined.Bookmarks), // <-- CHANGED ICON
   REPEAT_MODE(Icons.Outlined.Repeat),
@@ -94,6 +96,7 @@ fun getPlayerButtonLabel(button: PlayerButton): String =
     PlayerButton.LOCK_CONTROLS -> stringResource(R.string.btn_label_lock)
     PlayerButton.AUDIO_TRACK -> stringResource(R.string.btn_label_audio)
     PlayerButton.SUBTITLES -> stringResource(R.string.btn_label_subtitles)
+    PlayerButton.DANMAKU -> stringResource(R.string.btn_label_danmaku)
     PlayerButton.MORE_OPTIONS -> stringResource(R.string.btn_label_more)
     PlayerButton.CURRENT_CHAPTER -> stringResource(R.string.btn_label_chapter)
     PlayerButton.REPEAT_MODE -> stringResource(R.string.btn_label_repeat_mode)

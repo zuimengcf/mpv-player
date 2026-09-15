@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import xyz.mpv.rex.ui.player.Panels
 import xyz.mpv.rex.ui.player.controls.components.panels.AudioDelayPanel
+import xyz.mpv.rex.ui.player.controls.components.panels.DanmakuSettingsPanel
 import xyz.mpv.rex.ui.player.controls.components.panels.SubtitleDelayPanel
 import xyz.mpv.rex.ui.player.controls.components.panels.SubtitleSettingsPanel
 import xyz.mpv.rex.ui.player.controls.components.panels.VideoSettingsPanel
@@ -43,6 +44,9 @@ fun PlayerPanels(
     }
     Panels.VideoFilters -> {
       VideoSettingsPanel(onDismissRequest, modifier)
+    }
+    Panels.DanmakuSettings -> {
+      DanmakuSettingsPanel(onDismissRequest, modifier)
     }
   }
 }

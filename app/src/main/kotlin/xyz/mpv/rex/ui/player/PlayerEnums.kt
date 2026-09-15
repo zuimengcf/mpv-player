@@ -150,6 +150,7 @@ enum class Panels {
   SubtitleDelay,
   AudioDelay,
   VideoFilters,
+  DanmakuSettings,
 }
 
 sealed class PlayerUpdates {

@@ -19,6 +19,7 @@ import java.io.File
 class DanmakuManager(
     private val context: Context,
     private val danmakuView: DanmakuView,
+    private val danmakuPreferences: xyz.mpv.rex.preferences.DanmakuPreferences? = null,
 ) {
     companion object {
         private const val TAG = "DanmakuManager"
@@ -52,6 +53,9 @@ class DanmakuManager(
             preventOverlapping(overlappingPair)
         }
 
+        // 应用用户偏好（字号/滚动速度/描边/阴影/透明度/密度）
+        applyPreferences()
+
         danmakuView.setCallback(object : DrawHandler.Callback {
             override fun drawingFinished() {}
             override fun danmakuShown(danmaku: BaseDanmaku?) {}
@@ -67,6 +71,12 @@ class DanmakuManager(
                     }
                 }
                 danmakuView.visibility = if (trackSelected) android.view.View.VISIBLE else android.view.View.GONE
+                // 关键修复：prepared 后必须 start 才能真正渲染弹幕
+                // 若当前正在播放则立即启动渲染循环
+                if (trackSelected && (positionProvider?.isPlaying() ?: true)) {
+                    danmakuView.start()
+                    Log.d(TAG, "Danmaku started after prepare")
+                }
                 onPreparedListener?.invoke()
             }
             override fun updateTimer(timer: DanmakuTimer?) {}
@@ -75,6 +85,80 @@ class DanmakuManager(
 
     fun setPositionProvider(provider: PlaybackPositionProvider) {
         positionProvider = provider
+    }
+
+    /**
+     * 应用弹幕偏好设置（字号/滚动速度/描边/阴影/透明度/密度/显示类型）。
+     * 可在设置页变更后调用刷新；未配置 DanmakuPreferences 时保持默认。
+     */
+    fun applyPreferences() {
+        val prefs = danmakuPreferences ?: return
+        try {
+            val fontSize = prefs.fontSize.get().coerceIn(12, 40)
+            // 基准字号 22sp → scale
+            val scale = fontSize / 22f
+            danmakuContext.setScaleTextSize(scale)
+
+            val speed = prefs.scrollSpeed.get().coerceIn(0.5f, 2f)
+            danmakuContext.setScrollSpeedFactor(1f / speed)
+
+            // 描边/阴影/透明度
+            val border = prefs.borderSize.get().coerceIn(0, 5)
+            val shadow = prefs.shadowRadius.get().coerceIn(0, 10)
+            val alpha = prefs.alpha.get().coerceIn(0, 255)
+            if (border > 0) {
+                danmakuContext.setDanmakuStyle(
+                    master.flame.danmaku.danmaku.model.IDisplayer.DANMAKU_STYLE_STROKEN,
+                    border.toFloat(), 0f
+                )
+            } else if (shadow > 0) {
+                danmakuContext.setDanmakuStyle(
+                    master.flame.danmaku.danmaku.model.IDisplayer.DANMAKU_STYLE_SHADOW,
+                    shadow.toFloat(), 0f
+                )
+            } else {
+                danmakuContext.setDanmakuStyle(
+                    master.flame.danmaku.danmaku.model.IDisplayer.DANMAKU_STYLE_NONE,
+                    0f, 0f
+                )
+            }
+
+            // 密度（最大显示行数）：稀疏 2 行 / 正常 5 行 / 密集 10 行
+            val density = prefs.density.get().coerceIn(0, 2)
+            val maxLines = when (density) {
+                0 -> 2
+                1 -> 5
+                else -> 10
+            }
+            val linesMap = HashMap<Int, Int>()
+            linesMap[BaseDanmaku.TYPE_SCROLL_LR] = maxLines
+            linesMap[BaseDanmaku.TYPE_SCROLL_RL] = maxLines
+            linesMap[BaseDanmaku.TYPE_FIX_TOP] = maxLines
+            linesMap[BaseDanmaku.TYPE_FIX_BOTTOM] = maxLines
+            danmakuContext.setMaximumLines(linesMap)
+
+            // 透明度：alpha 0-255 → 0.0-1.0
+            danmakuContext.setDanmakuTransparency(alpha / 255f)
+
+            // 显示类型过滤（滚动/顶部/底部）
+            val showScroll = prefs.showScrollDanmaku.get()
+            val showTop = prefs.showTopDanmaku.get()
+            val showBottom = prefs.showBottomDanmaku.get()
+            danmakuContext.setR2LDanmakuVisibility(showScroll)
+            danmakuContext.setL2RDanmakuVisibility(showScroll)
+            danmakuContext.setFTDanmakuVisibility(showTop)
+            danmakuContext.setFBDanmakuVisibility(showBottom)
+
+            // 显示区域（顶部/底部区域用 margin 模拟；中间区域暂不生效）
+            val area = prefs.displayArea.get()
+            val marginTop = if (area == 1) danmakuView.height / 4 else 0
+            danmakuContext.setMarginTop(marginTop)
+            danmakuContext.alignBottom(area == 2)
+
+            Log.d(TAG, "Danmaku preferences applied: scale=$scale speed=$speed border=$border shadow=$shadow alpha=$alpha density=$density area=$area scroll=$showScroll top=$showTop bottom=$showBottom")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to apply danmaku preferences", e)
+        }
     }
 
     /**
@@ -100,13 +184,15 @@ class DanmakuManager(
             }
 
             currentDanmakuPath = filePath
-            trackSelected = true
+            // enabledByDefault=false 时加载但不自动显示（需手动开"显示弹幕"）
+            val enabledByDefault = danmakuPreferences?.enabledByDefault?.get() ?: true
+            trackSelected = enabledByDefault
 
             val parser = BiliDanmakuParser().apply { load(dataSource) }
             danmakuView.prepare(parser, danmakuContext)
-            danmakuView.visibility = android.view.View.VISIBLE
+            danmakuView.visibility = if (enabledByDefault) android.view.View.VISIBLE else android.view.View.GONE
 
-            Log.d(TAG, "Danmaku loaded successfully")
+            Log.d(TAG, "Danmaku loaded successfully (enabledByDefault=$enabledByDefault)")
             return true
         } catch (e: Exception) {
             Log.e(TAG, "Error loading danmaku", e)
@@ -151,6 +237,11 @@ class DanmakuManager(
 
     fun resumeDanmaku() {
         if (danmakuLoaded && trackSelected) {
+            // 若渲染循环未启动（例如加载时处于暂停状态），resume 前先 start
+            if (!danmakuView.isStarted()) {
+                danmakuView.start()
+                Log.d(TAG, "Danmaku started (resume fallback)")
+            }
             danmakuView.resume()
             Log.d(TAG, "Danmaku resumed")
         }
@@ -166,6 +257,10 @@ class DanmakuManager(
     fun showDanmaku() {
         trackSelected = true
         if (danmakuLoaded) {
+            if (!danmakuView.isStarted()) {
+                danmakuView.start()
+                Log.d(TAG, "Danmaku started (show fallback)")
+            }
             danmakuView.visibility = android.view.View.VISIBLE
         }
     }

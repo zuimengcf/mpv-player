@@ -34,6 +34,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FileDownload
@@ -143,6 +144,21 @@ object CustomButtonScreen : Screen {
         // 8 slots — order = left 0-3, right 4-7
         val buttonSlots = remember { mutableStateListOf<CustomButton?>(*Array(8) { null }) }
 
+        // Reset-to-default dialog state
+        var showResetDialog by remember { mutableStateOf(false) }
+
+        // Reset to factory defaults (v4: 上一句字幕/3倍速/静音/监测循环/关闭监测/上一帧/下一帧/截图)
+        fun resetToDefault() {
+            val defaultJson = PlayerPreferences.DEFAULT_CUSTOM_BUTTONS_JSON
+            val defaults = runCatching {
+                Json.decodeFromString<CustomButtonSlots>(defaultJson).slots.take(8).toMutableList()
+            }.getOrElse { MutableList<CustomButton?>(8) { null } }
+            while (defaults.size < 8) defaults.add(null)
+            buttonSlots.clear()
+            buttonSlots.addAll(defaults)
+            Toast.makeText(context, context.getString(R.string.custom_buttons_reset_success), Toast.LENGTH_SHORT).show()
+        }
+
         // Import dialog state
         var showImportDialog by remember { mutableStateOf(false) }
         var importedSlots by remember { mutableStateOf<List<CustomButton?>>(emptyList()) }
@@ -248,6 +264,15 @@ object CustomButtonScreen : Screen {
                             Icon(
                                 Icons.AutoMirrored.Outlined.ArrowBack,
                                 contentDescription = stringResource(id = R.string.back),
+                                tint = MaterialTheme.colorScheme.secondary,
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { showResetDialog = true }) {
+                            Icon(
+                                Icons.Default.Restore,
+                                contentDescription = stringResource(id = R.string.custom_buttons_reset_title),
                                 tint = MaterialTheme.colorScheme.secondary,
                             )
                         }
@@ -416,6 +441,28 @@ object CustomButtonScreen : Screen {
                     showImportDialog = false
                     selectedImportSlots = emptySet()
                 }
+            )
+        }
+
+        // Reset-to-default confirm dialog
+        if (showResetDialog) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { showResetDialog = false },
+                title = { Text(stringResource(id = R.string.custom_buttons_reset_dialog_title)) },
+                text = { Text(stringResource(id = R.string.custom_buttons_reset_dialog_message)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showResetDialog = false
+                        resetToDefault()
+                    }) {
+                        Text(stringResource(id = R.string.custom_buttons_reset_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showResetDialog = false }) {
+                        Text(stringResource(id = R.string.generic_cancel))
+                    }
+                },
             )
         }
     }

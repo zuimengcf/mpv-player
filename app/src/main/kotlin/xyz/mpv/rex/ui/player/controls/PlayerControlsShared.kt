@@ -45,6 +45,7 @@ import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.ShuffleOn
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Subtitles
+import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.filled.ZoomOutMap
 import androidx.compose.material.icons.filled.Flip
@@ -714,7 +715,6 @@ fun RenderPlayerButton(
           )
       }
     }
-
     PlayerButton.SUBTITLES -> {
       if (isMoreSheet) {
           Surface(
@@ -753,6 +753,56 @@ fun RenderPlayerButton(
           )
       }
     }
+
+    PlayerButton.DANMAKU -> {
+      // 弹幕按钮：点击打开弹幕设置面板，长按切换弹幕显示/隐藏
+      if (isMoreSheet) {
+          Surface(
+            shape = CircleShape,
+            color = surfaceColor,
+            contentColor = contentColor,
+            border = borderColor,
+            modifier = Modifier
+              .height(buttonSize)
+              .clip(CircleShape)
+              .clickable { onOpenPanel(Panels.DanmakuSettings) }
+          ) {
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+              modifier = Modifier.padding(horizontal = MaterialTheme.spacing.smaller)
+            ) {
+              Icon(
+                imageVector = Icons.Default.ChatBubbleOutline,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+              )
+              Text(
+                text = stringResource(R.string.danmaku),
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+              )
+            }
+          }
+      } else {
+          val danmakuManager = activity.danmakuManager
+          ControlsButton(
+            Icons.Default.ChatBubbleOutline,
+            onClick = { onOpenPanel(Panels.DanmakuSettings) },
+            onLongClick = {
+              if (danmakuManager.isTrackSelected()) {
+                danmakuManager.hideDanmaku()
+                android.widget.Toast.makeText(activity, R.string.danmaku_toast_removed, android.widget.Toast.LENGTH_SHORT).show()
+              } else {
+                danmakuManager.showDanmaku()
+                android.widget.Toast.makeText(activity, R.string.danmaku_toast_loaded, android.widget.Toast.LENGTH_SHORT).show()
+              }
+            },
+            modifier = Modifier.size(buttonSize),
+          )
+      }
+    }
+
 
     PlayerButton.MORE_OPTIONS -> {
       if (isMoreSheet) {
