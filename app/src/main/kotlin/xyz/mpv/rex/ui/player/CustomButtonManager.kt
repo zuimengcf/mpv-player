@@ -171,14 +171,27 @@ class CustomButtonManager(
     }
 
     fun callButton(id: String) {
-        // 监测按钮走系统原生 script-binding 调用，与 MoreSheet 完全一致
+        // 监测按钮：完全复用系统原生绑定(toggle/display-page-N) + 偏好状态跟踪，
+        // 与 MoreSheet/MPVView 的系统面板切换逻辑一致
         when (id) {
             "stats-cycle" -> {
-                MPVLib.command("script-binding", "stats/display-stats-toggle")
+                // 循环切页：面板关则先打开，再切到下一页
+                val cur = advancedPreferences.enabledStatisticsPage.get()
+                val next = (cur + 1) % 6
+                if (cur == 0) {
+                    // 面板当前关闭 -> toggle 打开（系统 toggle 常驻模式）
+                    MPVLib.command("script-binding", "stats/display-stats-toggle")
+                }
+                MPVLib.command("script-binding", "stats/display-page-$next")
+                advancedPreferences.enabledStatisticsPage.set(next)
                 return
             }
             "stats-close" -> {
-                MPVLib.command("script-binding", "stats/display-stats-close")
+                // 关闭监测：面板开着才 toggle 关闭
+                if (advancedPreferences.enabledStatisticsPage.get() != 0) {
+                    MPVLib.command("script-binding", "stats/display-stats-toggle")
+                    advancedPreferences.enabledStatisticsPage.set(0)
+                }
                 return
             }
         }
@@ -187,9 +200,9 @@ class CustomButtonManager(
     }
 
     fun callButtonLongPress(id: String) {
-        // 长按监测循环 = 循环切换监测页（系统 display-page-next 绑定）
+        // 长按监测循环 = 同点按：循环切页
         if (id == "stats-cycle") {
-            MPVLib.command("script-binding", "stats/display-page-next")
+            callButton(id)
             return
         }
         val safeId = id.replace("-", "_")
