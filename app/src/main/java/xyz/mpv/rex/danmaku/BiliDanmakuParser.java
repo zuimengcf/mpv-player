@@ -28,10 +28,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.IOException;
 import java.util.Locale;
+
+import javax.xml.parsers.SAXParserFactory;
 
 import master.flame.danmaku.danmaku.model.AlphaValue;
 import master.flame.danmaku.danmaku.model.BaseDanmaku;
@@ -45,10 +46,6 @@ import master.flame.danmaku.danmaku.parser.android.AndroidFileSource;
 import master.flame.danmaku.danmaku.util.DanmakuUtils;
 
 public class BiliDanmakuParser extends BaseDanmakuParser {
-
-    static {
-        System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
-    }
 
     protected float mDispScaleX;
     protected float mDispScaleY;
@@ -71,12 +68,14 @@ public class BiliDanmakuParser extends BaseDanmakuParser {
         if (mDataSource != null) {
             AndroidFileSource source = (AndroidFileSource) mDataSource;
             try {
-                XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+                // Android 上不要用 XMLReaderFactory.createXMLReader()（依赖 org.xml.sax.driver
+                // 系统属性，经常抛 SAXException），改用 SAXParserFactory 获取 XMLReader。
+                XMLReader xmlReader = SAXParserFactory.newInstance().newSAXParser().getXMLReader();
                 XmlContentHandler contentHandler = new XmlContentHandler();
                 xmlReader.setContentHandler(contentHandler);
                 xmlReader.parse(new InputSource(source.data()));
                 return contentHandler.getResult();
-            } catch (SAXException | IOException e) {
+            } catch (SAXException | IOException | javax.xml.parsers.ParserConfigurationException e) {
                 e.printStackTrace();
             }
 

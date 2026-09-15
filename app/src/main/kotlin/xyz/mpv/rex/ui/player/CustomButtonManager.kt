@@ -65,7 +65,14 @@ class CustomButtonManager(
                 }
 
                 val scriptContent = buildString {
-                    val jsonString = playerPreferences.customButtons.get()
+                    var jsonString = playerPreferences.customButtons.get()
+                    // 迁移：旧版 mp.command('cmd','arg') 双参数写法在 Lua 中不生效，
+                    // 自动替换为 mp.commandv('cmd','arg') 并写回，用户无需手动重置
+                    val migrated = migrateLegacyCommandSyntax(jsonString)
+                    if (migrated != jsonString) {
+                        jsonString = migrated
+                        runCatching { playerPreferences.customButtons.set(migrated) }
+                    }
                     if (jsonString.isNotBlank()) {
                         try {
                             // Try new slot-based format first
@@ -215,5 +222,21 @@ class CustomButtonManager(
                 append("\n")
             }
         }
+    }
+
+    /**
+     * 迁移旧版按钮命令语法：将 `mp.command('cmd','arg')` 双参数写法
+     * 替换为 `mp.commandv('cmd','arg')`（Lua 中双参数 mp.command 只取第一个参数作为命令名，导致不生效）。
+     */
+    private fun migrateLegacyCommandSyntax(jsonString: String): String {
+        if (jsonString.isBlank()) return jsonString
+        // 匹配 mp.command('xxx','yyy') 或 mp.command("xxx","yyy")
+        val regex = Regex("""mp\.command\(('(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")\s*,\s*('(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")\)""")
+        val migrated = regex.replace(jsonString) { match ->
+            val arg1 = match.groupValues[1]
+            val arg2 = match.groupValues[2]
+            "mp.commandv($arg1, $arg2)"
+        }
+        return migrated
     }
 }

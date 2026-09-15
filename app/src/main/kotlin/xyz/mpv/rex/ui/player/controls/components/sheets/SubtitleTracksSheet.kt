@@ -30,6 +30,7 @@ fun SubtitlesSheet(
   onToggleSubtitle: (Int) -> Unit,
   isSubtitleSelected: (Int) -> Boolean,
   onAddSubtitle: () -> Unit,
+  onAddDanmaku: () -> Unit,
   onOpenSubtitleSettings: () -> Unit,
   onOpenSubtitleDelay: () -> Unit,
   onRemoveSubtitle: (Int) -> Unit,
@@ -75,6 +76,11 @@ fun SubtitlesSheet(
             Icon(Icons.Default.MoreTime, null)
           }
         },
+      )
+      // 并列入口：加载弹幕（本地 XML），与"添加字幕"同级并排
+      AddTrackRow(
+        stringResource(R.string.danmaku_import_button),
+        onAddDanmaku,
       )
     },
     track = { item ->
