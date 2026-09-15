@@ -1,4 +1,4 @@
-# mpvRex
+# Re播放器
 
 <p align="center">
   <a href="README.md"><b>English</b></a> &nbsp;|&nbsp; <a href="README.zh-CN.md"><b>简体中文</b></a>
@@ -20,7 +20,7 @@
   <img src="https://img.shields.io/github/stars/sfsakhawat999/mpvRex?style=flat&logo=github" />
 </p>
 
-mpvRex 是一款先进、高度可定制的 Android 视频播放器。它将 libmpv 的强大能力与现代 Jetpack Compose 界面以及独特的以用户为中心的功能相结合。
+Re播放器 是一款先进、高度可定制的 Android 视频播放器。它将 libmpv 的强大能力与现代 Jetpack Compose 界面以及独特的以用户为中心的功能相结合。
 
 ---
 
@@ -115,14 +115,12 @@ mpvRex 是一款先进、高度可定制的 Android 视频播放器。它将 lib
 
 翻译可使用 **[Droidlate](https://github.com/estiaksoyeb/Droidlate)**（[PyPI](https://pypi.org/project/droidlate/)）管理 —— 一个本地、基于 Web 的界面，专为编辑 Android `strings.xml` 翻译文件而设计。
 
-如果你想为 mpvRex 翻译贡献你的语言，请参阅[翻译贡献指南](CONTRIBUTING.md#translation-contributions)，了解在本地运行 Droidlate 的分步说明。
+如果你想为 Re播放器 翻译贡献你的语言，请参阅[翻译贡献指南](CONTRIBUTING.md#translation-contributions)，了解在本地运行 Droidlate 的分步说明。
 
 ---
 
 ## 致谢
-
-## 致谢
-mpvRex 的根基是 **[mpvEx](https://github.com/marlboro-advance/mpvEx)**，而 mpvEx 又构建于 **[mpv-android](https://github.com/mpv-android/mpv-android)** 之上。我们感谢他们打下的基础。
+Re播放器 的根基是 **[mpvEx](https://github.com/marlboro-advance/mpvEx)**，而 mpvEx 又构建于 **[mpv-android](https://github.com/mpv-android/mpv-android)** 之上。我们感谢他们打下的基础。
 其他灵感与参考：
 [mpvKt](https://github.com/abdallahmehiz/mpvKt) · [Next Player](https://github.com/anilbeesetti/nextplayer) · [Gramophone](https://github.com/FoedusProgramme/Gramophone)
 ---
