@@ -1,5 +1,6 @@
 package xyz.mpv.rex.ui.preferences
 
+import xyz.mpv.rex.R
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
