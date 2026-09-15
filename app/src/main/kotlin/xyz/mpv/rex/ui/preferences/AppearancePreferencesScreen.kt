@@ -329,7 +329,6 @@ object AppearancePreferencesScreen : Screen {
                         val enableShorts by browserPreferences.enableShorts.collectAsState()
                         val enableTabRecents by browserPreferences.enableTabRecents.collectAsState()
                         val enableTabPlaylists by browserPreferences.enableTabPlaylists.collectAsState()
-                        val enableTabNetwork by browserPreferences.enableTabNetwork.collectAsState()
 
                         GroupedListColumn {
                             GroupedPreferenceCard(position = GroupPosition.FIRST) {
@@ -375,7 +374,7 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(position = GroupPosition.LAST) {
                                 SwitchPreference(
                                     value = enableTabPlaylists,
                                     onValueChange = { browserPreferences.enableTabPlaylists.set(it) },
@@ -383,20 +382,6 @@ object AppearancePreferencesScreen : Screen {
                                     summary = {
                                         Text(
                                             text = stringResource(id = R.string.pref_appearance_tab_playlists_summary),
-                                            color = MaterialTheme.colorScheme.outline,
-                                        )
-                                    }
-                                )
-                            }
-
-                            GroupedPreferenceCard(position = GroupPosition.LAST) {
-                                SwitchPreference(
-                                    value = enableTabNetwork,
-                                    onValueChange = { browserPreferences.enableTabNetwork.set(it) },
-                                    title = { Text(text = stringResource(id = R.string.pref_appearance_tab_network_title)) },
-                                    summary = {
-                                        Text(
-                                            text = stringResource(id = R.string.pref_appearance_tab_network_summary),
                                             color = MaterialTheme.colorScheme.outline,
                                         )
                                     }

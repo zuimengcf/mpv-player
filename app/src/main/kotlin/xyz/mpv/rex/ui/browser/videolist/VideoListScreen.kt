@@ -329,7 +329,6 @@ data class VideoListScreen(
     // Bottom bar animation state
     var showFloatingBottomBar by remember { mutableStateOf(false) }
     var showMarkAsSheet by remember { mutableStateOf(false) }
-    var showWebShareSheet by remember { mutableStateOf(false) }
     val animationDuration = 300
 
     // Handle selection mode changes with animation
@@ -418,11 +417,6 @@ data class VideoListScreen(
                 onClick = { selectionManager.shareSelected() },
               )
             )
-            add(
-              SelectionOverflowAction(
-                icon = Icons.Filled.Share,
-                label = "Web Share",
-                onClick = { showWebShareSheet = true },
               )
             )
             val selectedVideos = selectionManager.getSelectedItems()
@@ -723,12 +717,6 @@ data class VideoListScreen(
         MultiSelectionInfoSheet(count = count, totalBytes = bytes, totalDurationMs = duration, onDismiss = { multiSelectionInfo = null })
       }
 
-      if (showWebShareSheet) {
-        xyz.mpv.rex.feature.webshare.WebShareSheet(
-          videos = selectionManager.getSelectedItems(),
-          onDismiss = { showWebShareSheet = false }
-        )
-      }
     }
   }
 }

@@ -291,7 +291,6 @@ fun FileSystemBrowserScreen(path: String? = null) {
   // Bottom bar visibility state
   var showFloatingBottomBar by remember { mutableStateOf(false) }
   var showMarkAsSheet by remember { mutableStateOf(false) }
-  var showWebShareSheet by remember { mutableStateOf(false) }
 
   // Animation duration for responsive slide animations
   val animationDuration = 200
@@ -631,10 +630,6 @@ fun FileSystemBrowserScreen(path: String? = null) {
                   }
                 },
               ))
-              add(SelectionOverflowAction(
-                icon = Icons.Filled.Share,
-                label = "Web Share",
-                onClick = { showWebShareSheet = true },
               ))
               if (folderSelectionManager.isInSelectionMode && !videoSelectionManager.isInSelectionMode) {
                 add(SelectionOverflowAction(
@@ -1105,12 +1100,6 @@ fun FileSystemBrowserScreen(path: String? = null) {
       xyz.mpv.rex.ui.browser.sheets.MultiSelectionInfoSheet(count = count, totalBytes = bytes, totalDurationMs = duration, onDismiss = { multiSelectionInfo = null }, unit = multiSelectionUnit)
     }
 
-    if (showWebShareSheet) {
-      xyz.mpv.rex.feature.webshare.WebShareSheet(
-        videos = videoSelectionManager.getSelectedItems(),
-        onDismiss = { showWebShareSheet = false }
-      )
-    }
   }
 }
 

@@ -89,7 +89,9 @@ android {
     }
 
     named("debug") {
-      // 开发版：直接使用主包名，便于装机验证；固定签名保证每次构建可覆盖安装
+      // lite 版：用 .lite 后缀实现双装共存（主版本 com.zuimeng.player 不受影响）
+      applicationIdSuffix = ".lite"
+      versionNameSuffix = "-lite"
       signingConfig = signingConfigs.getByName("release")
     }
   }

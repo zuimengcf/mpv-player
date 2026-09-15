@@ -24,10 +24,6 @@ class AdvancedPreferences(
   val enableLuaScripts = preferenceStore.getBoolean("enable_lua_scripts", true)
   val selectedLuaScripts = preferenceStore.getStringSet("selected_lua_scripts", emptySet())
 
-  // DanDanPlay (弹弹play) 在线弹幕凭证
-  val dandanplayAppId = preferenceStore.getString("dandanplay_app_id", BuildConfig.DANDANPLAY_APP_ID)
-  val dandanplayAppSecret = preferenceStore.getString("dandanplay_app_secret", BuildConfig.DANDANPLAY_APP_SECRET)
-
   /**
    * Syncs the MediaInfoActivity enabled state with the preference.
    * This affects whether the activity appears in the system intent chooser.

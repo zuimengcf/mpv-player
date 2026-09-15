@@ -83,7 +83,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.mpv.rex.R
 import xyz.mpv.rex.domain.browser.FileSystemItem
 import xyz.mpv.rex.domain.media.model.Video
-import xyz.mpv.rex.feature.webshare.WebShareSheet
 import xyz.mpv.rex.presentation.Screen
 import xyz.mpv.rex.ui.browser.LocalNavigationBarHeight
 import xyz.mpv.rex.ui.browser.components.BrowserBottomBar
@@ -191,7 +190,6 @@ data class SearchScreen(
     var renameDialogOpen by rememberSaveable { mutableStateOf(false) }
     var addToPlaylistDialogOpen by rememberSaveable { mutableStateOf(false) }
     var showMarkAsSheet by remember { mutableStateOf(false) }
-    var showWebShareSheet by remember { mutableStateOf(false) }
     var mediaInfoUri by remember { mutableStateOf<Uri?>(null) }
     var multiSelectionInfo by remember { mutableStateOf<Triple<Int, Long, Long>?>(null) }
     var multiSelectionUnit by remember { mutableStateOf("item") }
@@ -370,19 +368,11 @@ data class SearchScreen(
                   }
                 )
               )
-              add(
-                SelectionOverflowAction(
-                  icon = Icons.Filled.Share,
-                  label = "Web Share",
-                  onClick = { showWebShareSheet = true }
-                )
-              )
               val selectedVideos = videoSelectionManager.getSelectedItems()
               val selectedFolders = folderSelectionManager.getSelectedItems()
-              if (selectedVideos.isNotEmpty() || selectedFolders.isNotEmpty()) {
-                add(
-                  SelectionOverflowAction(
-                    icon = Icons.Filled.ContentCopy,
+              add(
+                SelectionOverflowAction(
+                  icon = Icons.Filled.ContentCopy,
                     label = if (selectedVideos.isNotEmpty() && selectedFolders.isEmpty()) {
                       stringResource(R.string.copy_video_path)
                     } else if (selectedFolders.isNotEmpty() && selectedVideos.isEmpty()) {
@@ -838,18 +828,6 @@ data class SearchScreen(
         totalDurationMs = duration,
         unit = multiSelectionUnit,
         onDismiss = { multiSelectionInfo = null },
-      )
-    }
-
-    // Web Share Sheet
-    if (showWebShareSheet) {
-      val selectedVideos = videoSelectionManager.getSelectedItems()
-      WebShareSheet(
-        videos = selectedVideos,
-        onDismiss = {
-          showWebShareSheet = false
-          videoSelectionManager.clear()
-        },
       )
     }
   }

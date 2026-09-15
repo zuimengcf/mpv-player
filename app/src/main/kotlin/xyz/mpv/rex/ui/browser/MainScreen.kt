@@ -20,7 +20,6 @@ import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -52,7 +51,6 @@ import xyz.mpv.rex.preferences.BrowserPreferences
 import xyz.mpv.rex.preferences.preference.collectAsState
 import xyz.mpv.rex.presentation.Screen
 import xyz.mpv.rex.ui.browser.folderlist.FolderListScreen
-import xyz.mpv.rex.ui.browser.networkstreaming.NetworkStreamingScreen
 import xyz.mpv.rex.ui.browser.playlist.PlaylistScreen
 import xyz.mpv.rex.ui.browser.recentlyplayed.RecentlyPlayedScreen
 import xyz.mpv.rex.ui.browser.shorts.ShortsScreen
@@ -166,17 +164,15 @@ object MainScreen : Screen {
     val isShortsEnabled by browserPreferences.enableShorts.collectAsState()
     val enableTabRecents by browserPreferences.enableTabRecents.collectAsState()
     val enableTabPlaylists by browserPreferences.enableTabPlaylists.collectAsState()
-    val enableTabNetwork by browserPreferences.enableTabNetwork.collectAsState()
 
     val homeLabel = stringResource(R.string.home)
     val shortsLabel = stringResource(R.string.shorts)
     val recentsLabel = stringResource(R.string.recents)
     val playlistsLabel = stringResource(R.string.playlists)
-    val networkLabel = stringResource(R.string.network)
 
     val visibleTabs = remember(
-      isShortsEnabled, enableTabRecents, enableTabPlaylists, enableTabNetwork,
-      homeLabel, shortsLabel, recentsLabel, playlistsLabel, networkLabel
+      isShortsEnabled, enableTabRecents, enableTabPlaylists,
+      homeLabel, shortsLabel, recentsLabel, playlistsLabel
     ) {
       buildList {
         add(
@@ -205,13 +201,7 @@ object MainScreen : Screen {
             }
           )
         }
-        if (enableTabNetwork) {
-          add(
-            VisibleTab("network", networkLabel, Icons.Filled.Language) {
-              NetworkStreamingScreen.Content()
-            }
-          )
-        }
+        // lite 版：屏蔽网络功能入口（模块代码保留，UI 入口移除）
       }
     }
 

@@ -197,7 +197,6 @@ fun MediaLibraryContent() {
   // Bottom bar animation state
   var showFloatingBottomBar by remember { mutableStateOf(false) }
   var showMarkAsSheet by remember { mutableStateOf(false) }
-  var showWebShareSheet by remember { mutableStateOf(false) }
   val animationDuration = 300
 
   LaunchedEffect(selectionManager.isInSelectionMode) {
@@ -297,11 +296,6 @@ fun MediaLibraryContent() {
                 onClick = { selectionManager.shareSelected() },
               )
             )
-            add(
-              SelectionOverflowAction(
-                icon = Icons.Filled.Share,
-                label = "Web Share",
-                onClick = { showWebShareSheet = true },
               )
             )
             val selectedVideos = selectionManager.getSelectedItems()
@@ -590,11 +584,5 @@ fun MediaLibraryContent() {
       xyz.mpv.rex.ui.browser.sheets.MultiSelectionInfoSheet(count = count, totalBytes = bytes, totalDurationMs = duration, onDismiss = { multiSelectionInfo = null })
     }
 
-    if (showWebShareSheet) {
-      xyz.mpv.rex.feature.webshare.WebShareSheet(
-        videos = selectionManager.getSelectedItems(),
-        onDismiss = { showWebShareSheet = false }
-      )
-    }
   }
 }

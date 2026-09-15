@@ -1399,19 +1399,5 @@ private fun DanmakuSection(activity: PlayerActivity) {
       },
     )
   }
-
-  // 在线搜索弹幕对话框
-  if (showSearchDialog) {
-    DanmakuSearchDialog(
-      onDismiss = { showSearchDialog = false },
-      onDanmakuXml = { xml, title ->
-        if (danmakuManager.loadDanmakuFromXml(xml, title)) {
-          danmakuVisible = true
-          Toast.makeText(context, "已加载弹幕: $title", Toast.LENGTH_SHORT).show()
-        }
-        showSearchDialog = false
-      },
-    )
-  }
 }
 
