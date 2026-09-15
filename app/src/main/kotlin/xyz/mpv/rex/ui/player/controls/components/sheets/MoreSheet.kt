@@ -1308,7 +1308,6 @@ private fun PlayerTimeToDisappearPreferenceItem() {
 private fun DanmakuSection(activity: PlayerActivity) {
   val context = LocalContext.current
   val danmakuManager = activity.danmakuManager
-  var showSearchDialog by remember { mutableStateOf(false) }
 
   // 弹幕显示状态（跟随 manager）
   var danmakuVisible by remember { mutableStateOf(danmakuManager.isTrackSelected()) }
@@ -1351,44 +1350,7 @@ private fun DanmakuSection(activity: PlayerActivity) {
       color = MaterialTheme.colorScheme.primary,
     )
 
-    // 在线搜索弹幕按钮
-    Surface(
-      shape = MaterialTheme.shapes.medium,
-      color = MaterialTheme.colorScheme.surfaceContainerLow,
-      modifier = Modifier.fillMaxWidth(),
-    ) {
-      ListItem(
-        modifier = Modifier
-          .fillMaxWidth()
-          .clickable { showSearchDialog = true },
-        leadingContent = {
-          Icon(
-            imageVector = Icons.Default.Subtitles,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-          )
-        },
-        headlineContent = {
-          Text(
-            text = stringResource(R.string.danmaku_load_button),
-            style = MaterialTheme.typography.bodyLarge,
-          )
-        },
-        trailingContent = {
-          if (danmakuManager.isDanmakuLoaded()) {
-            IconButton(onClick = {
-              danmakuManager.releaseDanmaku()
-              danmakuVisible = false
-              Toast.makeText(context, R.string.danmaku_toast_removed, Toast.LENGTH_SHORT).show()
-            }) {
-              Icon(imageVector = Icons.Default.Close, contentDescription = null)
-            }
-          }
-        },
-      )
-    }
-
-    // 导入本地弹幕文件按钮
+    // 导入本地弹幕文件按钮（精简版：仅本地导入，无在线搜索）
     Surface(
       shape = MaterialTheme.shapes.medium,
       color = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -1410,6 +1372,17 @@ private fun DanmakuSection(activity: PlayerActivity) {
             text = stringResource(R.string.danmaku_import_button),
             style = MaterialTheme.typography.bodyLarge,
           )
+        },
+        trailingContent = {
+          if (danmakuManager.isDanmakuLoaded()) {
+            IconButton(onClick = {
+              danmakuManager.releaseDanmaku()
+              danmakuVisible = false
+              Toast.makeText(context, R.string.danmaku_toast_removed, Toast.LENGTH_SHORT).show()
+            }) {
+              Icon(imageVector = Icons.Default.Close, contentDescription = null)
+            }
+          }
         },
       )
     }

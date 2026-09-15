@@ -236,21 +236,6 @@ object PreferencesScreen : Screen {
             }
           }
 
-          // Integrations Section
-          item {
-            PreferenceSection(title = "Integrations") {
-              GroupedListColumn {
-                PreferenceItem(
-                  position = GroupPosition.ONLY,
-                  title = "Jellyfin",
-                  summary = "External player sync",
-                  icon = Icons.Outlined.VideoLibrary,
-                  onClick = { backstack.add(xyz.mpv.rex.jellyfin.ui.JellyfinSettingsScreen) },
-                )
-              }
-            }
-          }
-
           // Advanced & About Section
           item {
             PreferenceSection(title = stringResource(R.string.pref_category_advanced_about)) {

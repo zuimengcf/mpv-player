@@ -195,8 +195,6 @@ class PlayerActivity :
   private val miniPlayerStateManager: MiniPlayerStateManager by inject()
   private val headlessPlaybackController: HeadlessPlaybackController by inject()
   private val thumbnailRepository: ThumbnailRepository by inject()
-  private val remoteClient: xyz.mpv.rex.jellyfin.remote.JellyfinRemoteClient by inject()
-  private var jellyfinExternalInfo: xyz.mpv.rex.jellyfin.JellyfinExternalHelper.ExternalInfo? = null
   private val uriThumbnailCache = android.util.LruCache<String, android.graphics.Bitmap>(32)
 
   /**
@@ -527,8 +525,6 @@ class PlayerActivity :
     }
     mediaIdentifier = getMediaIdentifier(intent, fileName)
 
-    jellyfinExternalInfo = xyz.mpv.rex.jellyfin.JellyfinExternalHelper.detect(intent)
-
     // Set HTTP headers (including referer) BEFORE playing the file
     setHttpHeadersFromExtras(intent.extras)
 
@@ -792,7 +788,6 @@ class PlayerActivity :
   @RequiresApi(Build.VERSION_CODES.P)
   override fun onDestroy() {
     Log.d(TAG, "PlayerActivity onDestroy")
-    runCatching { remoteClient.onPlayerFinished() }
 
     runCatching {
       // Only stop the service if we're not doing manual background playback
@@ -2009,18 +2004,8 @@ class PlayerActivity :
     needsAspectReapply = true
 
     lifecycleScope.launch(Dispatchers.IO) {
-      val externalPosMs = jellyfinExternalInfo?.positionMs
-      val isJellyfinExternal = jellyfinExternalInfo != null && externalPosMs != null
-      val hasState = if (isJellyfinExternal) {
-        val s = loadVideoPlaybackState(fileName)
-        val sec = externalPosMs!! / MILLISECONDS_TO_SECONDS
-        MPVLib.setPropertyInt("time-pos", sec)
-        xyz.mpv.rex.jellyfin.JellyfinExternalHelper.logSeekApplied(externalPosMs)
-        viewModel.clearResumePrompt()
-        s
-      } else {
-        loadVideoPlaybackState(fileName)
-      }
+      // 纯本地恢复播放位置（精简版无 Jellyfin 外部同步）
+      val hasState = loadVideoPlaybackState(fileName)
 
       // Re-enable the video/album-art track when loading a file in the foreground.
       // onNewIntent loads new files with vid="no"; if we're not in background
@@ -2761,7 +2746,6 @@ class PlayerActivity :
       fileName = intent.data?.lastPathSegment ?: "Unknown Video"
     }
     mediaIdentifier = getMediaIdentifier(intent, fileName)
-    jellyfinExternalInfo = xyz.mpv.rex.jellyfin.JellyfinExternalHelper.detect(intent)
 
     // Synchronously set orientation for the new file before displaying activity
     applyInitialOrientationFromIntent(intent)

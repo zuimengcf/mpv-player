@@ -14,7 +14,6 @@ import xyz.mpv.rex.preferences.SettingsManager
 import xyz.mpv.rex.preferences.SubtitlesPreferences
 import xyz.mpv.rex.preferences.UiPreferences
 import xyz.mpv.rex.ui.player.PlayerTutorialManager
-import xyz.mpv.rex.jellyfin.preferences.JellyfinPreferences
 import xyz.mpv.rex.preferences.preference.AndroidPreferenceStore
 import xyz.mpv.rex.preferences.preference.PreferenceStore
 import org.koin.android.ext.koin.androidContext
@@ -24,7 +23,6 @@ import org.koin.dsl.module
 
 val PreferencesModule =
   module {
-    single { JellyfinPreferences(androidContext()) }
     single { AndroidPreferenceStore(androidContext()) }.bind(PreferenceStore::class)
 
     single { AppearancePreferences(get()) }
