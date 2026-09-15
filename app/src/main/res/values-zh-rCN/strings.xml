@@ -1264,7 +1264,7 @@
     <string name="ab_loop_cut_clip">截取片段</string>
     <string name="ab_loop_exporting_clip">正在导出片段…</string>
     <string name="ab_loop_set_both_points">请先设置 A、B 两点再截取片段</string>
-    <string name="app_name">播放器</string>
+    <string name="app_name">Re播放器</string>
     <string name="author_name">Sakhawat</string>
     <string name="btn_label_position_bookmarks">位置书签</string>
     <string name="clip_export_duration">时长：%s</string>
