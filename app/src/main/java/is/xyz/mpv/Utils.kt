@@ -62,10 +62,8 @@ object Utils {
                 try {
                     ins = context.assets.open("scripts/$scriptName", AssetManager.ACCESS_STREAMING)
                     val outFile = File(scriptsDir, scriptName)
-                    if (outFile.length() == ins.available().toLong()) {
-                        Log.v(TAG, "Skipping copy of script (exists same size): $scriptName")
-                        continue
-                    }
+                    // Always overwrite: size comparison is unreliable (stream assets &
+                    // same-size edits to bundled lua scripts would never propagate).
                     out = FileOutputStream(outFile)
                     ins.copyTo(out)
                     Log.w(TAG, "Copied script: $scriptName")

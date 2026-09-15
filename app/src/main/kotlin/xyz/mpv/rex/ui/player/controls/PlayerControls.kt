@@ -889,7 +889,8 @@ fun PlayerControls(
             modifier = Modifier.constrainAs(customButtonsPortraitRef) {
                 start.linkTo(parent.start, spacing.large)
                 end.linkTo(parent.end, spacing.large)
-                bottom.linkTo(seekbar.top, spacing.medium)
+                // Stack above the portrait bottom-control grid (avoids overlap in portrait).
+                bottom.linkTo(bottomRightControls.top, spacing.small)
                 width = Dimension.fillToConstraints
                 height = Dimension.wrapContent
             }
