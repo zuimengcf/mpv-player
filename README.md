@@ -1,4 +1,4 @@
-# REX Player
+# Re Player
 
 <p align="center">
   <img src="app/src/main/ic_launcher-playstore.png" width="128" height="128" />
@@ -12,14 +12,11 @@
   <img src="https://img.shields.io/badge/Platform-Android-brightgreen.svg" />
   <img src="https://img.shields.io/badge/License-Apache--2.0-blue.svg" />
   <img src="https://img.shields.io/badge/Kotlin-2.3.10-purple.svg" />
-  <a href="https://github.com/mpvRex/REX-Player/releases"><img src="https://img.shields.io/github/downloads/mpvRex/REX-Player/total?logo=Github"/></a>
-  <img src="https://img.shields.io/github/stars/mpvRex/REX-Player?style=flat&logo=github" />
+  <a href="https://github.com/zuimengcf/mpv-player/releases"><img src="https://img.shields.io/github/downloads/zuimengcf/mpv-player/total?logo=Github"/></a>
+  <img src="https://img.shields.io/github/stars/zuimengcf/mpv-player?style=flat&logo=github" />
 </p>
 
-> [!NOTE]
-> **Repository moved**: from `sfsakhawat999/mpvRex` to [mpvRex/REX-Player](https://github.com/mpvRex/REX-Player). Old links will redirect automatically.
-
-REX Player is an advanced, customizable video player for Android. It combines the versatility of libmpv with a modern Jetpack Compose interface and unique user-centric features.
+Re Player is an advanced, customizable video player for Android. It combines the versatility of libmpv with a modern Jetpack Compose interface and unique user-centric features.
 
 ---
 
@@ -98,10 +95,10 @@ REX Player is an advanced, customizable video player for Android. It combines th
 ## Installation
 
 <div align="center">
-  <a href="https://github.com/mpvRex/REX-Player/releases">
+  <a href="https://github.com/zuimengcf/mpv-player/releases">
     <img src="https://img.shields.io/badge/Download-Stable_Release-blue?style=for-the-badge&logo=github" alt="Stable Release">
   </a>
-  <a href="https://mpvrex.github.io/REX-Player">
+  <a href="https://github.com/zuimengcf/mpv-player/actions">
     <img src="https://img.shields.io/badge/Download-Preview_Build-orange?style=for-the-badge&logo=github" alt="Preview Release">
   </a>
 </div>
@@ -114,13 +111,13 @@ REX Player is an advanced, customizable video player for Android. It combines th
 
 Translations can be managed using **[Droidlate](https://github.com/estiaksoyeb/Droidlate)** ([PyPI](https://pypi.org/project/droidlate/)) — a local, web-based UI designed for editing Android `strings.xml` translation files.
 
-If you would like to contribute to translating REX Player into your language, please refer to the [Translation Contribution Guide](CONTRIBUTING.md#translation-contributions) for step-by-step instructions on running Droidlate locally.
+If you would like to contribute to translating Re Player into your language, please refer to the [Translation Contribution Guide](CONTRIBUTING.md#translation-contributions) for step-by-step instructions on running Droidlate locally.
 
 ---
 
 ## Credits
 
-REX Player has its roots in **[mpvEx](https://github.com/marlboro-advance/mpvEx)**, which itself builds on **[mpv-android](https://github.com/mpv-android/mpv-android)**. We're grateful for the foundation they laid.
+Re Player has its roots in **[mpvEx](https://github.com/marlboro-advance/mpvEx)**, which itself builds on **[mpv-android](https://github.com/mpv-android/mpv-android)**. We're grateful for the foundation they laid.
 
 Additional inspiration and reference:
 [mpvKt](https://github.com/abdallahmehiz/mpvKt) · [Next Player](https://github.com/anilbeesetti/nextplayer) · [Gramophone](https://github.com/FoedusProgramme/Gramophone)
