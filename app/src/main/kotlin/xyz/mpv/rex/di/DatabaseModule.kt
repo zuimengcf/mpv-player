@@ -553,15 +553,42 @@ val MIGRATION_14_15 = object : Migration(14, 15) {
  * Changes:
  * - Adds danmakuPath, danmakuTitle, danmakuSelected columns to PlaybackStateEntity
  *   to persist danmaku binding per video (bound danmaku survives exit, only manual unbind clears it)
- * - Adds videoAspect, customAspectRatio columns for persisted aspect ratio
+ * (NOTE: aspect columns added in 16->17 to keep this version's schema backward compatible
+ *  with previously shipped danmaku-only v16 databases)
  */
 val MIGRATION_15_16 = object : Migration(15, 16) {
   override fun migrate(db: SupportSQLiteDatabase) {
     db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `danmakuPath` TEXT NOT NULL DEFAULT ''")
     db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `danmakuTitle` TEXT NOT NULL DEFAULT ''")
     db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `danmakuSelected` INTEGER NOT NULL DEFAULT 0")
-    db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `videoAspect` TEXT")
-    db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `customAspectRatio` REAL NOT NULL DEFAULT -1.0")
+  }
+}
+
+/**
+ * Migration from version 16 to version 17
+ *
+ * 统一补齐到当前实体（20列 = 原始15 + 弹幕3 + aspect2）。
+ * 兼容两种可能的 v16 存量库：
+ *  - 弹幕3列版（我们 5.1 弹幕持久化版，18列）：需补 aspect2
+ *  - aspect2 版（上游 5.2.0 官方导出，17列）：需补弹幕3
+ * 全部带存在性检测，可安全重复/多路径执行。
+ */
+val MIGRATION_16_17 = object : Migration(16, 17) {
+  private fun hasColumn(db: SupportSQLiteDatabase, col: String): Boolean {
+    val cursor = db.query("SELECT * FROM `PlaybackStateEntity` LIMIT 1")
+    val has = cursor.columnNames.contains(col)
+    cursor.close()
+    return has
+  }
+
+  override fun migrate(db: SupportSQLiteDatabase) {
+    // 弹幕3列
+    if (!hasColumn(db, "danmakuPath"))    db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `danmakuPath` TEXT NOT NULL DEFAULT ''")
+    if (!hasColumn(db, "danmakuTitle"))   db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `danmakuTitle` TEXT NOT NULL DEFAULT ''")
+    if (!hasColumn(db, "danmakuSelected"))db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `danmakuSelected` INTEGER NOT NULL DEFAULT 0")
+    // aspect2列
+    if (!hasColumn(db, "videoAspect"))        db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `videoAspect` TEXT")
+    if (!hasColumn(db, "customAspectRatio"))  db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `customAspectRatio` REAL NOT NULL DEFAULT -1.0")
   }
 }
 
@@ -579,7 +606,7 @@ val DatabaseModule =
       Room
         .databaseBuilder(context, MpvExDatabase::class.java, "mpvex.db")
         .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
-        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16)
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17)
         .fallbackToDestructiveMigration(false) // This is now safe
         .build()
     }
