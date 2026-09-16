@@ -472,7 +472,7 @@ fun WebShareSheet(
             IconButton(
               onClick = {
                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.web_share_link_label), url))
+                clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.web_share_link_label), url))
                 copied = true
                 Toast.makeText(context, "链接已复制到剪贴板", Toast.LENGTH_SHORT).show()
               },
