@@ -2539,7 +2539,6 @@ internal fun saveVideoPlaybackState(mediaTitle: String, isEof: Boolean = false) 
       }
     }
   }
-  }
 
   /**
    * Saves the currently playing file to recently played history.
