@@ -334,13 +334,8 @@
     <string name="pref_about_donate_paypal">پی پال</string>
     <string name="pref_about_donate_paypal_summary">از توسعه دهنده در پی پال پشتیبانی کنید</string>
     <string name="pref_about_donate_upi">UPI</string>
-    <string name="pref_about_telegram_title">تلگرام</string>
-    <string name="pref_about_telegram_channel">کانال تلگرام</string>
-    <string name="pref_about_telegram_group">گروه چت تلگرام</string>
-    <string name="pref_about_telegram_group_summary">با جامعه بحث و گفتگو کنید</string>
     <string name="player_sheets_add_ext_sub">اضافه کردن زیرنویس خارجی</string>
     <string name="player_sheets_add_ext_audio">آهنگ های صوتی خارجی را اضافه کنید</string>
-    <string name="pref_about_telegram_channel_summary">برای اطلاع از اخبار و اخبار به کانال ما بپیوندید</string>
     <string name="player_sheets_tracks_off">خاموش</string>
     <string name="player_sheets_subtitles_settings_title">تنظیمات زیرنویس</string>
     <string name="player_sheets_subtitles_color_text">متن</string>
@@ -800,12 +795,7 @@
     <string name="media_count">رسانه (%1$d)</string>
     <string name="drag_to_reorder">برای سفارش مجدد بکشید</string>
     <string name="community_links">پیوندهای انجمن</string>
-    <string name="community_hub">مرکز اجتماع</string>
     <string name="connect_social_media">در شبکه های اجتماعی با ما در ارتباط باشید</string>
-    <string name="community_already_joined">قبلاً ملحق شده است</string>
-    <string name="community_never_show_again">دیگر هرگز نشان داده نشود</string>
-    <string name="community_not_now">الان نه</string>
-    <string name="community_already_joined_message">همچنین می توانید این پیوندهای انجمن را در تنظیمات → درباره پیدا کنید.</string>
     <string name="sort_and_view_options">گزینه های مرتب سازی و مشاهده</string>
     <string name="view_options">مشاهده گزینه ها</string>
     <string name="pref_category_ui_appearance">رابط کاربری و ظاهر</string>

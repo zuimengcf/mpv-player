@@ -349,12 +349,6 @@
 	<string name="pref_about_donate_paypal_summary">Поддержать разработчика на PayPal</string>
 	<string name="pref_about_donate_upi">UPI</string>
 
-	<string name="pref_about_telegram_title">Telegram</string>
-	<string name="pref_about_telegram_channel">Telegram-канал</string>
-	<string name="pref_about_telegram_channel_summary">Присоединяйтесь к нашему каналу для новостей и обновлений</string>
-	<string name="pref_about_telegram_group">Чат в Telegram</string>
-	<string name="pref_about_telegram_group_summary">Общайтесь и обсуждайте с сообществом</string>
-
 	<string name="player_sheets_add_ext_sub">Добавить внешние субтитры</string>
 	<string name="player_sheets_add_ext_audio">Добавить внешние аудиодорожки</string>
 	<string name="player_sheets_tracks_off">Выкл</string>

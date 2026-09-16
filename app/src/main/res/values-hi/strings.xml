@@ -336,11 +336,6 @@
     <string name="pref_about_donate_paypal">पेपैल</string>
     <string name="pref_about_donate_paypal_summary">PayPal पर डेवलपर को सपोर्ट करें</string>
     <string name="pref_about_donate_upi">यूपीआई </string>
-    <string name="pref_about_telegram_title">टेलीग्राम</string>
-    <string name="pref_about_telegram_channel">टेलीग्राम चैनल</string>
-    <string name="pref_about_telegram_channel_summary">अपडेट और खबरों के लिए हमारे चैनल से जुड़ें</string>
-    <string name="pref_about_telegram_group">टेलीग्राम चैट ग्रुप</string>
-    <string name="pref_about_telegram_group_summary">समुदाय के साथ चर्चा और चैट करें</string>
     <string name="player_sheets_add_ext_sub">बाहरी सबटायटल जोड़ें</string>
     <string name="player_sheets_add_ext_audio">बाहरी ऑडियो ट्रैक जोड़ें</string>
     <string name="player_sheets_tracks_off">बंद</string>

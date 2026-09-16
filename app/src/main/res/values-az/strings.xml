@@ -383,12 +383,6 @@
     <string name="pref_about_donate_paypal_summary">PayPal vasitəsilə tərtibatçıya dəstək ol</string>
     <string name="pref_about_donate_upi">UPI</string>
 
-    <string name="pref_about_telegram_title">Telegram</string>
-    <string name="pref_about_telegram_channel">Telegram kanalı</string>
-    <string name="pref_about_telegram_channel_summary">Yeniləmələr və xəbərlər üçün kanalımıza qoşul</string>
-    <string name="pref_about_telegram_group">Telegram söhbət qrupu</string>
-    <string name="pref_about_telegram_group_summary">İcma ilə müzakirə et və söhbətləş</string>
-
     <string name="player_sheets_add_ext_sub">Xarici altyazılar əlavə et</string>
     <string name="player_sheets_add_ext_audio">Xarici səs cığırları əlavə et</string>
     <string name="player_sheets_tracks_off">Deaktiv</string>
@@ -922,12 +916,7 @@
     <string name="media_count">Media (%1$d)</string>
     <string name="drag_to_reorder">Sıranı dəyişmək üçün sürüklə</string>
     <string name="community_links">İcma keçidləri</string>
-    <string name="community_hub">İcma mərkəzi</string>
     <string name="connect_social_media">Sosial mediada bizimlə əlaqə saxla</string>
-    <string name="community_already_joined">Artıq qoşulmuşam</string>
-    <string name="community_never_show_again">Bir daha göstərmə</string>
-    <string name="community_not_now">İndi yox</string>
-    <string name="community_already_joined_message">Bu icma keçidlərini Tərcihlər → Haqqında bölməsində də tapa bilərsiniz.</string>
 
     <!-- Sort Dialog Strings -->
     <string name="sort_and_view_options">Sıralama və görünüş seçimləri</string>

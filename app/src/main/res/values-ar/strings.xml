@@ -333,12 +333,6 @@
     <string name="pref_about_donate_paypal_summary">ادعم المطوِّر على باي بال</string>
     <string name="pref_about_donate_upi">UPI</string>
 
-    <string name="pref_about_telegram_title">تيليغرام</string>
-    <string name="pref_about_telegram_channel">قناة تيليغرام</string>
-    <string name="pref_about_telegram_channel_summary">انضم إلى قناتنا للتحديثات والأخبار</string>
-    <string name="pref_about_telegram_group">مجموعة دردشة تيليغرام</string>
-    <string name="pref_about_telegram_group_summary">ناقش وتحدث مع المجتمع</string>
-
     <string name="player_sheets_add_ext_sub">إضافة ترجمات خارجية</string>
     <string name="player_sheets_add_ext_audio">إضافة مسارات صوتية خارجية</string>
     <string name="player_sheets_tracks_off">إيقاف</string>
@@ -1291,9 +1285,6 @@
     <string name="pref_player_remember_long_press_speed_summary">استخدم سرعة التمرير الأخيرة للضغطات المطولة اللاحقة</string>
     <string name="pref_subtitles_force_ltr_summary">فرض الاتجاه من اليسار إلى اليمين لترجمات RTL</string>
     <string name="generic_off">إيقاف</string>
-    <string name="community_already_joined">انضممت بالفعل</string>
-    <string name="community_not_now">‫ليس الآن‬</string>
-    <string name="community_already_joined_message">يمكنك أيضًا العثور على روابط المجتمع هذه في التفضيلات → حول.</string>
     <string name="system_default">الإعدادات الافتراضية للنظام</string>
     <string name="pref_appearance_language_summary">تغيير لغة عرض التطبيق</string>
     <string name="welcome_title">mpvRx أهلا بكم في</string>
@@ -1310,7 +1301,6 @@
     <string name="pref_subtitles_force_ltr_title">LTR فرض اتجاه اليسار إلى اليمين</string>
     <string name="pref_appearance_language_title">لغة التطبيق</string>
     <string name="storage_access_granted_desc">تم منح الإذن. RePlayer جاهز لاكتشاف وتشغيل الوسائط الخاصة بك.</string>
-    <string name="community_never_show_again">لا تظهر مرة أخرى</string>
     <string name="welcome_skip_permission">المتابعة دون الوصول إلى التخزين</string>
     <string name="pref_appearance_player_always_dark_mode_disabled_toast">يُشترط استخدام الوضع الداكن عند تفعيل أزرار التحكم الزجاجية</string>
     <string name="pref_autoplay_on_open_title">التشغيل تلقائيًا عند الفتح</string>
