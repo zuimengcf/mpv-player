@@ -383,7 +383,7 @@ class MediaInfoActivity : ComponentActivity() {
             sections.add(InfoSection(currentSectionName, currentProperties.toList()))
             currentProperties.clear()
           }
-          currentSectionName = line.trim()
+          currentSectionName = xyz.mpv.rex.utils.media.MediaInfoLocalization.translateSection(line)
         }
 
         // Property line (contains colon)
@@ -393,7 +393,9 @@ class MediaInfoActivity : ComponentActivity() {
             val key = parts[0].trim()
             val value = parts[1].trim()
             if (key.isNotEmpty() && value.isNotEmpty()) {
-              currentProperties.add(key to value)
+              currentProperties.add(
+                xyz.mpv.rex.utils.media.MediaInfoLocalization.translateLabel(key) to value
+              )
             }
           }
         }

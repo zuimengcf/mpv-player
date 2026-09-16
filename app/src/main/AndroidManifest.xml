@@ -249,14 +249,14 @@
             android:name=".ui.mediainfo.MediaInfoActivity"
             android:exported="false"
             android:theme="@style/Theme.mpvex"
-            android:label="Media Info" />
+            android:label="@string/media_info_title" />
 
         <activity-alias
             android:name=".MediaInfoIntentHandler"
             android:targetActivity=".ui.mediainfo.MediaInfoActivity"
             android:exported="true"
             android:enabled="false"
-            android:label="Media Info">
+            android:label="@string/media_info_title">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />

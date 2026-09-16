@@ -267,14 +267,18 @@ private fun parseMediaInfoSections(text: String): List<InfoSection> {
                     sections.add(InfoSection(currentSectionName, currentProperties.toList()))
                     currentProperties.clear()
                 }
-                currentSectionName = line.trim()
+                currentSectionName = xyz.mpv.rex.utils.media.MediaInfoLocalization.translateSection(line)
             }
             line.contains(":") -> {
                 val parts = line.split(":", limit = 2)
                 if (parts.size == 2) {
                     val key = parts[0].trim()
                     val value = parts[1].trim()
-                    if (key.isNotEmpty() && value.isNotEmpty()) currentProperties.add(key to value)
+                    if (key.isNotEmpty() && value.isNotEmpty()) {
+                        currentProperties.add(
+                            xyz.mpv.rex.utils.media.MediaInfoLocalization.translateLabel(key) to value
+                        )
+                    }
                 }
             }
         }
