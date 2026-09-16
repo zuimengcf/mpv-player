@@ -1273,9 +1273,9 @@
     <string name="danmaku_font_color_title">弹幕颜色</string>
     <string name="danmaku_area_title">显示区域</string>
     <string name="danmaku_area_all">全屏</string>
-    <string name="danmaku_area_top">顶部四分之一</string>
-    <string name="danmaku_area_bottom">底部四分之一</string>
-    <string name="danmaku_area_middle">中间区域</string>
+    <string name="danmaku_area_top">半屏</string>
+    <string name="danmaku_area_bottom">四分之一</string>
+    <string name="danmaku_area_middle">不显示</string>
     <string name="danmaku_density_title">密度</string>
     <string name="danmaku_density_sparse">稀疏</string>
     <string name="danmaku_density_normal">正常</string>

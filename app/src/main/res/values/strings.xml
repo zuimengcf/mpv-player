@@ -497,9 +497,9 @@
     <string name="danmaku_font_color_title">Font color</string>
     <string name="danmaku_area_title">Display area</string>
     <string name="danmaku_area_all">Full screen</string>
-    <string name="danmaku_area_top">Top quarter</string>
-    <string name="danmaku_area_bottom">Bottom quarter</string>
-    <string name="danmaku_area_middle">Middle band</string>
+    <string name="danmaku_area_top">Half screen</string>
+    <string name="danmaku_area_bottom">Quarter screen</string>
+    <string name="danmaku_area_middle">Hidden</string>
     <string name="danmaku_density_title">Density</string>
     <string name="danmaku_density_sparse">Sparse</string>
     <string name="danmaku_density_normal">Normal</string>

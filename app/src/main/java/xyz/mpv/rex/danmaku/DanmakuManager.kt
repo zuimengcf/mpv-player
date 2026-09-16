@@ -2,6 +2,8 @@ package xyz.mpv.rex.danmaku
 
 import android.content.Context
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import master.flame.danmaku.controller.DrawHandler
 import master.flame.danmaku.danmaku.model.BaseDanmaku
@@ -74,7 +76,11 @@ class DanmakuManager(
                         Log.d(TAG, "Synced to position: $pos ms")
                     }
                 }
-                danmakuView.visibility = if (trackSelected) android.view.View.VISIBLE else android.view.View.GONE
+                danmakuView.visibility = if (trackSelected && (danmakuPreferences?.displayArea?.get() ?: 0) != 3) {
+                    android.view.View.VISIBLE
+                } else {
+                    android.view.View.GONE
+                }
                 // 关键修复：prepared 后必须 start 才能真正渲染弹幕
                 // 只要 trackSelected 就启动渲染循环，暂停状态由 pauseDanmaku/resumeDanmaku 同步
                 if (trackSelected) {
@@ -176,16 +182,56 @@ class DanmakuManager(
             danmakuContext.setFTDanmakuVisibility(showTop)
             danmakuContext.setFBDanmakuVisibility(showBottom)
 
-            // 显示区域（顶部/底部区域用 margin 模拟；中间区域暂不生效）
+            // 显示区域（固定顶部，避免遮挡底部字幕）：
+            // 0=全屏 1=半屏(50%) 2=1/4屏(25%) 3=不显示(0%)
+            // 通过直接修改 DanmakuView 高度实现：顶部对齐，底部留白给字幕。
             val area = prefs.displayArea.get()
-            val marginTop = if (area == 1) danmakuView.height / 4 else 0
-            danmakuContext.setMarginTop(marginTop)
-            danmakuContext.alignBottom(area == 2)
+            val parent = danmakuView.parent as? ViewGroup
+            val parentHeight = parent?.height ?: danmakuView.height
+            // 视图未布局（高度为 0）时延后到布局完成后重试，避免误把高度设为 0
+            if (parentHeight <= 0) {
+                danmakuView.post {
+                    try { applyPreferences() } catch (e: Exception) {
+                        Log.e(TAG, "Retry applyPreferences after layout failed", e)
+                    }
+                }
+            } else {
+                applyDanmakuArea(area, parentHeight)
+            }
 
             Log.d(TAG, "Danmaku preferences applied: scale=$scale speed=$speed border=$border shadow=$shadow alpha=$alpha density=$density area=$area scroll=$showScroll top=$showTop bottom=$showBottom")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to apply danmaku preferences", e)
         }
+    }
+
+    /**
+     * 应用弹幕显示区域（固定顶部，底部留白给字幕）。
+     * @param area 0=全屏 1=半屏(50%) 2=1/4屏(25%) 3=不显示(0%)
+     * @param parentHeight 父容器高度（px）
+     */
+    private fun applyDanmakuArea(area: Int, parentHeight: Int) {
+        val areaHeight = when (area) {
+            1 -> (parentHeight / 2).coerceAtLeast(1)
+            2 -> (parentHeight / 4).coerceAtLeast(1)
+            3 -> 0
+            else -> parentHeight
+        }
+        val lp = danmakuView.layoutParams
+        if (lp != null) {
+            lp.height = areaHeight
+            danmakuView.layoutParams = lp
+            // 高度为 0 时彻底隐藏，避免空白拦截点击
+            danmakuView.visibility = if (areaHeight == 0 || !trackSelected) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+            Log.d(TAG, "Danmaku display area: $area -> height=$areaHeight (parent=$parentHeight)")
+        }
+        // 清空旧的 margin/alignBottom 模拟，避免残留影响
+        danmakuContext.setMarginTop(0)
+        danmakuContext.alignBottom(false)
     }
 
     /**
@@ -220,6 +266,11 @@ class DanmakuManager(
             val parser = BiliDanmakuParser().apply { load(dataSource) }
             danmakuView.prepare(parser, danmakuContext)
             danmakuView.visibility = if (enabledByDefault) android.view.View.VISIBLE else android.view.View.GONE
+
+            // 重新应用显示区域高度（加载可能触发重新布局）
+            val area = danmakuPreferences?.displayArea?.get() ?: 0
+            val parentHeight = (danmakuView.parent as? ViewGroup)?.height ?: danmakuView.height
+            if (parentHeight > 0) applyDanmakuArea(area, parentHeight) else applyPreferences()
 
             Log.d(TAG, "Danmaku loaded successfully (enabledByDefault=$enabledByDefault)")
             return true
@@ -290,7 +341,11 @@ class DanmakuManager(
                 danmakuView.start()
                 Log.d(TAG, "Danmaku started (show fallback)")
             }
-            danmakuView.visibility = android.view.View.VISIBLE
+            // 显示区域为「不显示」时保持隐藏（高度=0 已隐藏，这里不强行显示）
+            val area = danmakuPreferences?.displayArea?.get() ?: 0
+            if (area != 3) {
+                danmakuView.visibility = android.view.View.VISIBLE
+            }
         }
     }
 
@@ -318,6 +373,12 @@ class DanmakuManager(
             currentDanmakuPath = null
             currentDanmakuTitle = null
             danmakuView.visibility = android.view.View.GONE
+            // 还原高度为 match_parent，避免残留区域高度影响下次加载
+            val lp = danmakuView.layoutParams
+            if (lp != null) {
+                lp.height = ViewGroup.LayoutParams.MATCH_PARENT
+                danmakuView.layoutParams = lp
+            }
             Log.d(TAG, "Danmaku released")
         }
     }

@@ -15,7 +15,7 @@ class DanmakuPreferences(
   /** 弹幕透明度（0-255），默认 255 不透明 */
   val alpha = preferenceStore.getInt("danmaku_alpha", 255)
 
-  /** 弹幕显示区域：0=全部 1=顶部1/4 2=底部1/4 3=中间 */
+  /** 弹幕显示区域：0=全屏 1=半屏 2=1/4屏 3=不显示（固定顶部，底部留给字幕） */
   val displayArea = preferenceStore.getInt("danmaku_display_area", 0)
 
   /** 弹幕密度：0=稀疏 1=正常 2=密集 */

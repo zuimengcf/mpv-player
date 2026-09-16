@@ -128,6 +128,18 @@ class PlayerIntentHandler(
     // Try content resolver first for content:// URIs
     getDisplayNameFromUri(uri)?.let { return it }
 
+    // content:// 且 DISPLAY_NAME 解析失败时，用真实路径的文件名兜底，
+    // 避免退回 lastPathSegment（数字 ID）导致同一文件出现两个 identifier
+    if (uri.scheme == "content") {
+      val realName = runCatching {
+        val resolved = activity.viewModel.historyManager.resolveFilePath(uri)
+        if (resolved.startsWith("/") || resolved.startsWith("file://")) {
+          java.io.File(resolved.removePrefix("file://")).name
+        } else null
+      }.getOrNull()
+      if (!realName.isNullOrBlank()) return realName
+    }
+
     // Extract filename from URL/URI
     return extractFileNameFromUri(uri)
   }
