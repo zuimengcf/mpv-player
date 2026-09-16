@@ -131,11 +131,11 @@ object JellyfinSettingsScreen : Screen {
               Button(
                 onClick = {
                   if (serverUrl.isBlank() || username.isBlank()) {
-                    status = stringResource(xyz.mpv.rex.R.string.jellyfin_status_server_username_required)
+                    status = context.getString(xyz.mpv.rex.R.string.jellyfin_status_server_username_required)
                     return@Button
                   }
                   if (serverUrl.lowercase().startsWith("http://")) {
-                    status = stringResource(xyz.mpv.rex.R.string.jellyfin_status_insecure_http)
+                    status = context.getString(xyz.mpv.rex.R.string.jellyfin_status_insecure_http)
                   } else {
                     status = null
                   }
@@ -147,17 +147,17 @@ object JellyfinSettingsScreen : Screen {
                       val token = resp.accessToken
                       val uid = resp.user?.id
                       if (token.isNullOrBlank() || uid.isNullOrBlank()) {
-                        status = stringResource(xyz.mpv.rex.R.string.jellyfin_status_missing_token)
+                        status = context.getString(xyz.mpv.rex.R.string.jellyfin_status_missing_token)
                       } else {
                         prefs.serverUrl = normalized
                         prefs.userId = uid
                         prefs.accessToken = token
                         prefs.username = username.trim()
                         configured = true
-                        status = stringResource(xyz.mpv.rex.R.string.jellyfin_status_connected, username.trim())
+                        status = context.getString(xyz.mpv.rex.R.string.jellyfin_status_connected, username.trim())
                       }
                     }.onFailure { e ->
-                      status = stringResource(xyz.mpv.rex.R.string.jellyfin_status_failed, e.message ?: "-")
+                      status = context.getString(xyz.mpv.rex.R.string.jellyfin_status_failed, e.message ?: "-")
                     }
                     loading = false
                   }
@@ -170,7 +170,7 @@ object JellyfinSettingsScreen : Screen {
                 Button(onClick = {
                   prefs.clearCredentials()
                   configured = false
-                  status = stringResource(xyz.mpv.rex.R.string.jellyfin_status_disconnected)
+                  status = context.getString(xyz.mpv.rex.R.string.jellyfin_status_disconnected)
                 }) {
                   Text(stringResource(xyz.mpv.rex.R.string.jellyfin_sign_out))
                 }

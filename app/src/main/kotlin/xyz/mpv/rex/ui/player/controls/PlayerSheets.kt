@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import xyz.mpv.rex.preferences.preference.collectAsState
 import xyz.mpv.rex.ui.player.Decoder
 import xyz.mpv.rex.ui.player.Panels

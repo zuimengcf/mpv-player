@@ -62,6 +62,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import xyz.mpv.rex.R
 import xyz.mpv.rex.domain.media.model.Video
 import xyz.mpv.rex.utils.media.MediaFormatter
 import java.io.File

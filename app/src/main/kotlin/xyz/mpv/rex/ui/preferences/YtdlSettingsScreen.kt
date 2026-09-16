@@ -242,11 +242,11 @@ object YtdlSettingsScreen : Screen {
                                             when (it) {
                                                 "2160" -> "4K (2160p)"
                                                 "1440" -> "2K (1440p)"
-                                                "1080" -> stringResource(R.string.ytdl_full_hd)
-                                                "720" -> stringResource(R.string.ytdl_hd)
-                                                "480" -> stringResource(R.string.ytdl_sd)
-                                                "audio_only" -> stringResource(R.string.ytdl_audio_only)
-                                                else -> stringResource(R.string.ytdl_auto_best)
+                                                "1080" -> context.getString(R.string.ytdl_full_hd)
+                                                "720" -> context.getString(R.string.ytdl_hd)
+                                                "480" -> context.getString(R.string.ytdl_sd)
+                                                "audio_only" -> context.getString(R.string.ytdl_audio_only)
+                                                else -> context.getString(R.string.ytdl_auto_best)
                                             }
                                         )
                                     },
