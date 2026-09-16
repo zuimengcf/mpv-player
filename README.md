@@ -1,6 +1,10 @@
 # Re Player
 
 <p align="center">
+  <a href="README.md"><b>English</b></a> &nbsp;|&nbsp; <a href="README.zh-CN.md"><b>简体中文</b></a>
+</p>
+
+<p align="center">
   <img src="app/src/main/ic_launcher-playstore.png" width="128" height="128" />
 </p>
 
