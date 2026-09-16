@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">Re播放器</string>
     <string name="author_name" translatable="false">Sakhawat</string>
 
@@ -1509,7 +1509,6 @@
     <string name="preview_chapter_chip">1:06 • Chapter 1</string>
 
     <!-- Sort & View Dialog Strings (Issue #318) -->
-    <string name="sort_by">Sort by</string>
     <string name="cd_toggle_sort_order">Toggle Sort Order</string>
     <string name="cd_expand">Expand</string>
     <string name="cd_collapse">Collapse</string>
@@ -1536,32 +1535,25 @@
     <string name="sort_order_desc_abbrev">Desc</string>
 
     <!-- View Mode Selector -->
-    <string name="view_mode">View Mode</string>
     <string name="view_mode_folder">Folder</string>
     <string name="view_mode_tree">Tree</string>
     <string name="view_mode_library">Library</string>
 
     <!-- Layout Selector -->
-    <string name="layout">Layout</string>
     <string name="layout_mode_list">List</string>
     <string name="layout_mode_grid">Grid</string>
 
     <!-- Grid Columns -->
-    <string name="grid_columns">Grid Columns</string>
-    <string name="folder_grid">Folder Grid</string>
-    <string name="video_grid">Video Grid</string>
     <plurals name="num_columns">
         <item quantity="one">%1$d column</item>
         <item quantity="other">%1$d columns</item>
     </plurals>
 
     <!-- Content Filter Toggles -->
-    <string name="filters">Filters</string>
     <string name="filter_audio_files">Audio Files</string>
     <string name="filter_show_nomedia_folders">Show .nomedia Folders</string>
 
     <!-- Visibility Field Toggles -->
-    <string name="fields">Fields</string>
     <string name="field_video_thumbnails">Video Thumbnails</string>
     <string name="field_full_name">Full Name</string>
     <string name="field_total_videos">Total Videos</string>

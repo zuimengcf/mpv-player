@@ -774,7 +774,8 @@
     <string name="mark_as_none_desc">إزالة جميع الوسوم وسجل المشاهدة</string>
     <string name="folders_count">المجلدات (%1$d)</string>
     <string name="media_count">الوسائط (%1$d)</string>
-    <string name="drag_to_reorder">اسحب لإعادة الترتيب</string><string name="connect_social_media">تواصل معنا على وسائل التواصل الاجتماعي</string>
+    <string name="drag_to_reorder">اسحب لإعادة الترتيب</string>
+    <string name="connect_social_media">تواصل معنا على وسائل التواصل الاجتماعي</string>
     <string name="sort_and_view_options">خيارات الفرز والعرض</string>
     <string name="view_options">خيارات العرض</string>
     <string name="pref_category_ui_appearance">الواجهة والمظهر</string>
@@ -862,10 +863,6 @@
     <string name="permission_used_exclusively_for">يُستخدم هذا الإذن حصرياً من أجل:</string>
     <string name="permission_usage_bullet_list">• اكتشاف وعرض ملفات الفيديو الخاصة بك\n• تشغيل المحتوى الإعلامي\n• تحميل ملفات الترجمة</string>
     <string name="permission_explanation_standard_intro">يتطلب RePlayer دائماً إذن الوصول للتخزين لأنه ضروري لعثور التطبيق على جميع ملفات الوسائط والترجمة الموجودة على جهازك، بما فيها الملفات غير المدعومة من طرف النظام.</string>
-    <string name="permission_explanation_playstore_intro">يحتاج mpvRex إلى الوصول لملفات الفيديو خاصتك لتوفير وظيفته الأساسية كمشغل وسائط.</string>
-    <string name="permission_used_exclusively_for">يُستخدم هذا الإذن حصرياً من أجل:</string>
-    <string name="permission_usage_bullet_list">• اكتشاف وعرض ملفاتك الفيديو\n• تشغيل محتوى الوسائط\n• تحميل ملفات الترجمة</string>
-    <string name="permission_explanation_standard_intro">يتطلب mpvRex دائماً إذن الوصول للتخزين لأنه ضروري لعثور التطبيق على جميع ملفات الوسائط والترجمة الموجودة على جهازك، بما فيها الملفات غير المدعومة من طرف النظام.</string>
     <string name="permission_security_policy_change">مع ذلك، بسبب تغيير في سياسة الأمان، تتطلب التطبيقات المبنية لأندرويد 11 وما فوق الآن إذناً إضافياً لمواصلة الوصول لنفس الملفات.</string>
     <string name="permission_privacy_assurance_standard">يرجى العلم أن هذا الإذن يُستخدم فقط للاكتشاف التلقائي لملفات الوسائط/الترجمة على جهازك، ولن يسمح لنا بالوصول لملفات البيانات الخاصة المخزنة من طرف تطبيقات أخرى بأي شكل من الأشكال.</string>
     <string name="opensource_github_notice">RePlayer مشروع مفتوح المصدر. يمكنك مراجعة الكود المصدري والتحقق من كيفية استخدام الأذونات بزيارة مستودعنا على GitHub في:</string>
@@ -1292,12 +1289,11 @@
     <string name="player_restart_action">إعادة تشغيل</string>
     <string name="pref_player_remember_long_press_speed_title">تذكر السرعة المعدلة</string>
     <string name="pref_player_remember_long_press_speed_summary">استخدم سرعة التمرير الأخيرة للضغطات المطولة اللاحقة</string>
-    <string name="pref_subtitles_force_ltr_summary">فرض الاتجاه من اليسار إلى اليمين لترجمات RTL</string><string name="generic_off">إيقاف</string>
-    <string name="pref_subtitles_force_ltr_summary">فرض الاتجاه من اليسار إلى اليمين للترجمات</string>
+    <string name="pref_subtitles_force_ltr_summary">فرض الاتجاه من اليسار إلى اليمين لترجمات RTL</string>
+    <string name="generic_off">إيقاف</string>
     <string name="community_already_joined">انضممت بالفعل</string>
     <string name="community_not_now">‫ليس الآن‬</string>
     <string name="community_already_joined_message">يمكنك أيضًا العثور على روابط المجتمع هذه في التفضيلات → حول.</string>
-    <string name="generic_off">إيقاف</string>
     <string name="system_default">الإعدادات الافتراضية للنظام</string>
     <string name="pref_appearance_language_summary">تغيير لغة عرض التطبيق</string>
     <string name="welcome_title">mpvRx أهلا بكم في</string>
@@ -1311,12 +1307,10 @@
     <string name="pref_player_resume_mode_never">ابدأ دائمًا من جديد</string>
     <string name="player_resume_prompt_title">استئناف التشغيل ؟</string>
     <string name="player_resume_prompt_message_with_duration">لقد شاهدت سابقًا ما يصل إلى %1$s من %2$s.</string>
-    <string name="pref_subtitles_force_ltr_title">LTR فرض اتجاه اليسار إلى اليمين</string><string name="pref_appearance_language_title">لغة التطبيق</string>
-    <string name="storage_access_granted_desc">تم منح الإذن. RePlayer جاهز لاكتشاف وتشغيل الوسائط الخاصة بك.</string>
-    <string name="pref_subtitles_force_ltr_title">فرض اتجاه من اليسار إلى اليمين</string>
-    <string name="community_never_show_again">لا تظهر مرة أخرى</string>
+    <string name="pref_subtitles_force_ltr_title">LTR فرض اتجاه اليسار إلى اليمين</string>
     <string name="pref_appearance_language_title">لغة التطبيق</string>
-    <string name="storage_access_granted_desc">مُنح الإذن. mpvRex جاهز لاكتشاف وتشغيل وسائطك.</string>
+    <string name="storage_access_granted_desc">تم منح الإذن. RePlayer جاهز لاكتشاف وتشغيل الوسائط الخاصة بك.</string>
+    <string name="community_never_show_again">لا تظهر مرة أخرى</string>
     <string name="welcome_skip_permission">المتابعة دون الوصول إلى التخزين</string>
     <string name="pref_appearance_player_always_dark_mode_disabled_toast">يُشترط استخدام الوضع الداكن عند تفعيل أزرار التحكم الزجاجية</string>
     <string name="pref_autoplay_on_open_title">التشغيل تلقائيًا عند الفتح</string>
