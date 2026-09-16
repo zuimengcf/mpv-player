@@ -1642,4 +1642,29 @@
     <string name="jellyfin_register_description">Registers mpvRex as remote player via /Sessions/Capabilities and opens WebSocket. Check logcat JellyfinRemote.</string>
     <string name="jellyfin_external_playback_hint">When Jellyfin launches mpvRex via external player, the item is identified from /Videos/{id}/stream. No filename matching is used. Progress is reported every ~10s and immediately on pause/stop/exit.</string>
 
+    <!-- Additional i18n: Subtitle Search, Playback Speed, Danmaku Search, Network Browser, WebShare, Lua Script -->
+    <string name="subtitle_search">Subtitle Search</string>
+    <string name="subtitle_sources">Subtitle Sources</string>
+    <string name="hearing_impaired_friendly">Hearing-impaired friendly</string>
+    <string name="hearing_impaired_summary">Only show subtitles optimized for hearing impaired</string>
+    <string name="preferred_formats">Preferred Formats</string>
+    <string name="preferred_encodings">Preferred Encodings</string>
+    <string name="hdr_to_sdr_tone_mapping">HDR-to-SDR Tone Mapping (hdr-toys)</string>
+    <string name="hdr_to_sdr_summary">Apply high quality GLSL shaders for HDR-to-SDR conversion. Requires gpu-next.</string>
+    <string name="speed_remove">Remove</string>
+    <string name="speed_add">Add</string>
+    <string name="danmaku_app_id">AppId</string>
+    <string name="danmaku_app_secret">AppSecret</string>
+    <string name="network_error_loading_files">Error loading files</string>
+    <string name="network_empty_folder">Empty folder</string>
+    <string name="network_empty_folder_message">This folder contains no files or directories</string>
+    <string name="select_audio_track">Select Audio Track</string>
+    <string name="web_share">Web Share</string>
+    <string name="share">Share</string>
+    <string name="delete_script_title">Delete Script?</string>
+    <string name="delete_script_message">Are you sure you want to delete \"%1$s\"? This action cannot be undone.</string>
+    <string name="jellyfin_remote_notif_title">mpvRex Jellyfin Remote</string>
+    <string name="jellyfin_remote_notif_text">Discoverable as Play on target</string>
+    <string name="web_share_link_label">Web Share Link</string>
+
 </resources>

@@ -347,11 +347,11 @@ object DecoderPreferencesScreen : Screen {
                         preferences.enableAnime4K.set(false)
                       }
                     },
-                    title = { Text("HDR-to-SDR Tone Mapping (hdr-toys)") },
+                    title = { Text(stringResource(R.string.hdr_to_sdr_tone_mapping)) },
                     summary = {
                       Column {
                         Text(
-                          "Apply high quality GLSL shaders for HDR-to-SDR conversion. Requires gpu-next.",
+                          stringResource(R.string.hdr_to_sdr_summary),
                           color = MaterialTheme.colorScheme.outline,
                         )
                         Text(

@@ -200,7 +200,7 @@ private fun NetworkBrowserContent(
       ) {
         EmptyState(
           icon = Icons.Filled.Folder,
-          title = "Error loading files",
+          title = stringResource(R.string.network_error_loading_files),
           message = error,
         )
       }
@@ -213,8 +213,8 @@ private fun NetworkBrowserContent(
       ) {
         EmptyState(
           icon = Icons.Filled.Folder,
-          title = "Empty folder",
-          message = "This folder contains no files or directories",
+          title = stringResource(R.string.network_empty_folder),
+          message = stringResource(R.string.network_empty_folder_message),
         )
       }
     }

@@ -130,14 +130,14 @@ fun DanmakuSearchDialog(
                         value = appIdInput,
                         onValueChange = { appIdInput = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("AppId") },
+                        label = { Text(stringResource(R.string.danmaku_app_id)) },
                         singleLine = true,
                     )
                     OutlinedTextField(
                         value = appSecretInput,
                         onValueChange = { appSecretInput = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("AppSecret") },
+                        label = { Text(stringResource(R.string.danmaku_app_secret)) },
                         singleLine = true,
                     )
                     TextButton(onClick = { saveCredentials() }) { Text("保存凭证") }

@@ -587,8 +587,8 @@ object SearchablePreferences {
                 targetIndex = 1,
             ))
             add(SearchablePreference(
-                title = "HDR-to-SDR Tone Mapping (hdr-toys)",
-                summary = "Apply high quality GLSL shaders for HDR-to-SDR conversion. Requires gpu-next.",
+                titleRes = R.string.hdr_to_sdr_tone_mapping,
+                summaryRes = R.string.hdr_to_sdr_summary,
                 keywords = listOf("hdr", "sdr", "tone", "mapping", "hdr-toys", "shaders", "glsl", "color"),
                 category = "Decoder",
                 screen = DecoderPreferencesScreen,

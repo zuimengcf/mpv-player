@@ -1524,4 +1524,29 @@
     <string name="jellyfin_register_description">通过 /Sessions/Capabilities 将 mpvRex 注册为远程播放器并打开 WebSocket。可在 logcat 的 JellyfinRemote 标签查看日志。</string>
     <string name="jellyfin_external_playback_hint">当 Jellyfin 通过外部播放器启动 mpvRex 时，通过 /Videos/{id}/stream 识别项目，不进行文件名匹配。进度约每 10 秒上报一次，并在暂停/停止/退出时立即上报。</string>
 
+    <!-- Additional i18n: Subtitle Search, Playback Speed, Danmaku Search, Network Browser, WebShare, Lua Script -->
+    <string name="subtitle_search">字幕搜索</string>
+    <string name="subtitle_sources">字幕来源</string>
+    <string name="hearing_impaired_friendly">适合听障人士</string>
+    <string name="hearing_impaired_summary">仅显示为听障人士优化的字幕</string>
+    <string name="preferred_formats">首选格式</string>
+    <string name="preferred_encodings">首选编码</string>
+    <string name="hdr_to_sdr_tone_mapping">HDR 转 SDR 色调映射 (hdr-toys)</string>
+    <string name="hdr_to_sdr_summary">应用高质量 GLSL 着色器进行 HDR 转 SDR 转换。需要 gpu-next。</string>
+    <string name="speed_remove">移除</string>
+    <string name="speed_add">添加</string>
+    <string name="danmaku_app_id">AppId</string>
+    <string name="danmaku_app_secret">AppSecret</string>
+    <string name="network_error_loading_files">加载文件失败</string>
+    <string name="network_empty_folder">空文件夹</string>
+    <string name="network_empty_folder_message">此文件夹不包含任何文件或目录</string>
+    <string name="select_audio_track">选择音轨</string>
+    <string name="web_share">网页分享</string>
+    <string name="share">分享</string>
+    <string name="delete_script_title">删除脚本？</string>
+    <string name="delete_script_message">确定要删除「%1$s」吗？此操作不可撤销。</string>
+    <string name="jellyfin_remote_notif_title">mpvRex Jellyfin 远程</string>
+    <string name="jellyfin_remote_notif_text">可作为「在…中播放」目标被发现</string>
+    <string name="web_share_link_label">网页分享链接</string>
+
 </resources>

@@ -494,7 +494,7 @@ object SubtitlesPreferencesScreen : Screen {
 
           // === ONLINE SUBTITLE SECTION ===
           item {
-            PreferenceSectionHeader(title = "Subtitle Search")
+            PreferenceSectionHeader(title = stringResource(R.string.subtitle_search))
           }
 
           item {
@@ -538,7 +538,7 @@ object SubtitlesPreferencesScreen : Screen {
                 highlightKey = listOf("Subtitle Sources", R.string.pref_subtitle_search_title),
               ) {
                 MultiChoicePreference(
-                  title = { Text("Subtitle Sources") },
+                  title = { Text(stringResource(R.string.subtitle_sources)) },
                   summary = {
                     val summaryText = if (wyzieSources.isEmpty() || wyzieSources.contains("all")) {
                       "All"
@@ -606,14 +606,14 @@ object SubtitlesPreferencesScreen : Screen {
                       SwitchPreference(
                         value = wyzieHearingImpaired,
                         onValueChange = { preferences.wyzieHearingImpaired.set(it) },
-                        title = { Text("Hearing-impaired friendly") },
-                        summary = { Text("Only show subtitles optimized for hearing impaired") }
+                        title = { Text(stringResource(R.string.hearing_impaired_friendly)) },
+                        summary = { Text(stringResource(R.string.hearing_impaired_summary)) }
                       )
 
                       PreferenceDivider()
 
                       MultiChoicePreference(
-                        title = { Text("Preferred Formats") },
+                        title = { Text(stringResource(R.string.preferred_formats)) },
                         summary = {
                           val summaryText = if (wyzieFormats.isEmpty() || wyzieFormats.contains("all")) {
                             "All"
@@ -631,7 +631,7 @@ object SubtitlesPreferencesScreen : Screen {
                       PreferenceDivider()
 
                       MultiChoicePreference(
-                        title = { Text("Preferred Encodings") },
+                        title = { Text(stringResource(R.string.preferred_encodings)) },
                         summary = {
                           val summaryText = if (wyzieEncodings.isEmpty() || wyzieEncodings.contains("all")) {
                             "All"

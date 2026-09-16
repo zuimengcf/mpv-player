@@ -290,7 +290,7 @@ data class PlaylistDetailScreen(val playlistId: Int) : Screen {
               if (playlist?.isM3uPlaylist != true) {
                 add(SelectionOverflowAction(
                   icon = Icons.Filled.Share,
-                  label = "Share",
+                  label = stringResource(R.string.share),
                   onClick = {
                     val videosToShare = selectionManager.getSelectedItems().map { it.video }
                     MediaUtils.shareVideos(context, videosToShare)

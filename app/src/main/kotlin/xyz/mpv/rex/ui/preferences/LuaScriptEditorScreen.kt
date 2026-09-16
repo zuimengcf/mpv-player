@@ -435,8 +435,8 @@ data class LuaScriptEditorScreen(
     // Delete confirmation dialog
     if (showDeleteDialog) {
       ConfirmDialog(
-        title = "Delete Script?",
-        subtitle = "Are you sure you want to delete \"${scriptName ?: fileName}\"? This action cannot be undone.",
+        title = stringResource(R.string.delete_script_title),
+        subtitle = stringResource(R.string.delete_script_message, scriptName ?: fileName),
         onConfirm = {
           deleteScript()
           showDeleteDialog = false

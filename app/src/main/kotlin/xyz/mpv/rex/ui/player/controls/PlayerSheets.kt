@@ -249,7 +249,7 @@ fun PlayerSheets(
 
           xyz.mpv.rex.ui.browser.dialogs.FilePickerDialog(
               isOpen = true,
-              title = "Select Audio Track",
+              title = stringResource(R.string.select_audio_track),
               currentPath = initialPath,
               onDismiss = { showFilePicker = false },
               onPathChanged = { path ->
