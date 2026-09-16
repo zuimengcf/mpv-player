@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -79,7 +80,7 @@ object JellyfinSettingsScreen : Screen {
     Scaffold(
       topBar = {
         TopAppBar(
-          title = { Text("Jellyfin") },
+          title = { Text(stringResource(xyz.mpv.rex.R.string.jellyfin_title)) },
           navigationIcon = {
             IconButton(onClick = { backstack.removeLastOrNull() }) {
               Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
@@ -98,25 +99,25 @@ object JellyfinSettingsScreen : Screen {
       ) {
         Card(modifier = Modifier.fillMaxWidth()) {
           Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Jellyfin Server", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(xyz.mpv.rex.R.string.jellyfin_server), style = MaterialTheme.typography.titleMedium)
             OutlinedTextField(
               value = serverUrl,
               onValueChange = { serverUrl = it },
-              label = { Text("Server URL (e.g. https://jellyfin.example.com)") },
+              label = { Text(stringResource(xyz.mpv.rex.R.string.jellyfin_server_url_label)) },
               modifier = Modifier.fillMaxWidth(),
               singleLine = true,
             )
             OutlinedTextField(
               value = username,
               onValueChange = { username = it },
-              label = { Text("Username") },
+              label = { Text(stringResource(xyz.mpv.rex.R.string.jellyfin_username)) },
               modifier = Modifier.fillMaxWidth(),
               singleLine = true,
             )
             OutlinedTextField(
               value = password,
               onValueChange = { password = it },
-              label = { Text("Password") },
+              label = { Text(stringResource(xyz.mpv.rex.R.string.jellyfin_password)) },
               modifier = Modifier.fillMaxWidth(),
               singleLine = true,
               visualTransformation = PasswordVisualTransformation(),
@@ -130,11 +131,11 @@ object JellyfinSettingsScreen : Screen {
               Button(
                 onClick = {
                   if (serverUrl.isBlank() || username.isBlank()) {
-                    status = "Server URL and username required"
+                    status = stringResource(xyz.mpv.rex.R.string.jellyfin_status_server_username_required)
                     return@Button
                   }
                   if (serverUrl.lowercase().startsWith("http://")) {
-                    status = "Warning: Using insecure HTTP — credentials transmitted in plaintext. Consider using HTTPS."
+                    status = stringResource(xyz.mpv.rex.R.string.jellyfin_status_insecure_http)
                   } else {
                     status = null
                   }
@@ -146,38 +147,38 @@ object JellyfinSettingsScreen : Screen {
                       val token = resp.accessToken
                       val uid = resp.user?.id
                       if (token.isNullOrBlank() || uid.isNullOrBlank()) {
-                        status = "Authentication response missing token/user"
+                        status = stringResource(xyz.mpv.rex.R.string.jellyfin_status_missing_token)
                       } else {
                         prefs.serverUrl = normalized
                         prefs.userId = uid
                         prefs.accessToken = token
                         prefs.username = username.trim()
                         configured = true
-                        status = "Connected as $username"
+                        status = stringResource(xyz.mpv.rex.R.string.jellyfin_status_connected, username.trim())
                       }
                     }.onFailure { e ->
-                      status = "Failed: ${e.message}"
+                      status = stringResource(xyz.mpv.rex.R.string.jellyfin_status_failed, e.message ?: "-")
                     }
                     loading = false
                   }
                 },
                 enabled = !loading,
               ) {
-                if (loading) CircularProgressIndicator(modifier = Modifier.height(18.dp)) else Text("Sign in")
+                if (loading) CircularProgressIndicator(modifier = Modifier.height(18.dp)) else Text(stringResource(xyz.mpv.rex.R.string.jellyfin_sign_in))
               }
               if (configured) {
                 Button(onClick = {
                   prefs.clearCredentials()
                   configured = false
-                  status = "Disconnected"
+                  status = stringResource(xyz.mpv.rex.R.string.jellyfin_status_disconnected)
                 }) {
-                  Text("Sign out")
+                  Text(stringResource(xyz.mpv.rex.R.string.jellyfin_sign_out))
                 }
               }
             }
             status?.let { Text(it, color = MaterialTheme.colorScheme.secondary) }
             if (configured) {
-              Text("Host: ${prefs.serverHost() ?: "-"}  User: ${prefs.username ?: "-"}", style = MaterialTheme.typography.bodySmall)
+              Text(stringResource(xyz.mpv.rex.R.string.jellyfin_host_user, prefs.serverHost() ?: "-", prefs.username ?: "-"), style = MaterialTheme.typography.bodySmall)
             }
           }
         }
@@ -190,8 +191,8 @@ object JellyfinSettingsScreen : Screen {
               verticalAlignment = Alignment.CenterVertically,
             ) {
               Column {
-                Text("Enable remote target", style = MaterialTheme.typography.titleSmall)
-                Text("Appear in Jellyfin Play on list", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                Text(stringResource(xyz.mpv.rex.R.string.jellyfin_enable_remote_target), style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(xyz.mpv.rex.R.string.jellyfin_appear_in_play_on), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
               }
               Switch(
                 checked = enableRemote,
@@ -211,7 +212,7 @@ object JellyfinSettingsScreen : Screen {
             OutlinedTextField(
               value = deviceName,
               onValueChange = { if (it.length <= 32) deviceName = it },
-              label = { Text("Device name") },
+              label = { Text(stringResource(xyz.mpv.rex.R.string.jellyfin_device_name)) },
               placeholder = { Text(android.os.Build.MODEL) },
               modifier = Modifier.fillMaxWidth(),
               singleLine = true,
@@ -228,27 +229,27 @@ object JellyfinSettingsScreen : Screen {
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent) else context.startService(intent)
                 }
               }) {
-                Text("Save device name")
+                Text(stringResource(xyz.mpv.rex.R.string.jellyfin_save_device_name))
               }
               Button(onClick = {
                 deviceName = ""
                 prefs.deviceName = ""
               }) {
-                Text("Reset")
+                Text(stringResource(xyz.mpv.rex.R.string.jellyfin_reset))
               }
             }
             Button(onClick = {
               val intent = Intent(context, JellyfinRemoteService::class.java).apply { action = JellyfinRemoteService.ACTION_START }
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent) else context.startService(intent)
             }, enabled = configured) {
-              Text("Register now")
+              Text(stringResource(xyz.mpv.rex.R.string.jellyfin_register_now))
             }
-            Text("Registers mpvRex as remote player via /Sessions/Capabilities and opens WebSocket. Check logcat JellyfinRemote.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+            Text(stringResource(xyz.mpv.rex.R.string.jellyfin_register_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
           }
         }
 
         Text(
-          "When Jellyfin launches mpvRex via external player, the item is identified from /Videos/{id}/stream. No filename matching is used. Progress is reported every ~10s and immediately on pause/stop/exit.",
+          stringResource(xyz.mpv.rex.R.string.jellyfin_external_playback_hint),
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.outline,
         )

@@ -239,19 +239,19 @@ object PreferencesScreen : Screen {
 
           // Integrations Section
           item {
-            PreferenceSection(title = "Integrations") {
+            PreferenceSection(title = stringResource(R.string.pref_category_integrations)) {
               GroupedListColumn {
                 PreferenceItem(
                   position = GroupPosition.FIRST,
-                  title = "Jellyfin",
-                  summary = "External player sync",
+                  title = stringResource(R.string.pref_jellyfin),
+                  summary = stringResource(R.string.pref_jellyfin_summary),
                   icon = Icons.Outlined.VideoLibrary,
                   onClick = { backstack.add(xyz.mpv.rex.jellyfin.ui.JellyfinSettingsScreen) },
                 )
                 PreferenceItem(
                   position = GroupPosition.LAST,
-                  title = "yt-dlp",
-                  summary = "Manage REX Ytdlp & extractor preferences",
+                  title = stringResource(R.string.pref_ytdl),
+                  summary = stringResource(R.string.pref_ytdl_summary),
                   icon = Icons.Outlined.CloudDownload,
                   onClick = { backstack.add(YtdlSettingsScreen) },
                 )

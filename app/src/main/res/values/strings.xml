@@ -1562,4 +1562,84 @@
     <string name="field_progress_bar">Progress Bar</string>
     <string name="field_subtitle_indicator">Subtitle Indicator</string>
 
+    <!-- Preferences Screen: yt-dlp & Jellyfin entries -->
+    <string name="pref_category_integrations">Integrations</string>
+    <string name="pref_ytdl">yt-dlp</string>
+    <string name="pref_ytdl_summary">Manage REX Ytdlp &amp; extractor preferences</string>
+    <string name="pref_jellyfin">Jellyfin</string>
+    <string name="pref_jellyfin_summary">External player sync</string>
+
+    <!-- yt-dlp Settings Screen -->
+    <string name="ytdl_title">yt-dlp</string>
+    <string name="ytdl_refresh">Refresh</string>
+    <string name="ytdl_stream_quality_section">Stream Quality</string>
+    <string name="ytdl_resolution_preference">Resolution Preference</string>
+    <string name="ytdl_geo_bypass">Geo-Bypass</string>
+    <string name="ytdl_geo_bypass_summary">Bypass geographic video restrictions where possible</string>
+    <string name="ytdl_prefer_nightly">Prefer Nightly Channel</string>
+    <string name="ytdl_prefer_nightly_summary">Receive cutting-edge yt-dlp nightly extractor fixes</string>
+    <string name="ytdl_routing_section">URL &amp; Platform Routing</string>
+    <string name="ytdl_auto_detect_web_pages">Auto-detect Web Pages</string>
+    <string name="ytdl_auto_detect_web_pages_summary">Proactively probe unknown URLs to route HTML web pages through yt-dlp</string>
+    <string name="ytdl_custom_domains">Custom Supported Domains</string>
+    <string name="ytdl_custom_domains_hint">None (uses default web video platforms)</string>
+    <string name="ytdl_custom_domains_label">Domains (comma or space separated)</string>
+    <string name="ytdl_custom_domains_placeholder">e.g. example.com, archive.org, peertube.su</string>
+    <string name="ytdl_network_section">Network &amp; Advanced</string>
+    <string name="ytdl_custom_format">Custom Format Selector</string>
+    <string name="ytdl_custom_format_hint">Default (uses resolution preference)</string>
+    <string name="ytdl_custom_format_label">yt-dlp format selector</string>
+    <string name="ytdl_custom_format_placeholder">e.g. bestvideo+bestaudio/best</string>
+    <string name="ytdl_proxy">Proxy</string>
+    <string name="ytdl_proxy_hint">None (direct connection)</string>
+    <string name="ytdl_proxy_label">Proxy URL</string>
+    <string name="ytdl_proxy_placeholder">http://user:pass@host:port or socks5://...</string>
+    <string name="ytdl_custom_user_agent">Custom User-Agent</string>
+    <string name="ytdl_custom_user_agent_hint">Default</string>
+    <string name="ytdl_custom_user_agent_label">User-Agent Header</string>
+    <string name="ytdl_diagnostic_section">Extractor Diagnostic Tool</string>
+    <string name="ytdl_test_url_extraction">Test URL Extraction</string>
+    <string name="ytdl_test_url_extraction_summary">Paste a video URL to test IPC resolution directly with the add-on.</string>
+    <string name="ytdl_video_url_label">Video URL</string>
+    <string name="ytdl_core">yt-dlp Core</string>
+    <string name="ytdl_channel">Channel</string>
+    <string name="ytdl_git_commit">Git Commit</string>
+    <string name="ytdl_check_for_updates">Check for Updates</string>
+    <string name="ytdl_nightly">Nightly</string>
+    <string name="ytdl_reinstall">Reinstall</string>
+    <string name="ytdl_install_ytdlp">Install yt-dlp</string>
+    <string name="ytdl_addon_active_need_download">The companion add-on is active, but the yt-dlp scraper needs to be downloaded to enable web streaming.</string>
+    <string name="ytdl_full_hd">Full HD (1080p)</string>
+    <string name="ytdl_hd">HD (720p)</string>
+    <string name="ytdl_sd">SD (480p)</string>
+    <string name="ytdl_audio_only">Audio Only</string>
+    <string name="ytdl_auto_best">Auto / Best</string>
+    <string name="ytdl_checking">Checking...</string>
+    <string name="ytdl_stable">STABLE</string>
+    <string name="ytdl_release">Release</string>
+
+    <!-- Jellyfin Settings Screen -->
+    <string name="jellyfin_title">Jellyfin</string>
+    <string name="jellyfin_server">Jellyfin Server</string>
+    <string name="jellyfin_server_url_label">Server URL (e.g. https://jellyfin.example.com)</string>
+    <string name="jellyfin_username">Username</string>
+    <string name="jellyfin_password">Password</string>
+    <string name="jellyfin_sign_in">Sign in</string>
+    <string name="jellyfin_sign_out">Sign out</string>
+    <string name="jellyfin_status_server_username_required">Server URL and username required</string>
+    <string name="jellyfin_status_insecure_http">Warning: Using insecure HTTP — credentials transmitted in plaintext. Consider using HTTPS.</string>
+    <string name="jellyfin_status_missing_token">Authentication response missing token/user</string>
+    <string name="jellyfin_status_connected">Connected as %1$s</string>
+    <string name="jellyfin_status_failed">Failed: %1$s</string>
+    <string name="jellyfin_status_disconnected">Disconnected</string>
+    <string name="jellyfin_host_user">Host: %1$s  User: %2$s</string>
+    <string name="jellyfin_enable_remote_target">Enable remote target</string>
+    <string name="jellyfin_appear_in_play_on">Appear in Jellyfin Play on list</string>
+    <string name="jellyfin_device_name">Device name</string>
+    <string name="jellyfin_save_device_name">Save device name</string>
+    <string name="jellyfin_reset">Reset</string>
+    <string name="jellyfin_register_now">Register now</string>
+    <string name="jellyfin_register_description">Registers mpvRex as remote player via /Sessions/Capabilities and opens WebSocket. Check logcat JellyfinRemote.</string>
+    <string name="jellyfin_external_playback_hint">When Jellyfin launches mpvRex via external player, the item is identified from /Videos/{id}/stream. No filename matching is used. Progress is reported every ~10s and immediately on pause/stop/exit.</string>
+
 </resources>

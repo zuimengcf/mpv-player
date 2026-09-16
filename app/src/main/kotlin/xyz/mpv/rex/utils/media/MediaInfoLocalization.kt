@@ -70,6 +70,7 @@ object MediaInfoLocalization {
     "Sampling rate" to "采样率",
     "Compression mode" to "压缩模式",
     "Audio" to "音频",
+    "Alternate group" to "备用分组",
     // ── Text ──
     "Service kind" to "服务类型",
     "Muxing mode" to "封装模式",

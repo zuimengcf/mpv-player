@@ -837,6 +837,48 @@
     <!-- Sort Dialog Strings -->
     <string name="sort_and_view_options">排序与视图设置</string>
     <string name="view_options">视图选项</string>
+    <string name="sort">排序</string>
+    <string name="sort_by">排序方式</string>
+    <string name="sort_order_toggle">切换排序顺序</string>
+    <string name="sort_az">A-Z</string>
+    <string name="sort_za">Z-A</string>
+    <string name="sort_shortest">最短</string>
+    <string name="sort_longest">最长</string>
+    <string name="sort_oldest">最旧</string>
+    <string name="sort_newest">最新</string>
+    <string name="sort_smallest">最小</string>
+    <string name="sort_largest">最大</string>
+    <string name="sort_biggest">最大</string>
+    <string name="sort_asc">升序</string>
+    <string name="sort_desc">降序</string>
+    <string name="sort_title">标题</string>
+    <string name="sort_duration">时长</string>
+    <string name="sort_date">日期</string>
+    <string name="sort_size">大小</string>
+    <string name="sort_count">数量</string>
+    <string name="fields">字段</string>
+    <string name="filters">筛选</string>
+    <string name="grid_columns">网格列数</string>
+    <string name="cd_toggle_sort_order">切换排序顺序</string>
+    <string name="cd_expand">展开</string>
+    <string name="cd_collapse">收起</string>
+    <string name="sort_type_title">标题</string>
+    <string name="sort_type_duration">时长</string>
+    <string name="sort_type_date">日期</string>
+    <string name="sort_type_size">大小</string>
+    <string name="sort_type_count">数量</string>
+    <string name="sort_order_ascending">升序</string>
+    <string name="sort_order_descending">降序</string>
+    <string name="sort_order_az">A-Z</string>
+    <string name="sort_order_za">Z-A</string>
+    <string name="sort_order_shortest">最短</string>
+    <string name="sort_order_longest">最长</string>
+    <string name="sort_order_oldest">最旧</string>
+    <string name="sort_order_newest">最新</string>
+    <string name="sort_order_smallest">最小</string>
+    <string name="sort_order_largest">最大</string>
+    <string name="sort_order_asc_abbrev">升</string>
+    <string name="sort_order_desc_abbrev">降</string>
 
     <!-- Preference Category Strings -->
     <string name="pref_category_ui_appearance">界面与外观</string>
@@ -1401,5 +1443,85 @@
     <string name="welcome_skip_permission">暂不授予存储权限</string>
     <string name="welcome_subtitle">现代、强大且可自定义的媒体播放器。</string>
     <string name="welcome_title">欢迎使用 Re播放器</string>
+
+    <!-- Preferences Screen: yt-dlp & Jellyfin entries -->
+    <string name="pref_category_integrations">集成</string>
+    <string name="pref_ytdl">yt-dlp</string>
+    <string name="pref_ytdl_summary">管理 REX Ytdlp 与提取器偏好</string>
+    <string name="pref_jellyfin">Jellyfin</string>
+    <string name="pref_jellyfin_summary">外部播放器同步</string>
+
+    <!-- yt-dlp 设置页 -->
+    <string name="ytdl_title">yt-dlp</string>
+    <string name="ytdl_refresh">刷新</string>
+    <string name="ytdl_stream_quality_section">流质量</string>
+    <string name="ytdl_resolution_preference">分辨率偏好</string>
+    <string name="ytdl_geo_bypass">绕过地区限制</string>
+    <string name="ytdl_geo_bypass_summary">尽可能绕过视频的地区限制</string>
+    <string name="ytdl_prefer_nightly">优先使用 Nightly 通道</string>
+    <string name="ytdl_prefer_nightly_summary">获取最新的 yt-dlp 夜间提取器修复</string>
+    <string name="ytdl_routing_section">URL 与平台路由</string>
+    <string name="ytdl_auto_detect_web_pages">自动检测网页</string>
+    <string name="ytdl_auto_detect_web_pages_summary">主动探测未知 URL，将 HTML 网页路由到 yt-dlp 处理</string>
+    <string name="ytdl_custom_domains">自定义支持的域名</string>
+    <string name="ytdl_custom_domains_hint">无（使用默认网络视频平台）</string>
+    <string name="ytdl_custom_domains_label">域名（逗号或空格分隔）</string>
+    <string name="ytdl_custom_domains_placeholder">例如 example.com、archive.org、peertube.su</string>
+    <string name="ytdl_network_section">网络与高级</string>
+    <string name="ytdl_custom_format">自定义格式选择器</string>
+    <string name="ytdl_custom_format_hint">默认（使用分辨率偏好）</string>
+    <string name="ytdl_custom_format_label">yt-dlp 格式选择器</string>
+    <string name="ytdl_custom_format_placeholder">例如 bestvideo+bestaudio/best</string>
+    <string name="ytdl_proxy">代理</string>
+    <string name="ytdl_proxy_hint">无（直连）</string>
+    <string name="ytdl_proxy_label">代理 URL</string>
+    <string name="ytdl_proxy_placeholder">http://user:pass@host:port 或 socks5://...</string>
+    <string name="ytdl_custom_user_agent">自定义 User-Agent</string>
+    <string name="ytdl_custom_user_agent_hint">默认</string>
+    <string name="ytdl_custom_user_agent_label">User-Agent 请求头</string>
+    <string name="ytdl_diagnostic_section">提取器诊断工具</string>
+    <string name="ytdl_test_url_extraction">测试 URL 提取</string>
+    <string name="ytdl_test_url_extraction_summary">粘贴视频 URL，直接通过插件测试 IPC 解析。</string>
+    <string name="ytdl_video_url_label">视频 URL</string>
+    <string name="ytdl_core">yt-dlp 核心</string>
+    <string name="ytdl_channel">通道</string>
+    <string name="ytdl_git_commit">Git 提交</string>
+    <string name="ytdl_check_for_updates">检查更新</string>
+    <string name="ytdl_nightly">Nightly</string>
+    <string name="ytdl_reinstall">重新安装</string>
+    <string name="ytdl_install_ytdlp">安装 yt-dlp</string>
+    <string name="ytdl_addon_active_need_download">配套插件已激活，但需要下载 yt-dlp 抓取器才能启用网页流媒体。</string>
+    <string name="ytdl_full_hd">全高清 (1080p)</string>
+    <string name="ytdl_hd">高清 (720p)</string>
+    <string name="ytdl_sd">标清 (480p)</string>
+    <string name="ytdl_audio_only">仅音频</string>
+    <string name="ytdl_auto_best">自动 / 最佳</string>
+    <string name="ytdl_checking">检查中...</string>
+    <string name="ytdl_stable">STABLE</string>
+    <string name="ytdl_release">发布版</string>
+
+    <!-- Jellyfin 设置页 -->
+    <string name="jellyfin_title">Jellyfin</string>
+    <string name="jellyfin_server">Jellyfin 服务器</string>
+    <string name="jellyfin_server_url_label">服务器 URL（例如 https://jellyfin.example.com）</string>
+    <string name="jellyfin_username">用户名</string>
+    <string name="jellyfin_password">密码</string>
+    <string name="jellyfin_sign_in">登录</string>
+    <string name="jellyfin_sign_out">退出登录</string>
+    <string name="jellyfin_status_server_username_required">需要服务器 URL 和用户名</string>
+    <string name="jellyfin_status_insecure_http">警告：正在使用不安全的 HTTP——凭据将以明文传输。建议使用 HTTPS。</string>
+    <string name="jellyfin_status_missing_token">认证响应缺少 token/用户</string>
+    <string name="jellyfin_status_connected">已连接为 %1$s</string>
+    <string name="jellyfin_status_failed">失败：%1$s</string>
+    <string name="jellyfin_status_disconnected">已断开</string>
+    <string name="jellyfin_host_user">主机：%1$s　用户：%2$s</string>
+    <string name="jellyfin_enable_remote_target">启用远程目标</string>
+    <string name="jellyfin_appear_in_play_on">显示在 Jellyfin 的「在…中播放」列表中</string>
+    <string name="jellyfin_device_name">设备名称</string>
+    <string name="jellyfin_save_device_name">保存设备名称</string>
+    <string name="jellyfin_reset">重置</string>
+    <string name="jellyfin_register_now">立即注册</string>
+    <string name="jellyfin_register_description">通过 /Sessions/Capabilities 将 mpvRex 注册为远程播放器并打开 WebSocket。可在 logcat 的 JellyfinRemote 标签查看日志。</string>
+    <string name="jellyfin_external_playback_hint">当 Jellyfin 通过外部播放器启动 mpvRex 时，通过 /Videos/{id}/stream 识别项目，不进行文件名匹配。进度约每 10 秒上报一次，并在暂停/停止/退出时立即上报。</string>
 
 </resources>
