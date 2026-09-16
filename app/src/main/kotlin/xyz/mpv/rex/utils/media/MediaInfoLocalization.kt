@@ -36,8 +36,10 @@ object MediaInfoLocalization {
     "File size" to "文件大小",
     "Duration" to "时长",
     "Overall bit rate" to "总码率",
+    "Overall bit rate mode" to "总码率模式",
     "Bit rate" to "码率",
     "Bit rate mode" to "码率模式",
+    "Maximum bit rate" to "最大码率",
     "Frame rate" to "帧率",
     "Frame rate mode" to "帧率模式",
     "Width" to "宽度",
@@ -45,6 +47,10 @@ object MediaInfoLocalization {
     "Display aspect ratio" to "显示宽高比",
     "Color space" to "色彩空间",
     "Chroma subsampling" to "色度抽样",
+    "Color range" to "色彩范围",
+    "Color primaries" to "色彩基色",
+    "Transfer characteristics" to "传输特性",
+    "Matrix coefficients" to "矩阵系数",
     "Bit depth" to "位深",
     "Scan type" to "扫描方式",
     "Bits/(Pixel*Frame)" to "比特/（像素×帧）",
@@ -111,4 +117,32 @@ object MediaInfoLocalization {
     // 尝试去掉行尾数字序号（如 "Stream size" 无需处理；"Language" 无后缀）
     return trimmed
   }
+
+  /**
+   * 翻译整段 MediaInfo Text 输出（用于分享/复制的文本内容）。
+   * 区块名与字段标签中文化，值（时长、码率等数值）保持原样。
+   * 分隔线、标题行、空行原样保留。
+   */
+  fun translateText(text: String): String =
+    text.lines().joinToString("\n") { line ->
+      when {
+        // 分隔线 / 空行 / 标题行：原样保留
+        line.trim().startsWith("=") || line.trim().isEmpty() || line.contains("MEDIA INFO -") -> line
+        // 区块行（顶格、无冒号）：翻译区块名
+        !line.startsWith(" ") && !line.contains(":") && line.trim().isNotEmpty() ->
+          translateSection(line)
+        // 属性行（含冒号）：翻译字段标签，保留缩进与值
+        line.contains(":") -> {
+          val indent = line.takeWhile { it == ' ' }
+          val parts = line.split(":", limit = 2)
+          if (parts.size == 2) {
+            val key = parts[0].trim()
+            "$indent${translateLabel(key)}:${parts[1]}"
+          } else {
+            line
+          }
+        }
+        else -> line
+      }
+    }
 }

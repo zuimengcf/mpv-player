@@ -73,12 +73,16 @@ object MediaInfoOps {
           // Get the formatted text output
           val textOutput = mi.Inform()
 
+          // Localize section names and field labels (Chinese) before returning,
+          // so share/copy content is localized too (display path re-parses with translateLabel/translateSection, idempotent).
+          val localized = MediaInfoLocalization.translateText(textOutput)
+
           buildString {
             appendLine("=".repeat(60))
             appendLine("MEDIA INFO - $fileName")
             appendLine("=".repeat(60))
             appendLine()
-            append(textOutput)
+            append(localized)
           }
         } finally {
           mi.Close()
