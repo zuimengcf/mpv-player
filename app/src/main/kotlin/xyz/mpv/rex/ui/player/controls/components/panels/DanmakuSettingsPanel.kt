@@ -109,7 +109,14 @@ fun DanmakuSettingsPanel(
 
   if (isPortrait) {
     PlayerSheet(onDismissRequest = onDismissRequest) {
-      DanmakuSettingsContent(modifier, activity)
+      // 竖屏 sheet 内容需可滚动（PlayerSheet 本身不滚动，内容超高时滑不动）
+      Column(
+        modifier = Modifier
+          .fillMaxWidth()
+          .verticalScroll(rememberScrollState()),
+      ) {
+        DanmakuSettingsContent(modifier, activity)
+      }
     }
   } else {
     DanmakuSettingsSideSheet(onDismissRequest = onDismissRequest, modifier = modifier, activity = activity)
