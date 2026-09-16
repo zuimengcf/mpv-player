@@ -553,12 +553,15 @@ val MIGRATION_14_15 = object : Migration(14, 15) {
  * Changes:
  * - Adds danmakuPath, danmakuTitle, danmakuSelected columns to PlaybackStateEntity
  *   to persist danmaku binding per video (bound danmaku survives exit, only manual unbind clears it)
+ * - Adds videoAspect, customAspectRatio columns for persisted aspect ratio
  */
 val MIGRATION_15_16 = object : Migration(15, 16) {
   override fun migrate(db: SupportSQLiteDatabase) {
     db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `danmakuPath` TEXT NOT NULL DEFAULT ''")
     db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `danmakuTitle` TEXT NOT NULL DEFAULT ''")
     db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `danmakuSelected` INTEGER NOT NULL DEFAULT 0")
+    db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `videoAspect` TEXT")
+    db.execSQL("ALTER TABLE `PlaybackStateEntity` ADD COLUMN `customAspectRatio` REAL NOT NULL DEFAULT -1.0")
   }
 }
 

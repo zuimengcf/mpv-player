@@ -32,6 +32,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.withStyle
 import xyz.mpv.rex.R
 import xyz.mpv.rex.preferences.GesturePreferences
 import xyz.mpv.rex.preferences.preference.collectAsState
@@ -41,7 +42,6 @@ import xyz.mpv.rex.presentation.components.GroupedListColumn
 import xyz.mpv.rex.ui.player.CustomKeyCodes
 import xyz.mpv.rex.ui.player.SingleActionGesture
 import xyz.mpv.rex.ui.utils.LocalBackStack
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.serialization.Serializable
 import me.zhanghai.compose.preference.FooterPreference
 import me.zhanghai.compose.preference.ListPreference
@@ -89,6 +89,7 @@ object GesturePreferencesScreen : Screen {
       val navBarHeight = xyz.mpv.rex.ui.browser.LocalNavigationBarHeight.current
       ProvidePreferenceLocals {
         LazyColumn(
+          state = rememberPreferenceLazyListState(),
           modifier =
             Modifier
               .fillMaxSize()
@@ -115,7 +116,10 @@ object GesturePreferencesScreen : Screen {
             val enableReleaseToCancel by preferences.enableReleaseToCancel.collectAsState()
 
             GroupedListColumn {
-              GroupedPreferenceCard(position = GroupPosition.FIRST) {
+              GroupedPreferenceCard(
+                position = GroupPosition.FIRST,
+                highlightKey = listOf(R.string.pref_gesture, R.string.pref_player_double_tap_seek_duration),
+              ) {
                 ListPreference(
                   value = if (isCustomValue) -1 else doubleTapSeekDuration,
                   onValueChange = { newValue ->
@@ -148,7 +152,10 @@ object GesturePreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+              GroupedPreferenceCard(
+                position = GroupPosition.MIDDLE,
+                highlightKey = R.string.pref_gesture_double_tap_seek_area_width_title,
+              ) {
                 ListPreference(
                   value = doubleTapSeekAreaWidth,
                   onValueChange = { preferences.doubleTapSeekAreaWidth.set(it) },
@@ -164,7 +171,10 @@ object GesturePreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+              GroupedPreferenceCard(
+                position = GroupPosition.MIDDLE,
+                highlightKey = R.string.pref_gesture_reverse_double_tap_title,
+              ) {
                 SwitchPreference(
                   value = reverseDoubleTap,
                   onValueChange = { preferences.reverseDoubleTap.set(it) },
@@ -173,7 +183,10 @@ object GesturePreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+              GroupedPreferenceCard(
+                position = GroupPosition.MIDDLE,
+                highlightKey = listOf(R.string.pref_gesture_double_tap_left_title, R.string.pref_gesture_single_tap_left_title),
+              ) {
                 ListPreference(
                   value = leftDoubleTap,
                   onValueChange = { preferences.leftSingleActionGesture.set(it) },
@@ -194,7 +207,10 @@ object GesturePreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+              GroupedPreferenceCard(
+                position = GroupPosition.MIDDLE,
+                highlightKey = listOf(R.string.pref_gesture_double_tap_center_title, R.string.pref_gesture_single_tap_center_title),
+              ) {
                 ListPreference(
                   value = centerDoubleTap,
                   onValueChange = { preferences.centerSingleActionGesture.set(it) },
@@ -220,7 +236,10 @@ object GesturePreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+              GroupedPreferenceCard(
+                position = GroupPosition.MIDDLE,
+                highlightKey = listOf(R.string.pref_gesture_double_tap_right_title, R.string.pref_gesture_single_tap_right_title),
+              ) {
                 ListPreference(
                   value = rightDoubleTap,
                   onValueChange = { preferences.rightSingleActionGesture.set(it) },
@@ -241,7 +260,10 @@ object GesturePreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+              GroupedPreferenceCard(
+                position = GroupPosition.MIDDLE,
+                highlightKey = R.string.pref_gesture_use_single_tap_for_center_title,
+              ) {
                 SwitchPreference(
                   value = useSingleTapForCenter,
                   onValueChange = { preferences.useSingleTapForCenter.set(it) },
@@ -259,7 +281,10 @@ object GesturePreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+              GroupedPreferenceCard(
+                position = GroupPosition.MIDDLE,
+                highlightKey = R.string.pref_gesture_use_single_tap_for_left_right_title,
+              ) {
                 SwitchPreference(
                   value = useSingleTapForLeftRight,
                   onValueChange = { preferences.useSingleTapForLeftRight.set(it) },
@@ -276,7 +301,10 @@ object GesturePreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+              GroupedPreferenceCard(
+                position = GroupPosition.MIDDLE,
+                highlightKey = R.string.pref_gesture_prevent_seekbar_tap_title,
+              ) {
                 SwitchPreference(
                   value = preventSeekbarTap,
                   onValueChange = { preferences.preventSeekbarTap.set(it) },
@@ -293,7 +321,10 @@ object GesturePreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+              GroupedPreferenceCard(
+                position = GroupPosition.MIDDLE,
+                highlightKey = R.string.pref_gesture_use_relative_seeking_title,
+              ) {
                 SwitchPreference(
                   value = useRelativeSeeking,
                   onValueChange = { preferences.useRelativeSeeking.set(it) },
@@ -310,7 +341,10 @@ object GesturePreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.LAST) {
+              GroupedPreferenceCard(
+                position = GroupPosition.LAST,
+                highlightKey = R.string.pref_gesture_enable_release_to_cancel_title,
+              ) {
                 Column {
                   SwitchPreference(
                     value = enableReleaseToCancel,
@@ -332,27 +366,22 @@ object GesturePreferencesScreen : Screen {
                       CustomKeyCodes.DoubleTapLeft,
                       CustomKeyCodes.DoubleTapCenter,
                       CustomKeyCodes.DoubleTapRight,
-                    ).map { it.keyCode }.toImmutableList()
+                    )
                   FooterPreference(
                     summary = {
-                      var annotatedString =
+                      val intro = stringResource(R.string.pref_gesture_double_tap_custom_info).substringBefore("\n\n")
+                      val annotatedString =
                         buildAnnotatedString {
-                          append(stringResource(R.string.pref_gesture_double_tap_custom_info))
-                        }
-
-                      doubleTapKeyCodes.forEach { keyCode ->
-                        annotatedString =
-                          buildAnnotatedString {
-                            val startIndex = annotatedString.indexOf(keyCode)
-                            val endIndex = startIndex + keyCode.length
-                            append(annotatedString)
-                            addStyle(
-                              style = SpanStyle(fontWeight = FontWeight.Bold),
-                              start = startIndex,
-                              end = endIndex,
-                            )
+                          append(intro)
+                          append("\n\n")
+                          doubleTapKeyCodes.forEachIndexed { index, item ->
+                            if (index > 0) append("\n")
+                            append("${stringResource(item.titleRes)}: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                              append(item.keyCode)
+                            }
                           }
-                      }
+                        }
 
                       Text(
                         text = annotatedString,
@@ -416,7 +445,10 @@ object GesturePreferencesScreen : Screen {
             val mediaNextGesture by preferences.mediaNextGesture.collectAsState()
 
             GroupedListColumn {
-              GroupedPreferenceCard(position = GroupPosition.FIRST) {
+              GroupedPreferenceCard(
+                position = GroupPosition.FIRST,
+                highlightKey = R.string.pref_gesture_media_previous,
+              ) {
                 ListPreference(
                   value = mediaPreviousGesture,
                   onValueChange = { preferences.mediaPreviousGesture.set(it) },
@@ -430,7 +462,10 @@ object GesturePreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+              GroupedPreferenceCard(
+                position = GroupPosition.MIDDLE,
+                highlightKey = R.string.pref_gesture_media_play,
+              ) {
                 ListPreference(
                   value = mediaPlayGesture,
                   onValueChange = { preferences.mediaPlayGesture.set(it) },
@@ -449,7 +484,10 @@ object GesturePreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.LAST) {
+              GroupedPreferenceCard(
+                position = GroupPosition.LAST,
+                highlightKey = R.string.pref_gesture_media_next,
+              ) {
                 Column {
                   ListPreference(
                     value = mediaNextGesture,
@@ -468,27 +506,22 @@ object GesturePreferencesScreen : Screen {
                       CustomKeyCodes.MediaPrevious,
                       CustomKeyCodes.MediaPlay,
                       CustomKeyCodes.MediaNext,
-                    ).map { it.keyCode }.toImmutableList()
+                    )
                   FooterPreference(
                     summary = {
-                      var annotatedString =
+                      val intro = stringResource(R.string.pref_gesture_media_custom_info).substringBefore("\n\n")
+                      val annotatedString =
                         buildAnnotatedString {
-                          append(stringResource(R.string.pref_gesture_media_custom_info))
-                        }
-
-                      mediaKeyCodes.forEach { keyCode ->
-                        annotatedString =
-                          buildAnnotatedString {
-                            val startIndex = annotatedString.indexOf(keyCode)
-                            val endIndex = startIndex + keyCode.length
-                            append(annotatedString)
-                            addStyle(
-                              style = SpanStyle(fontWeight = FontWeight.Bold),
-                              start = startIndex,
-                              end = endIndex,
-                            )
+                          append(intro)
+                          append("\n\n")
+                          mediaKeyCodes.forEachIndexed { index, item ->
+                            if (index > 0) append("\n")
+                            append("${stringResource(item.titleRes)}: ")
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                              append(item.keyCode)
+                            }
                           }
-                      }
+                        }
 
                       Text(
                         text = annotatedString,

@@ -644,6 +644,7 @@ fun ControlsTab(
 
 @Composable
 fun AestheticsTab() {
+  val context = LocalContext.current
   val appearancePreferences = koinInject<AppearancePreferences>()
   val playerPreferences = koinInject<PlayerPreferences>()
 
@@ -714,8 +715,16 @@ fun AestheticsTab() {
     InteractionSwitch(
       label = stringResource(R.string.pref_appearance_player_always_dark_mode_title),
       description = stringResource(R.string.pref_appearance_player_always_dark_mode_summary),
-      checked = playerAlwaysDarkMode,
-      onCheckedChange = { appearancePreferences.playerAlwaysDarkMode.set(it) }
+      checked = if (enableGlass) true else playerAlwaysDarkMode,
+      onCheckedChange = { appearancePreferences.playerAlwaysDarkMode.set(it) },
+      enabled = !enableGlass,
+      onDisabledClick = {
+        Toast.makeText(
+          context,
+          context.getString(R.string.pref_appearance_player_always_dark_mode_disabled_toast),
+          Toast.LENGTH_SHORT
+        ).show()
+      }
     )
   }
 }
@@ -837,7 +846,6 @@ fun InteractionTab() {
   val playerPreferences = koinInject<PlayerPreferences>()
 
   val playlistMode by playerPreferences.playlistMode.collectAsState()
-  val autoplayNextVideo by playerPreferences.autoplayNextVideo.collectAsState()
   val showSeekBarWhenSeeking by playerPreferences.showSeekBarWhenSeeking.collectAsState()
   val showDoubleTapOvals by playerPreferences.showDoubleTapOvals.collectAsState()
   val showCircularDoubleTapSeek by playerPreferences.showCircularDoubleTapSeek.collectAsState()
@@ -845,7 +853,8 @@ fun InteractionTab() {
   val usePreciseSeeking by playerPreferences.usePreciseSeeking.collectAsState()
   val hideOsdText by playerPreferences.hideOsdText.collectAsState()
   val keepScreenOnWhenPaused by playerPreferences.keepScreenOnWhenPaused.collectAsState()
-  val savePositionOnQuit by playerPreferences.savePositionOnQuit.collectAsState()
+  val resumePlaybackMode by playerPreferences.resumePlaybackMode.collectAsState()
+  val autoResumeOnAsk by playerPreferences.autoResumeOnAsk.collectAsState()
   val autoPiPOnNavigation by playerPreferences.autoPiPOnNavigation.collectAsState()
 
   Column(
@@ -866,13 +875,6 @@ fun InteractionTab() {
       description = stringResource(R.string.pref_autoplay_summary),
       checked = playlistMode,
       onCheckedChange = { playerPreferences.playlistMode.set(it) }
-    )
-
-    InteractionSwitch(
-      label = stringResource(R.string.pref_player_autoplay_next_video),
-      description = stringResource(if (autoplayNextVideo) R.string.pref_player_autoplay_next_video_summary_on else R.string.pref_player_autoplay_next_video_summary_off),
-      checked = autoplayNextVideo,
-      onCheckedChange = { playerPreferences.autoplayNextVideo.set(it) }
     )
 
     InteractionSwitch(
@@ -924,14 +926,22 @@ fun InteractionTab() {
       onCheckedChange = { playerPreferences.keepScreenOnWhenPaused.set(it) }
     )
 
-    InteractionSwitch(
-      label = stringResource(R.string.pref_player_save_position_on_quit),
-      description = stringResource(R.string.pref_player_save_position_on_quit_summary),
-      checked = savePositionOnQuit,
-      onCheckedChange = { playerPreferences.savePositionOnQuit.set(it) }
-    )
-
     ResumePlaybackModePreferenceItem()
+
+    if (resumePlaybackMode == ResumePlaybackMode.Ask) {
+      InteractionSwitch(
+        label = stringResource(R.string.pref_player_auto_resume_on_ask_title),
+        description = stringResource(
+          if (autoResumeOnAsk) {
+            R.string.pref_player_auto_resume_on_ask_summary_on
+          } else {
+            R.string.pref_player_auto_resume_on_ask_summary_off
+          }
+        ),
+        checked = autoResumeOnAsk,
+        onCheckedChange = { playerPreferences.autoResumeOnAsk.set(it) }
+      )
+    }
 
     InteractionSwitch(
       label = stringResource(R.string.pref_auto_pip_title),
@@ -949,6 +959,7 @@ private fun InteractionSwitch(
   checked: Boolean,
   onCheckedChange: (Boolean) -> Unit,
   enabled: Boolean = true,
+  onDisabledClick: (() -> Unit)? = null,
 ) {
   val alpha = if (enabled) 1.0f else 0.5f
   Surface(
@@ -960,6 +971,7 @@ private fun InteractionSwitch(
       value = checked,
       onValueChange = onCheckedChange,
       enabled = enabled,
+      onDisabledClick = onDisabledClick,
       title = { Text(label, style = MaterialTheme.typography.bodyLarge) },
       summary = { 
         Text(

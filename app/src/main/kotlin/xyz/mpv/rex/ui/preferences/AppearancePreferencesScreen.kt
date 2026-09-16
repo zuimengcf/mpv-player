@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,7 +16,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,7 +33,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import xyz.mpv.rex.R
-import xyz.mpv.rex.preferences.ThumbnailStrategy
 import xyz.mpv.rex.preferences.AppearancePreferences
 import xyz.mpv.rex.preferences.BrowserPreferences
 import xyz.mpv.rex.preferences.GesturePreferences
@@ -73,13 +69,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import android.widget.Toast
 import androidx.compose.runtime.rememberCoroutineScope
-import xyz.mpv.rex.domain.thumbnail.ThumbnailRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.HorizontalDivider
 import xyz.mpv.rex.utils.media.MediaLibraryEvents
 import xyz.mpv.rex.utils.media.OpenDocumentTreeContract
 
@@ -121,32 +114,8 @@ object AppearancePreferencesScreen : Screen {
                 MediaLibraryEvents.notifyChanged()
             }
         }
-        val thumbnailRepository = koinInject<ThumbnailRepository>()
         var showNetworkWarning by remember { mutableStateOf(false) }
-        var pendingStrategyChange by remember { mutableStateOf<ThumbnailStrategy?>(null) }
-        var pendingPositionChange by remember { mutableStateOf<Int?>(null) }
         var showLanguageDialog by remember { mutableStateOf(false) }
-
-        // ملاحظة: النصوص أدناه (Toast) لم تُلمس عمداً — stringResource() لا يعمل
-        // خارج composition، وتحتاج تعديل توقيع الدالة (تمرير Context.getString
-        // أو نص جاهز من الطبقة العليا). تُركت للمطور الأصلي.
-        fun clearCacheAndApply(onSuccess: () -> Unit, onFailure: () -> Unit = {}) {
-            scope.launch(Dispatchers.IO) {
-                runCatching { thumbnailRepository.clearLocalThumbnailCache() }
-                    .onSuccess {
-                        withContext(Dispatchers.Main) {
-                            onSuccess()
-                            Toast.makeText(context, "Local thumbnail cache cleared", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                    .onFailure {
-                        withContext(Dispatchers.Main) {
-                            onFailure()
-                            Toast.makeText(context, "Failed to clear cache", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-            }
-        }
 
         Scaffold(
             containerColor = androidx.compose.ui.graphics.Color.Transparent,
@@ -178,6 +147,7 @@ object AppearancePreferencesScreen : Screen {
             val navBarHeight = xyz.mpv.rex.ui.browser.LocalNavigationBarHeight.current
             ProvidePreferenceLocals {
                 LazyColumn(
+                    state = rememberPreferenceLazyListState(),
                     modifier =
                     Modifier
                         .fillMaxSize()
@@ -191,7 +161,10 @@ object AppearancePreferencesScreen : Screen {
                     item {
                         val currentLanguage = remember { LocaleHelper.getCurrentLanguage(context) }
                         GroupedListColumn {
-                            GroupedPreferenceCard(position = GroupPosition.ONLY) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.ONLY,
+                                highlightKey = R.string.pref_appearance_language_title,
+                            ) {
                                 Preference(
                                     title = { Text(text = stringResource(id = R.string.pref_appearance_language_title)) },
                                     summary = {
@@ -231,7 +204,13 @@ object AppearancePreferencesScreen : Screen {
                         val playerAlwaysDarkMode by preferences.playerAlwaysDarkMode.collectAsState()
 
                         GroupedListColumn {
-                            GroupedPreferenceCard(position = GroupPosition.FIRST) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.FIRST,
+                                highlightKey = listOf(
+                                    R.string.pref_appearance_title,
+                                    R.string.pref_appearance_amoled_mode_title,
+                                ),
+                            ) {
                                 Column(modifier = Modifier.padding(vertical = 8.dp)) {
                                     MultiChoiceSegmentedButton(
                                         choices = DarkMode.entries.map { stringResource(it.titleRes) }.toImmutableList(),
@@ -259,7 +238,10 @@ object AppearancePreferencesScreen : Screen {
                                 }
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_appearance_use_system_font_title,
+                            ) {
                                 SwitchPreference(
                                     value = useSystemFont,
                                     onValueChange = { preferences.useSystemFont.set(it) },
@@ -273,7 +255,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_appearance_match_player_controls_to_theme_title,
+                            ) {
                                 SwitchPreference(
                                     value = matchPlayerControlsToTheme,
                                     onValueChange = { preferences.matchPlayerControlsToTheme.set(it) },
@@ -282,7 +267,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_appearance_hide_player_buttons_background_title,
+                            ) {
                                 SwitchPreference(
                                     value = hidePlayerButtonsBackground,
                                     onValueChange = { preferences.hidePlayerButtonsBackground.set(it) },
@@ -291,7 +279,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_appearance_enable_glass_player_controls_title,
+                            ) {
                                 SwitchPreference(
                                     value = enableGlassPlayerControls,
                                     onValueChange = { preferences.enableGlassPlayerControls.set(it) },
@@ -300,7 +291,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_appearance_enable_glass_seekbar_title,
+                            ) {
                                 SwitchPreference(
                                     value = enableGlassSeekbarBackground,
                                     onValueChange = { preferences.enableGlassSeekbarBackground.set(it) },
@@ -310,10 +304,21 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.LAST) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.LAST,
+                                highlightKey = R.string.pref_appearance_player_always_dark_mode_title,
+                            ) {
                                 SwitchPreference(
-                                    value = playerAlwaysDarkMode,
+                                    value = if (enableGlassPlayerControls) true else playerAlwaysDarkMode,
                                     onValueChange = { preferences.playerAlwaysDarkMode.set(it) },
+                                    enabled = !enableGlassPlayerControls,
+                                    onDisabledClick = {
+                                        Toast.makeText(
+                                            context,
+                                            context.getString(R.string.pref_appearance_player_always_dark_mode_disabled_toast),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    },
                                     title = { Text(text = stringResource(id = R.string.pref_appearance_player_always_dark_mode_title)) },
                                     summary = { Text(text = stringResource(id = R.string.pref_appearance_player_always_dark_mode_summary)) },
                                 )
@@ -332,7 +337,10 @@ object AppearancePreferencesScreen : Screen {
                         val enableTabNetwork by browserPreferences.enableTabNetwork.collectAsState()
 
                         GroupedListColumn {
-                            GroupedPreferenceCard(position = GroupPosition.FIRST) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.FIRST,
+                                highlightKey = R.string.pref_appearance_tab_home_title,
+                            ) {
                                 SwitchPreference(
                                     value = true,
                                     onValueChange = {},
@@ -347,7 +355,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_appearance_tab_shorts_title,
+                            ) {
                                 SwitchPreference(
                                     value = enableShorts,
                                     onValueChange = { browserPreferences.enableShorts.set(it) },
@@ -361,7 +372,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_appearance_tab_recents_title,
+                            ) {
                                 SwitchPreference(
                                     value = enableTabRecents,
                                     onValueChange = { browserPreferences.enableTabRecents.set(it) },
@@ -375,7 +389,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_appearance_tab_playlists_title,
+                            ) {
                                 SwitchPreference(
                                     value = enableTabPlaylists,
                                     onValueChange = { browserPreferences.enableTabPlaylists.set(it) },
@@ -389,7 +406,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.LAST) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.LAST,
+                                highlightKey = R.string.pref_appearance_tab_network_title,
+                            ) {
                                 SwitchPreference(
                                     value = enableTabNetwork,
                                     onValueChange = { browserPreferences.enableTabNetwork.set(it) },
@@ -420,7 +440,10 @@ object AppearancePreferencesScreen : Screen {
                         val showTreeViewPath by browserPreferences.showTreeViewPath.collectAsState()
 
                         GroupedListColumn {
-                            GroupedPreferenceCard(position = GroupPosition.FIRST) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.FIRST,
+                                highlightKey = R.string.pref_appearance_unlimited_name_lines_title,
+                            ) {
                                 SwitchPreference(
                                     value = unlimitedNameLines,
                                     onValueChange = { preferences.unlimitedNameLines.set(it) },
@@ -434,7 +457,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_appearance_show_unplayed_old_video_label_title,
+                            ) {
                                 SwitchPreference(
                                     value = showUnplayedOldVideoLabel,
                                     onValueChange = { preferences.showUnplayedOldVideoLabel.set(it) },
@@ -448,7 +474,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_appearance_unplayed_old_video_days_title,
+                            ) {
                                 SliderPreference(
                                     value = unplayedOldVideoDays.toFloat(),
                                     onValueChange = { preferences.unplayedOldVideoDays.set(it.roundToInt()) },
@@ -469,7 +498,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_appearance_auto_scroll_title,
+                            ) {
                                 SwitchPreference(
                                     value = autoScrollToLastPlayed,
                                     onValueChange = { browserPreferences.autoScrollToLastPlayed.set(it) },
@@ -483,7 +515,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_appearance_watched_threshold_title,
+                            ) {
                                 SliderPreference(
                                     value = watchedThreshold.toFloat(),
                                     onValueChange = { browserPreferences.watchedThreshold.set(it.roundToInt()) },
@@ -504,7 +539,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_show_audio_files_title,
+                            ) {
                                 SwitchPreference(
                                     value = showAudioFiles,
                                     onValueChange = { browserPreferences.showAudioFiles.set(it) },
@@ -518,7 +556,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.MIDDLE,
+                                highlightKey = R.string.pref_include_no_media_content_title,
+                            ) {
                                 Column(modifier = Modifier.padding(vertical = 4.dp)) {
                                     SwitchPreference(
                                         value = includeNoMediaContent,
@@ -567,7 +608,10 @@ object AppearancePreferencesScreen : Screen {
                                 }
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.LAST) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.LAST,
+                                highlightKey = R.string.pref_show_tree_view_path_title,
+                            ) {
                                 SwitchPreference(
                                     value = showTreeViewPath,
                                     onValueChange = { browserPreferences.showTreeViewPath.set(it) },
@@ -590,13 +634,12 @@ object AppearancePreferencesScreen : Screen {
                     item {
                         val tapThumbnailToSelect by gesturePreferences.tapThumbnailToSelect.collectAsState()
                         val showNetworkThumbnails by preferences.showNetworkThumbnails.collectAsState()
-                        val thumbnailStrategy by preferences.thumbnailStrategy.collectAsState()
-                        val thumbnailPositionPercent by preferences.thumbnailPositionPercent.collectAsState()
-                        val isPositionStrategy = thumbnailStrategy == ThumbnailStrategy.Position
-                        var draftPosition by remember(thumbnailPositionPercent) { mutableStateOf(thumbnailPositionPercent.toFloat()) }
 
                         GroupedListColumn {
-                            GroupedPreferenceCard(position = GroupPosition.FIRST) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.FIRST,
+                                highlightKey = R.string.pref_gesture_tap_thumbnail_to_select_title,
+                            ) {
                                 SwitchPreference(
                                     value = tapThumbnailToSelect,
                                     onValueChange = { gesturePreferences.tapThumbnailToSelect.set(it) },
@@ -610,7 +653,10 @@ object AppearancePreferencesScreen : Screen {
                                 )
                             }
 
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+                            GroupedPreferenceCard(
+                                position = GroupPosition.LAST,
+                                highlightKey = R.string.pref_appearance_show_network_thumbnails_title,
+                            ) {
                                 Column {
                                     SwitchPreference(
                                         value = showNetworkThumbnails,
@@ -660,207 +706,6 @@ object AppearancePreferencesScreen : Screen {
                                     }
                                 }
                             }
-
-                            GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
-                                Column(modifier = Modifier.padding(vertical = 16.dp)) {
-                                    Text(
-                                        text = stringResource(id = R.string.pref_appearance_thumbnail_strategy_title),
-                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                    Text(
-                                        text = stringResource(id = R.string.pref_appearance_thumbnail_strategy_summary),
-                                        modifier = Modifier.padding(horizontal = 16.dp).padding(top = 4.dp, bottom = 12.dp),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.outline,
-                                    )
-                                    MultiChoiceSegmentedButton(
-                                        choices = persistentListOf(
-                                            stringResource(id = R.string.pref_appearance_thumbnail_strategy_first_frame_title),
-                                            stringResource(id = R.string.pref_appearance_thumbnail_strategy_position_title)
-                                        ),
-                                        selectedIndices = persistentListOf(ThumbnailStrategy.entries.indexOf(thumbnailStrategy)),
-                                        onClick = { index ->
-                                            val newStrategy = ThumbnailStrategy.entries[index]
-                                            if (newStrategy != thumbnailStrategy) {
-                                                pendingStrategyChange = newStrategy
-                                            }
-                                        },
-                                    )
-
-                                    Text(
-                                        text = if (thumbnailStrategy == ThumbnailStrategy.FirstFrame) {
-                                            stringResource(id = R.string.pref_appearance_thumbnail_strategy_first_frame_summary)
-                                        } else {
-                                            stringResource(id = R.string.pref_appearance_thumbnail_strategy_position_summary)
-                                        },
-                                        modifier = Modifier.padding(horizontal = 16.dp).padding(top = 12.dp),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-
-                            GroupedPreferenceCard(position = GroupPosition.LAST) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    SliderPreference(
-                                        modifier = Modifier.weight(1f),
-                                        value = thumbnailPositionPercent.toFloat(),
-                                        onValueChange = { finalValue ->
-                                            val newInt = finalValue.roundToInt()
-                                            if (newInt != thumbnailPositionPercent) {
-                                                pendingPositionChange = newInt
-                                            }
-                                        },
-                                        sliderValue = draftPosition,
-                                        onSliderValueChange = { slidingValue ->
-                                            draftPosition = slidingValue
-                                        },
-                                        title = { Text(text = stringResource(id = R.string.pref_appearance_thumbnail_position_title)) },
-                                        valueRange = 1f..100f,
-                                        summary = {
-                                            Text(
-                                                text = stringResource(
-                                                    id = R.string.pref_appearance_thumbnail_position_summary,
-                                                    draftPosition.roundToInt(),
-                                                ),
-                                                color = MaterialTheme.colorScheme.outline,
-                                            )
-                                        },
-                                        enabled = isPositionStrategy
-                                    )
-
-                                    IconButton(
-                                        onClick = {
-                                            val default = AppearancePreferences.THUMBNAIL_POSITION_DEFAULT
-                                            if (thumbnailPositionPercent != default) {
-                                                pendingPositionChange = default
-                                            }
-                                        },
-                                        enabled = isPositionStrategy && thumbnailPositionPercent != AppearancePreferences.THUMBNAIL_POSITION_DEFAULT,
-                                        modifier = Modifier
-                                            .padding(end = 8.dp)
-                                            .clip(CircleShape)
-                                            .background(
-                                                color = if (isPositionStrategy && thumbnailPositionPercent != AppearancePreferences.THUMBNAIL_POSITION_DEFAULT)
-                                                    MaterialTheme.colorScheme.primaryContainer
-                                                else
-                                                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                                            ),
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Refresh,
-                                            contentDescription = stringResource(id = R.string.pref_appearance_thumbnail_position_reset),
-                                            tint = if (isPositionStrategy && thumbnailPositionPercent != AppearancePreferences.THUMBNAIL_POSITION_DEFAULT)
-                                                MaterialTheme.colorScheme.primary
-                                            else
-                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        pendingStrategyChange?.let { newStrategy ->
-                            AlertDialog(
-                                onDismissRequest = { pendingStrategyChange = null },
-                                title = { Text(stringResource(R.string.pref_appearance_thumbnail_strategy_dialog_title)) },
-                                text = {
-                                    Column {
-                                        val summaryText = if (newStrategy == ThumbnailStrategy.FirstFrame) {
-                                            stringResource(id = R.string.pref_appearance_thumbnail_strategy_first_frame_summary)
-                                        } else {
-                                            stringResource(id = R.string.pref_appearance_thumbnail_strategy_position_summary)
-                                        }
-                                        Text(
-                                            text = summaryText,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-                                        Text(
-                                            text = stringResource(R.string.pref_appearance_thumbnail_strategy_dialog_message),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                },
-                                confirmButton = {
-                                    TextButton(onClick = {
-                                        clearCacheAndApply(
-                                            onSuccess = {
-                                                preferences.thumbnailStrategy.set(newStrategy)
-                                                pendingStrategyChange = null
-                                            },
-                                            onFailure = {
-                                                pendingStrategyChange = null
-                                            }
-                                        )
-                                    }) {
-                                        Text(stringResource(R.string.generic_confirm))
-                                    }
-                                },
-                                dismissButton = {
-                                    TextButton(onClick = { pendingStrategyChange = null }) {
-                                        Text(stringResource(R.string.generic_cancel))
-                                    }
-                                }
-                            )
-                        }
-
-                        pendingPositionChange?.let { newPosition ->
-                            AlertDialog(
-                                onDismissRequest = { 
-                                    pendingPositionChange = null 
-                                    draftPosition = thumbnailPositionPercent.toFloat()
-                                },
-                                title = { Text(stringResource(R.string.pref_appearance_thumbnail_position_dialog_title)) },
-                                text = {
-                                    Column {
-                                        Text(
-                                            text = stringResource(
-                                                R.string.pref_appearance_thumbnail_position_reset_confirm,
-                                                newPosition,
-                                            ),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-                                        Text(
-                                            text = stringResource(R.string.pref_appearance_thumbnail_position_dialog_message),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                },
-                                confirmButton = {
-                                    TextButton(onClick = {
-                                        clearCacheAndApply(
-                                            onSuccess = {
-                                                preferences.thumbnailPositionPercent.set(newPosition)
-                                                pendingPositionChange = null
-                                            },
-                                            onFailure = {
-                                                pendingPositionChange = null
-                                                draftPosition = thumbnailPositionPercent.toFloat()
-                                            }
-                                        )
-                                    }) {
-                                        Text(stringResource(R.string.generic_confirm))
-                                    }
-                                },
-                                dismissButton = {
-                                    TextButton(onClick = { 
-                                        pendingPositionChange = null 
-                                        draftPosition = thumbnailPositionPercent.toFloat()
-                                    }) {
-                                        Text(stringResource(R.string.generic_cancel))
-                                    }
-                                }
-                            )
                         }
                     }
 

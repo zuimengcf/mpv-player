@@ -5,7 +5,7 @@ import xyz.mpv.rex.domain.hdr.HdrToysManager
 import xyz.mpv.rex.repository.wyzie.WyzieSearchRepository
 import xyz.mpv.rex.repository.dandanplay.DanDanPlayApi
 import xyz.mpv.rex.preferences.AdvancedPreferences
-import xyz.mpv.rex.ui.player.PlaybackManager
+import xyz.mpv.rex.ui.player.managers.PlaybackManager
 import xyz.mpv.rex.ui.player.HeadlessPlaybackController
 import okhttp3.OkHttpClient
 import org.koin.dsl.module
@@ -37,6 +37,7 @@ val domainModule = module {
     single { HeadlessPlaybackController(androidContext()) }
     single { xyz.mpv.rex.jellyfin.api.JellyfinApi(get(), get(), get()) }
     single { xyz.mpv.rex.jellyfin.remote.JellyfinRemoteClient(get(), get(), get(), androidContext()) }
+    single { xyz.mpv.rex.domain.ytdl.YtDlClient(androidContext(), get()) }
 }
 
 

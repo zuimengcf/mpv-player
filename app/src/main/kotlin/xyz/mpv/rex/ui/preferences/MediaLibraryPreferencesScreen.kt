@@ -87,6 +87,7 @@ object MediaLibraryPreferencesScreen : Screen {
       val navBarHeight = xyz.mpv.rex.ui.browser.LocalNavigationBarHeight.current
       ProvidePreferenceLocals {
         LazyColumn(
+          state = rememberPreferenceLazyListState(),
           modifier = Modifier
             .fillMaxSize()
             .padding(padding),
@@ -99,24 +100,10 @@ object MediaLibraryPreferencesScreen : Screen {
 
           item {
             GroupedListColumn {
-              GroupedPreferenceCard(position = GroupPosition.FIRST) {
-                Preference(
-                  title = { Text(stringResource(R.string.pref_custom_video_extensions_title)) },
-                  summary = {
-                    Text(
-                      text = if (customVideoExtensionsPref.isBlank()) {
-                        stringResource(R.string.pref_custom_video_extensions_hint)
-                      } else {
-                        customVideoExtensionsPref
-                      },
-                      color = MaterialTheme.colorScheme.outline,
-                    )
-                  },
-                  onClick = { backstack.add(CustomVideoExtensionsScreen) },
-                )
-              }
-
-              GroupedPreferenceCard(position = GroupPosition.MIDDLE) {
+              GroupedPreferenceCard(
+                position = GroupPosition.FIRST,
+                highlightKey = listOf(R.string.pref_media_library_title, R.string.pref_include_no_media_content_title),
+              ) {
                 SwitchPreference(
                   value = includeNoMediaContent,
                   onValueChange = { newValue ->
@@ -136,7 +123,10 @@ object MediaLibraryPreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.LAST) {
+              GroupedPreferenceCard(
+                position = GroupPosition.LAST,
+                highlightKey = R.string.pref_show_audio_files_title,
+              ) {
                 SwitchPreference(
                   value = showAudioFiles,
                   onValueChange = { newValue ->
@@ -162,7 +152,10 @@ object MediaLibraryPreferencesScreen : Screen {
 
           item {
             GroupedListColumn {
-              GroupedPreferenceCard(position = GroupPosition.FIRST) {
+              GroupedPreferenceCard(
+                position = GroupPosition.FIRST,
+                highlightKey = R.string.pref_folders_title,
+              ) {
                 Preference(
                   title = { Text(text = stringResource(R.string.pref_folders_title)) },
                   summary = {
@@ -175,7 +168,10 @@ object MediaLibraryPreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.LAST) {
+              GroupedPreferenceCard(
+                position = GroupPosition.LAST,
+                highlightKey = R.string.pref_library_roots_title,
+              ) {
                 Preference(
                   title = { Text(text = stringResource(R.string.pref_library_roots_title)) },
                   summary = {
@@ -201,7 +197,10 @@ object MediaLibraryPreferencesScreen : Screen {
 
           item {
             GroupedListColumn {
-              GroupedPreferenceCard(position = GroupPosition.FIRST) {
+              GroupedPreferenceCard(
+                position = GroupPosition.FIRST,
+                highlightKey = R.string.pref_rescan_library_title,
+              ) {
                 Preference(
                   title = { Text(text = stringResource(R.string.pref_rescan_library_title)) },
                   summary = {
@@ -219,7 +218,10 @@ object MediaLibraryPreferencesScreen : Screen {
                 )
               }
 
-              GroupedPreferenceCard(position = GroupPosition.LAST) {
+              GroupedPreferenceCard(
+                position = GroupPosition.LAST,
+                highlightKey = R.string.pref_clear_metadata_cache_title,
+              ) {
                 Preference(
                   title = { Text(text = stringResource(R.string.pref_clear_metadata_cache_title)) },
                   summary = {

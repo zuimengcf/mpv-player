@@ -60,6 +60,7 @@ fun PlayerSheets(
   chapter: Segment?,
   chapters: ImmutableList<Segment>,
   onSeekToChapter: (Int) -> Unit,
+  currentChapterIndex: Int? = null,
   // Decoders sheet
   decoder: Decoder,
   onUpdateDecoder: (Decoder) -> Unit,
@@ -282,10 +283,11 @@ fun PlayerSheets(
 
     Sheets.Chapters -> {
       ChaptersSheet(
-        chapters,
+        chapters = chapters,
         currentChapter = chapter,
-        onClick = { onSeekToChapter(chapters.indexOf(it)) },
-        onDismissRequest,
+        currentChapterIndex = currentChapterIndex,
+        onChapterClick = onSeekToChapter,
+        onDismissRequest = onDismissRequest,
       )
     }
 

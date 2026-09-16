@@ -14,7 +14,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.outlined.VideoLibrary
@@ -24,7 +23,6 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
@@ -40,10 +38,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import xyz.mpv.rex.R
@@ -58,6 +57,7 @@ import xyz.mpv.rex.ui.browser.recentlyplayed.RecentlyPlayedScreen
 import xyz.mpv.rex.ui.browser.shorts.ShortsScreen
 import xyz.mpv.rex.ui.browser.selection.SelectionManager
 import xyz.mpv.rex.ui.browser.miniplayer.MiniPlayer
+import xyz.mpv.rex.ui.browser.miniplayer.MiniPlayerDefaults
 import xyz.mpv.rex.ui.browser.miniplayer.MiniPlayerStateManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.collectAsState
@@ -160,6 +160,7 @@ object MainScreen : Screen {
 
     val context = LocalContext.current
     val density = LocalDensity.current
+    val haptic = LocalHapticFeedback.current
     val browserPreferences = koinInject<BrowserPreferences>()
     val miniPlayerStateManager = koinInject<MiniPlayerStateManager>()
     val miniPlayerState by miniPlayerStateManager.state.collectAsState()
@@ -272,16 +273,7 @@ object MainScreen : Screen {
             )
           ) {
             NavigationBar(
-              modifier = Modifier
-                .clip(
-                  RoundedCornerShape(
-                    topStart = 28.dp,
-                    topEnd = 28.dp,
-                    bottomStart = 0.dp,
-                    bottomEnd = 0.dp
-                  )
-                ),
-              containerColor = if (isShortsTabActive) Color.Transparent else NavigationBarDefaults.containerColor,
+              containerColor = if (isShortsTabActive) Color.Transparent else MaterialTheme.colorScheme.surfaceContainer,
               contentColor = if (isShortsTabActive) Color.White else MaterialTheme.colorScheme.onSurface,
             ) {
               val itemColors = if (isShortsTabActive) {
@@ -290,10 +282,16 @@ object MainScreen : Screen {
                   selectedTextColor = Color.White,
                   unselectedIconColor = Color.White.copy(alpha = 0.7f),
                   unselectedTextColor = Color.White.copy(alpha = 0.7f),
-                  indicatorColor = Color.White.copy(alpha = 0.2f)
+                  indicatorColor = Color.White.copy(alpha = 0.2f),
                 )
               } else {
-                NavigationBarItemDefaults.colors()
+                NavigationBarItemDefaults.colors(
+                  selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                  selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                  indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
+                  unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                  unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
               }
 
               visibleTabs.forEachIndexed { index, tab ->
@@ -302,13 +300,14 @@ object MainScreen : Screen {
                   label = { Text(tab.label) },
                   selected = selectedTab == index,
                   onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     if (selectedTab == index) {
                       _scrollToTopRequest.tryEmit(tab.id)
                     } else {
                       selectedTab = index
                     }
                   },
-                  colors = itemColors
+                  colors = itemColors,
                 )
               }
             }
@@ -381,7 +380,7 @@ object MainScreen : Screen {
           val isNavBarVisible = !hideNavigationBar && !isShortsTabActive && visibleTabs.size > 1
           
           val navBarHeight = if (isNavBarVisible) paddingValues.calculateBottomPadding().coerceAtLeast(80.dp) else 0.dp
-          val miniPlayerHeight = if (miniPlayerState.isPlaybackActive) 72.dp else 0.dp
+          val miniPlayerHeight = if (miniPlayerState.isPlaybackActive) MiniPlayerDefaults.CompactHeight else 0.dp
           val totalBottomPadding = navBarHeight + miniPlayerHeight
           
           CompositionLocalProvider(

@@ -27,8 +27,8 @@ android {
     applicationId = "com.zuimeng.player"
     minSdk = 26
     targetSdk = 36
-    versionCode = 2
-    versionName = "1.0.1"
+    versionCode = 213
+    versionName = "5.2.0"
 
     vectorDrawables {
       useSupportLibrary = true
@@ -109,6 +109,7 @@ android {
     compose = true
     viewBinding = true
     buildConfig = true
+    aidl = true
   }
 
   packaging {

@@ -28,6 +28,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,8 +45,11 @@ import xyz.mpv.rex.presentation.components.pullrefresh.PullRefreshBox
 import xyz.mpv.rex.ui.browser.cards.NetworkFolderCard
 import xyz.mpv.rex.ui.browser.cards.NetworkVideoCard
 import xyz.mpv.rex.ui.browser.components.BrowserTopBar
+import xyz.mpv.rex.ui.browser.dialogs.NetworkSortDialog
 import xyz.mpv.rex.ui.browser.states.EmptyState
 import xyz.mpv.rex.ui.utils.LocalBackStack
+import xyz.mpv.rex.utils.storage.FileTypeUtils
+import java.io.File
 import kotlinx.serialization.Serializable
 import androidx.compose.foundation.layout.fillMaxHeight
 import xyz.mpv.rex.ui.browser.components.FastScrollbar
@@ -74,13 +78,15 @@ data class NetworkBrowserScreen(
           ),
       )
 
-    val files by viewModel.items.collectAsState()
+    val filesState = viewModel.items.collectAsState()
+    val files = filesState.value
     val isLoading by viewModel.isLoading.collectAsState()
     val uiSettings by viewModel.uiSettings.collectAsState()
     val error by viewModel.error.collectAsState()
 
     // UI State
     val isRefreshing = remember { mutableStateOf(false) }
+    val sortDialogOpen = rememberSaveable { mutableStateOf(false) }
 
     // Load files when connectionId or currentPath changes
     LaunchedEffect(connectionId, currentPath) {
@@ -100,7 +106,7 @@ data class NetworkBrowserScreen(
           totalCount = 0,
           onBackClick = { backstack.removeLastOrNull() },
           onCancelSelection = {},
-          onSortClick = null,
+          onSortClick = { sortDialogOpen.value = true },
           onSearchClick = null,
           onSettingsClick = {
             backstack.add(xyz.mpv.rex.ui.preferences.PreferencesScreen)
@@ -117,7 +123,8 @@ data class NetworkBrowserScreen(
       },
     ) { padding ->
       NetworkBrowserContent(
-        files = files,
+        folders = remember { derivedStateOf { filesState.value.filter { it.isDirectory } } }.value,
+        videos = remember { derivedStateOf { filesState.value.filter { !it.isDirectory && FileTypeUtils.isMediaFile(File(it.name)) } } }.value,
         connectionId = connectionId,
         connectionName = connectionName,
         isLoading = isLoading && files.isEmpty(),
@@ -140,12 +147,18 @@ data class NetworkBrowserScreen(
         modifier = Modifier.padding(top = padding.calculateTopPadding()),
       )
     }
+
+    NetworkSortDialog(
+      isOpen = sortDialogOpen.value,
+      onDismiss = { sortDialogOpen.value = false },
+    )
   }
 }
 
 @Composable
 private fun NetworkBrowserContent(
-  files: List<NetworkFile>,
+  folders: List<NetworkFile>,
+  videos: List<NetworkFile>,
   connectionId: Long,
   connectionName: String,
   isLoading: Boolean,
@@ -193,7 +206,7 @@ private fun NetworkBrowserContent(
       }
     }
 
-    files.isEmpty() -> {
+    folders.isEmpty() && videos.isEmpty() -> {
       Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -207,8 +220,7 @@ private fun NetworkBrowserContent(
     }
 
     else -> {
-      val folders = files.filter { it.isDirectory }
-      val videos = files.filter { !it.isDirectory && it.mimeType?.startsWith("video/") == true }
+      
       val networkListState = remember { LazyListState() }
 
       // Check if at top of list to hide scrollbar during pull-to-refresh
