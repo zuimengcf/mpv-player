@@ -1338,6 +1338,12 @@
     <string name="pref_danmaku">弹幕</string>
     <string name="pref_danmaku_summary">字号、透明度、密度、滚动速度与显示类型</string>
     <string name="danmaku_settings_title">弹幕设置</string>
+    <string name="danmaku_online_section_title">在线弹幕凭证</string>
+    <string name="danmaku_app_id_summary">来自 dandanplay.com 的 AppId（在线弹幕搜索需要）</string>
+    <string name="danmaku_app_secret_summary">来自 dandanplay.com 的 AppSecret</string>
+    <string name="danmaku_app_id_hint">输入 AppId</string>
+    <string name="danmaku_app_secret_hint">输入 AppSecret</string>
+    <string name="danmaku_app_not_set">未设置</string>
     <string name="danmaku_section_show">显示</string>
     <string name="danmaku_section_appearance">外观</string>
     <string name="danmaku_section_behavior">行为</string>

@@ -505,6 +505,12 @@
     <string name="danmaku_density_normal">Normal</string>
     <string name="danmaku_density_dense">Dense</string>
     <string name="danmaku_scroll_speed_title">Scroll speed</string>
+    <string name="danmaku_online_section_title">Online Danmaku Credentials</string>
+    <string name="danmaku_app_id_summary">AppId from dandanplay.com (required for online danmaku search)</string>
+    <string name="danmaku_app_secret_summary">AppSecret from dandanplay.com</string>
+    <string name="danmaku_app_id_hint">Enter AppId</string>
+    <string name="danmaku_app_secret_hint">Enter AppSecret</string>
+    <string name="danmaku_app_not_set">Not set</string>
     <string name="player_sheets_stats_page_1_desc">Overview. CPU/GPU usage, A/V sync, dropped frames, clock speed.</string>
     <string name="player_sheets_stats_page_2_desc">Frame timing. Decode/render times, scaler info.</string>
     <string name="player_sheets_stats_page_3_desc">Cache status. Buffer health, demuxer cache, seekable ranges.</string>

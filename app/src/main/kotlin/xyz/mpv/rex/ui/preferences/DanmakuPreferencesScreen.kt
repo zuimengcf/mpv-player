@@ -24,8 +24,10 @@ import androidx.compose.ui.unit.dp
 import me.zhanghai.compose.preference.ListPreference
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import me.zhanghai.compose.preference.SliderPreference
+import me.zhanghai.compose.preference.TextFieldPreference
 import org.koin.compose.koinInject
 import xyz.mpv.rex.R
+import xyz.mpv.rex.preferences.AdvancedPreferences
 import xyz.mpv.rex.preferences.DanmakuPreferences
 import xyz.mpv.rex.preferences.preference.collectAsState
 import xyz.mpv.rex.presentation.Screen
@@ -43,6 +45,7 @@ object DanmakuPreferencesScreen : Screen {
     val context = LocalContext.current
     val backstack = LocalBackStack.current
     val preferences = koinInject<DanmakuPreferences>()
+    val advancedPrefs = koinInject<AdvancedPreferences>()
 
     Scaffold(
       topBar = {
@@ -76,6 +79,55 @@ object DanmakuPreferencesScreen : Screen {
               .padding(padding),
           contentPadding = PaddingValues(bottom = navBarHeight + 16.dp),
         ) {
+          // ── 在线弹幕凭证 ──
+          item {
+            PreferenceSectionHeader(title = stringResource(R.string.danmaku_online_section_title))
+          }
+
+          item {
+            val appId by advancedPrefs.dandanplayAppId.collectAsState()
+            val appSecret by advancedPrefs.dandanplayAppSecret.collectAsState()
+
+            GroupedListColumn {
+              GroupedPreferenceCard(position = GroupPosition.FIRST) {
+                TextFieldPreference(
+                  value = appId,
+                  onValueChange = advancedPrefs.dandanplayAppId::set,
+                  textToValue = { it.trim() },
+                  title = { Text(stringResource(R.string.danmaku_app_id)) },
+                  summary = {
+                    Text(
+                      if (appId.isNotBlank()) {
+                        stringResource(R.string.danmaku_app_id_summary)
+                      } else {
+                        stringResource(R.string.danmaku_app_not_set)
+                      },
+                      color = MaterialTheme.colorScheme.outline,
+                    )
+                  },
+                )
+              }
+              GroupedPreferenceCard(position = GroupPosition.LAST) {
+                TextFieldPreference(
+                  value = appSecret,
+                  onValueChange = advancedPrefs.dandanplayAppSecret::set,
+                  textToValue = { it.trim() },
+                  title = { Text(stringResource(R.string.danmaku_app_secret)) },
+                  summary = {
+                    Text(
+                      if (appSecret.isNotBlank()) {
+                        stringResource(R.string.danmaku_app_secret_summary)
+                      } else {
+                        stringResource(R.string.danmaku_app_not_set)
+                      },
+                      color = MaterialTheme.colorScheme.outline,
+                    )
+                  },
+                )
+              }
+            }
+          }
+
           // ── 显示 ──
           item {
             PreferenceSectionHeader(title = stringResource(R.string.danmaku_section_show))

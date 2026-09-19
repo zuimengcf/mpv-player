@@ -82,9 +82,11 @@ import kotlinx.coroutines.launch
 import me.zhanghai.compose.preference.ListPreference
 import me.zhanghai.compose.preference.ListPreferenceType
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
+import me.zhanghai.compose.preference.TextFieldPreference
 import me.zhanghai.compose.preference.preferenceTheme
 import org.koin.compose.koinInject
 import xyz.mpv.rex.R
+import xyz.mpv.rex.preferences.AdvancedPreferences
 import xyz.mpv.rex.preferences.DanmakuPreferences
 import xyz.mpv.rex.preferences.preference.collectAsState
 import xyz.mpv.rex.presentation.components.PlayerSheet
@@ -235,6 +237,7 @@ private fun DanmakuSettingsHeader(onDismissRequest: () -> Unit, activity: Player
 @Composable
 private fun DanmakuSettingsContent(modifier: Modifier = Modifier, activity: PlayerActivity? = null) {
   val preferences = koinInject<DanmakuPreferences>()
+  val advancedPrefs = koinInject<AdvancedPreferences>()
   val context = androidx.compose.ui.platform.LocalContext.current
 
   Column(
@@ -244,6 +247,42 @@ private fun DanmakuSettingsContent(modifier: Modifier = Modifier, activity: Play
       .padding(bottom = MaterialTheme.spacing.large),
     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
   ) {
+    // ── 在线弹幕凭证 ──
+    SectionTitle(stringResource(R.string.danmaku_online_section_title), Icons.Default.Subtitles)
+
+    ProvidePreferenceLocals(theme = preferenceTheme(iconContainerMinWidth = 48.dp)) {
+      val appId by advancedPrefs.dandanplayAppId.collectAsState()
+      val appSecret by advancedPrefs.dandanplayAppSecret.collectAsState()
+      TextFieldPreference(
+        value = appId,
+        onValueChange = advancedPrefs.dandanplayAppId::set,
+        textToValue = { it.trim() },
+        title = { Text(stringResource(R.string.danmaku_app_id)) },
+        summary = {
+          Text(
+            if (appId.isNotBlank()) stringResource(R.string.danmaku_app_id_summary)
+            else stringResource(R.string.danmaku_app_not_set),
+            color = MaterialTheme.colorScheme.outline,
+          )
+        },
+      )
+      TextFieldPreference(
+        value = appSecret,
+        onValueChange = advancedPrefs.dandanplayAppSecret::set,
+        textToValue = { it.trim() },
+        title = { Text(stringResource(R.string.danmaku_app_secret)) },
+        summary = {
+          Text(
+            if (appSecret.isNotBlank()) stringResource(R.string.danmaku_app_secret_summary)
+            else stringResource(R.string.danmaku_app_not_set),
+            color = MaterialTheme.colorScheme.outline,
+          )
+        },
+      )
+    }
+
+    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
+
     // ── 加载弹幕 ──
     SectionTitle(stringResource(R.string.danmaku_section_show), Icons.Default.ChatBubbleOutline)
 
