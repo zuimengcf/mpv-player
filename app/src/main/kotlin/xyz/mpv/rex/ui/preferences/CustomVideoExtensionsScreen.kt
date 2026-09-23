@@ -49,7 +49,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import me.zhanghai.compose.preference.Preference
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
-import me.zhanghai.compose.preference.rememberPreferenceLazyListState
 import org.koin.compose.koinInject
 
 @Serializable
