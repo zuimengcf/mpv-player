@@ -18,9 +18,9 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -154,6 +154,7 @@ fun MoreSheet(
     Column(
       modifier = Modifier
         .fillMaxWidth()
+        .fillMaxHeight()
         .animateContentSize(animationSpec = tween(durationMillis = 300))
     ) {
       PrimaryScrollableTabRow(
@@ -205,7 +206,7 @@ fun MoreSheet(
         state = pagerState,
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 350.dp),
+            .weight(1f),
         verticalAlignment = Alignment.Top,
         beyondViewportPageCount = 1
       ) { page ->
