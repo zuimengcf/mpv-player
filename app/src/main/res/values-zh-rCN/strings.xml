@@ -148,6 +148,9 @@
     <string name="pref_player_double_tap_seek_duration">双击跳转时长</string>
     <string name="pref_player_custom_skip_duration_title">自定义跳转时长</string>
     <string name="pref_player_custom_skip_duration_summary">自定义快进按钮的跳转秒数</string>
+    <string name="pref_player_custom_rewind_duration_title">自定义快退时长</string>
+    <string name="pref_player_custom_rewind_follow_skip_title">跟随快进时长</string>
+    <string name="pref_player_custom_rewind_follow_skip_summary">快退使用与快进相同的秒数</string>
     <string name="pref_player_seeking_title">拖动跳转</string>
     <string name="pref_player_close_after_eof">播放结束后关闭播放器</string>
     <string name="pref_player_remember_brightness">记住屏幕亮度</string>
