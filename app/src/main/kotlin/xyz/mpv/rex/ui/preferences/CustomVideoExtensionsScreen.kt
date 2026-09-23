@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,12 +38,18 @@ import xyz.mpv.rex.database.repository.HybridMediaIndexRepository
 import xyz.mpv.rex.preferences.BrowserPreferences
 import xyz.mpv.rex.preferences.preference.collectAsState
 import xyz.mpv.rex.presentation.Screen
+import xyz.mpv.rex.presentation.components.GroupPosition
+import xyz.mpv.rex.presentation.components.GroupedListColumn
+import xyz.mpv.rex.ui.browser.LocalNavigationBarHeight
 import xyz.mpv.rex.ui.utils.LocalBackStack
 import xyz.mpv.rex.utils.media.MediaLibraryEvents
 import xyz.mpv.rex.utils.storage.FileTypeUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import me.zhanghai.compose.preference.Preference
+import me.zhanghai.compose.preference.ProvidePreferenceLocals
+import me.zhanghai.compose.preference.rememberPreferenceLazyListState
 import org.koin.compose.koinInject
 
 @Serializable
@@ -106,98 +113,134 @@ object CustomVideoExtensionsScreen : Screen {
         )
       },
     ) { padding ->
-      LazyColumn(
-        modifier = Modifier
-          .fillMaxSize()
-          .padding(padding)
-          .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-      ) {
-        item {
-          Text(
-            text = stringResource(R.string.pref_custom_video_extensions_hint),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-          )
-        }
-
-        // Input row
-        item {
-          Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(
-              value = input,
-              onValueChange = { input = it },
-              modifier = Modifier.fillMaxWidth(),
-              label = { Text(stringResource(R.string.pref_custom_video_extensions_editor_title)) },
-              placeholder = { Text(stringResource(R.string.pref_custom_video_extensions_placeholder)) },
-              singleLine = true,
-            )
-            Button(
-              onClick = { addExtension(input) },
-              enabled = input.isNotBlank(),
-              modifier = Modifier.fillMaxWidth(),
-            ) {
-              Text(stringResource(R.string.pref_custom_video_extensions_add))
-            }
-          }
-        }
-
-        // Custom extensions list
-        item {
-          Text(
-            text = stringResource(R.string.pref_custom_video_extensions_custom_title),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-          )
-        }
-        item {
-          if (customSet.isEmpty()) {
+      val navBarHeight = LocalNavigationBarHeight.current
+      ProvidePreferenceLocals {
+        LazyColumn(
+          state = rememberPreferenceLazyListState(),
+          modifier = Modifier
+            .fillMaxSize()
+            .padding(padding),
+          contentPadding = PaddingValues(bottom = navBarHeight + 16.dp),
+        ) {
+          // 说明文字
+          item {
             Text(
-              text = stringResource(R.string.pref_custom_video_extensions_custom_empty),
+              text = stringResource(R.string.pref_custom_video_extensions_hint),
               style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.outline,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+              modifier = Modifier.padding(horizontal = 22.dp, vertical = 10.dp),
             )
-          } else {
-            FlowRow(
-              horizontalArrangement = Arrangement.spacedBy(8.dp),
-              verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-              customSet.sorted().forEach { ext ->
-                InputChip(
-                  selected = true,
-                  onClick = { removeExtension(ext) },
-                  label = { Text(".$ext") },
-                  trailingIcon = {
-                    Icon(
-                      Icons.Filled.Close,
-                      contentDescription = stringResource(R.string.pref_custom_video_extensions_remove, ext),
-                      modifier = Modifier.padding(start = 4.dp),
-                    )
-                  },
-                )
+          }
+
+          // 自定义扩展名 Section
+          item {
+            PreferenceSectionHeader(title = stringResource(R.string.pref_custom_video_extensions_custom_title))
+          }
+
+          item {
+            GroupedListColumn {
+              GroupedPreferenceCard(
+                position = GroupPosition.FIRST,
+                highlightKey = R.string.pref_custom_video_extensions_custom_title,
+              ) {
+                Column(
+                  modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                  verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                  OutlinedTextField(
+                    value = input,
+                    onValueChange = { input = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.pref_custom_video_extensions_editor_title)) },
+                    placeholder = { Text(stringResource(R.string.pref_custom_video_extensions_placeholder)) },
+                    singleLine = true,
+                  )
+                  Button(
+                    onClick = { addExtension(input) },
+                    enabled = input.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth(),
+                  ) {
+                    Text(stringResource(R.string.pref_custom_video_extensions_add))
+                  }
+                }
+              }
+
+              GroupedPreferenceCard(
+                position = GroupPosition.LAST,
+                highlightKey = R.string.pref_custom_video_extensions_custom_title,
+              ) {
+                if (customSet.isEmpty()) {
+                  Preference(
+                    title = {
+                      Text(
+                        text = stringResource(R.string.pref_custom_video_extensions_custom_empty),
+                        color = MaterialTheme.colorScheme.outline,
+                      )
+                    },
+                    onClick = null,
+                  )
+                } else {
+                  Column(
+                    modifier = Modifier
+                      .fillMaxWidth()
+                      .padding(horizontal = 16.dp, vertical = 12.dp),
+                  ) {
+                    FlowRow(
+                      horizontalArrangement = Arrangement.spacedBy(8.dp),
+                      verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                      customSet.sorted().forEach { ext ->
+                        InputChip(
+                          selected = true,
+                          onClick = { removeExtension(ext) },
+                          label = { Text(".$ext") },
+                          trailingIcon = {
+                            Icon(
+                              Icons.Filled.Close,
+                              contentDescription = stringResource(R.string.pref_custom_video_extensions_remove, ext),
+                              modifier = Modifier.padding(start = 4.dp),
+                            )
+                          },
+                        )
+                      }
+                    }
+                  }
+                }
               }
             }
           }
-        }
 
-        // Built-in extensions list
-        item {
-          Text(
-            text = stringResource(R.string.pref_custom_video_extensions_builtin_title),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-          )
-        }
-        item {
-          FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-          ) {
-            builtInSet.sorted().forEach { ext ->
-              AssistChip(
-                onClick = {},
-                label = { Text(".$ext") },
-              )
+          // 内置扩展名 Section
+          item {
+            PreferenceSectionHeader(title = stringResource(R.string.pref_custom_video_extensions_builtin_title))
+          }
+
+          item {
+            GroupedListColumn {
+              GroupedPreferenceCard(
+                position = GroupPosition.ONLY,
+                highlightKey = R.string.pref_custom_video_extensions_builtin_title,
+              ) {
+                Column(
+                  modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                ) {
+                  FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                  ) {
+                    builtInSet.sorted().forEach { ext ->
+                      AssistChip(
+                        onClick = {},
+                        label = { Text(".$ext") },
+                      )
+                    }
+                  }
+                }
+              }
             }
           }
         }
