@@ -187,6 +187,26 @@ object MediaLibraryPreferencesScreen : Screen {
                   onClick = { backstack.add(LibraryRootsPreferencesScreen) },
                 )
               }
+
+              GroupedPreferenceCard(
+                position = GroupPosition.LAST,
+                highlightKey = R.string.pref_custom_video_extensions_title,
+              ) {
+                Preference(
+                  title = { Text(text = stringResource(R.string.pref_custom_video_extensions_title)) },
+                  summary = {
+                    Text(
+                      text = if (customVideoExtensionsPref.isBlank()) {
+                        stringResource(R.string.pref_custom_video_extensions_custom_empty)
+                      } else {
+                        customVideoExtensionsPref
+                      },
+                      color = MaterialTheme.colorScheme.outline,
+                    )
+                  },
+                  onClick = { backstack.add(CustomVideoExtensionsScreen) },
+                )
+              }
             }
           }
 
