@@ -575,7 +575,6 @@ fun ControlsTab(
       modifier = Modifier
           .fillMaxWidth()
           .padding(horizontal = MaterialTheme.spacing.medium)
-          .heightIn(max = 350.dp)
           .verticalScroll(rememberScrollState())
   ) {
       Text(
