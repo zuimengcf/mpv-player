@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -204,7 +205,7 @@ fun MoreSheet(
         state = pagerState,
         modifier = Modifier
             .fillMaxWidth()
-            .height(360.dp),
+            .heightIn(min = 350.dp),
         verticalAlignment = Alignment.Top,
         beyondViewportPageCount = 1
       ) { page ->
