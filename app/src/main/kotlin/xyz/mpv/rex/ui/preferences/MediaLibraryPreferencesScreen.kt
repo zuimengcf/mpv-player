@@ -169,7 +169,7 @@ object MediaLibraryPreferencesScreen : Screen {
               }
 
               GroupedPreferenceCard(
-                position = GroupPosition.LAST,
+                position = GroupPosition.MIDDLE,
                 highlightKey = R.string.pref_library_roots_title,
               ) {
                 Preference(
