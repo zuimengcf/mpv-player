@@ -97,6 +97,9 @@ class PlayerPreferences(
 
   val customSkipDuration = preferenceStore.getInt("custom_skip_duration", 90)
 
+  // 快退秒数：-1 表示未单独设置，跟随快速前进的 customSkipDuration（默认一起）
+  val customRewindDuration = preferenceStore.getInt("custom_rewind_duration", -1)
+
   val repeatMode = preferenceStore.getEnum("repeat_mode", RepeatMode.OFF)
   val shuffleEnabled = preferenceStore.getBoolean("shuffle_enabled", false)
 
@@ -129,16 +132,7 @@ class PlayerPreferences(
   val customButtons = preferenceStore.getString("custom_buttons_json", DEFAULT_CUSTOM_BUTTONS_JSON)
 
   companion object {
-    const val DEFAULT_CUSTOM_BUTTONS_JSON = """{"slots":[
-      {"id":"sub-prev","title":"上一句字幕","content":"mp.osd_message('上一句字幕',1) mp.commandv('sub-seek','-1')","longPressContent":"mp.osd_message('后退5句',1) mp.commandv('sub-seek','-5')","enabled":true},
-      {"id":"speed-3x","title":"3倍速","content":"mp.osd_message('3倍速',1) mp.set_property('speed','3.0')","longPressContent":"mp.osd_message('恢复1倍速',1) mp.set_property('speed','1.0')","enabled":true},
-      {"id":"mute","title":"静音","content":"mp.osd_message('已静音',1) mp.set_property('mute','yes')","longPressContent":"mp.osd_message('取消静音',1) mp.set_property('mute','no')","enabled":true},
-      {"id":"stats-cycle","title":"监测循环","content":"mp.osd_message('监测循环',0.5) mp.commandv('script-binding','stats/display-page-next')","longPressContent":"mp.osd_message('监测循环',0.5) mp.commandv('script-binding','stats/display-page-next')","enabled":true},
-      {"id":"stats-close","title":"关闭监测","content":"mp.commandv('script-binding','stats/display-stats-close')","longPressContent":"mp.commandv('script-binding','stats/display-stats-close')","enabled":true},
-      {"id":"frame-back","title":"上一帧","content":"mp.osd_message('上一帧',1) mp.commandv('no-osd','frame-back-step')","longPressContent":"mp.osd_message('上一帧',1) mp.commandv('no-osd','frame-back-step')","enabled":true},
-      {"id":"step-fwd","title":"下一帧","content":"mp.osd_message('下一帧',1) mp.commandv('no-osd','frame-step')","longPressContent":"mp.osd_message('下一帧',1) mp.commandv('no-osd','frame-step')","enabled":true},
-      {"id":"screenshot","title":"截图","content":"mp.osd_message('已截图(带字幕)',1) mp.commandv('screenshot','subtitles')","longPressContent":"mp.osd_message('已截图(无字幕)',1) mp.commandv('screenshot','video')","enabled":true}
-    ]}"""
+    const val DEFAULT_CUSTOM_BUTTONS_JSON = """{"slots":[]}"""
   }
 
   // Ambience Mode

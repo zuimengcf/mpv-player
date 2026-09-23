@@ -181,6 +181,9 @@
     <string name="pref_player_double_tap_seek_duration">Double tap seek duration</string>
     <string name="pref_player_custom_skip_duration_title">Custom skip duration</string>
     <string name="pref_player_custom_skip_duration_summary">Duration to skip forward on custom skip button</string>
+    <string name="pref_player_custom_rewind_duration_title">Custom rewind duration</string>
+    <string name="pref_player_custom_rewind_follow_skip_title">Follow fast forward duration</string>
+    <string name="pref_player_custom_rewind_follow_skip_summary">Rewind uses the same duration as fast forward</string>
     <string name="pref_player_seeking_title">Seeking</string>
     <string name="pref_player_close_after_eof">Close after the end of playback</string>
     <string name="pref_player_remember_brightness">Remember display brightness</string>
@@ -1153,6 +1156,7 @@
     <string name="btn_label_vertical_flip">Vertical Flip</string>
     <string name="btn_label_ab_loop">A-B Loop</string>
     <string name="btn_label_custom_skip">Custom Skip</string>
+    <string name="btn_label_custom_rewind">Custom Rewind</string>
     <string name="btn_label_background_playback">Background Playback</string>
     <string name="btn_label_ambient_mode">Ambience Mode</string>
     <string name="btn_label_sleep_timer">Sleep Timer</string>

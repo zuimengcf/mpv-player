@@ -1004,6 +1004,7 @@
     <string name="btn_label_vertical_flip">垂直翻转</string>
     <string name="btn_label_ab_loop">A-B 循环</string>
     <string name="btn_label_custom_skip">自定义跳转</string>
+    <string name="btn_label_custom_rewind">自定义快退</string>
     <string name="btn_label_background_playback">后台播放</string>
     <string name="btn_label_ambient_mode">环境模式</string>
     <string name="btn_label_sleep_timer">睡眠定时</string>

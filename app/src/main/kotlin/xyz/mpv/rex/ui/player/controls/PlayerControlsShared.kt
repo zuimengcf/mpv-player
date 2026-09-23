@@ -945,6 +945,63 @@ fun RenderPlayerButton(
       }
     }
 
+    PlayerButton.CUSTOM_REWIND -> {
+      val playerPreferences = org.koin.compose.koinInject<xyz.mpv.rex.preferences.PlayerPreferences>()
+      val customSkipDuration by playerPreferences.customSkipDuration.collectAsState()
+      val customRewindDuration by playerPreferences.customRewindDuration.collectAsState()
+      // 快退秒数：未单独设置（-1）时跟随快速前进，否则用独立值
+      val rewindDuration = if (customRewindDuration > 0) customRewindDuration else customSkipDuration
+      if (isMoreSheet) {
+          @OptIn(ExperimentalFoundationApi::class)
+          Surface(
+            shape = CircleShape,
+            color = surfaceColor,
+            contentColor = contentColor,
+            border = borderColor,
+            modifier = Modifier
+              .height(buttonSize)
+              .clip(CircleShape)
+              .combinedClickable(
+                onClick = {
+                  clickEvent()
+                  viewModel.seekBy(-rewindDuration)
+                },
+                onLongClick = {
+                  clickEvent()
+                  onOpenSheet(Sheets.CustomRewindDuration)
+                }
+              )
+          ) {
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+              modifier = Modifier.padding(horizontal = MaterialTheme.spacing.smaller)
+            ) {
+              Icon(
+                imageVector = Icons.Default.FastRewind,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+              )
+              Text(
+                text = stringResource(R.string.skip_seconds, rewindDuration),
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+              )
+            }
+          }
+      } else {
+          ControlsButton(
+            icon = Icons.Default.FastRewind,
+            onClick = { viewModel.seekBy(-rewindDuration) },
+            onLongClick = {
+              clickEvent()
+              onOpenSheet(Sheets.CustomRewindDuration)
+            },
+            modifier = Modifier.size(buttonSize),
+          )
+      }
+    }
+
     PlayerButton.SHUFFLE -> {
       // Only show shuffle button if there's a playlist (more than one video)
       if (viewModel.hasPlaylistSupport()) {

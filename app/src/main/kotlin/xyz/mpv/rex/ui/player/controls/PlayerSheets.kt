@@ -22,6 +22,7 @@ import xyz.mpv.rex.ui.player.controls.components.sheets.AspectRatioSheet
 import xyz.mpv.rex.ui.player.controls.components.sheets.AudioTracksSheet
 import xyz.mpv.rex.ui.player.controls.components.sheets.ChaptersSheet
 import xyz.mpv.rex.ui.player.controls.components.sheets.CustomSkipDurationSheet
+import xyz.mpv.rex.ui.player.controls.components.sheets.CustomRewindDurationSheet
 import xyz.mpv.rex.ui.player.controls.components.sheets.SleepTimerSheet
 import xyz.mpv.rex.ui.player.controls.components.sheets.VideoZoomSheet
 import xyz.mpv.rex.ui.player.controls.components.sheets.DecodersSheet
@@ -483,6 +484,30 @@ fun PlayerSheets(
       CustomSkipDurationSheet(
         duration = customSkipDuration,
         onDurationChange = { playerPreferences.customSkipDuration.set(it) },
+        onDismissRequest = onDismissRequest,
+      )
+    }
+
+    Sheets.CustomRewindDuration -> {
+      val playerPreferences = koinInject<xyz.mpv.rex.preferences.PlayerPreferences>()
+      val customSkipDuration by playerPreferences.customSkipDuration.collectAsState()
+      val customRewindDuration by playerPreferences.customRewindDuration.collectAsState()
+      val followSkip = customRewindDuration <= 0
+      // 独立秒数面板起始值：跟随快进时用当前快进秒数，独立时用已保存值
+      val initialDuration = if (followSkip) customSkipDuration else customRewindDuration
+      CustomRewindDurationSheet(
+        duration = initialDuration,
+        followSkip = followSkip,
+        onFollowChange = { follow ->
+          if (follow) {
+            // 切回跟随：重置为 -1
+            playerPreferences.customRewindDuration.set(-1)
+          } else {
+            // 切到独立：默认沿用当前快进秒数
+            playerPreferences.customRewindDuration.set(customSkipDuration)
+          }
+        },
+        onDurationChange = { playerPreferences.customRewindDuration.set(it) },
         onDismissRequest = onDismissRequest,
       )
     }

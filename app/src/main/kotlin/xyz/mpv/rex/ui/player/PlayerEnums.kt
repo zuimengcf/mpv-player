@@ -140,6 +140,7 @@ enum class Sheets {
   Playlist,
   FrameNavigation,
   CustomSkipDuration,
+  CustomRewindDuration,
   SleepTimer,
   ClipExport,
   PositionBookmarks,
