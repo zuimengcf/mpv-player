@@ -788,6 +788,7 @@ private fun <T> ExplorerItemCard(
         isWatched = item.isWatched,
         isOldAndUnplayed = item.isOldAndUnplayed,
         isNeverPlayed = item.isNeverPlayed,
+        hasLocalDanmaku = item.hasLocalDanmaku,
         isRecentlyPlayed = isRecentlyPlayed
       )
     }

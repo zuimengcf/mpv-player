@@ -60,6 +60,7 @@
 	<string name="pref_appearance_watched_threshold_title">Порог просмотра</string>
 	<string name="pref_appearance_watched_threshold_summary">Отмечать видео как просмотренное при достижении %d%%</string>
 	<string name="video_label_new">NEW</string>
+	<string name="video_label_danmaku">弹幕</string>
 
 	<!-- Theme names -->
 	<string name="theme_default">По умолчанию</string>

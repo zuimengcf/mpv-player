@@ -74,6 +74,7 @@ fun VideoCard(
   isOldAndUnplayed: Boolean = false,
   isWatched: Boolean = false,
   isNeverPlayed: Boolean = false,
+  hasLocalDanmaku: Boolean = false,
   onThumbClick: (() -> Unit)? = null,
   isGridMode: Boolean = false,
   gridColumns: Int = 1,
@@ -144,6 +145,25 @@ fun VideoCard(
     maxTitleLines = maxLines,
     thumbnailSize = thumbWidthDp,
     overlayContent = {
+      // 已有本地弹幕标注
+      if (hasLocalDanmaku) {
+        Surface(
+          shape = pillShape,
+          color = MaterialTheme.colorScheme.primaryContainer,
+          contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+          modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(6.dp),
+          shadowElevation = 2.dp,
+        ) {
+          Text(
+            text = stringResource(R.string.video_label_danmaku),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+          )
+        }
+      }
       // NEW Label
       if (uiSettings.showUnplayedOldVideoLabel && isOldAndUnplayed) {
         Surface(

@@ -30,7 +30,8 @@ class BlockKeywordFilter : DanmakuFilters.BaseDanmakuFilter<List<String>>() {
         context: DanmakuContext,
     ): Boolean {
         if (keywords.isEmpty()) return false
-        val text = danmaku.text?.toString() ?: return false
+        // 库可能对 null 条目调用 filter，需判空保护避免空指针闪退
+        val text = danmaku?.text?.toString() ?: return false
         return keywords.any { text.contains(it, ignoreCase = true) }
     }
 

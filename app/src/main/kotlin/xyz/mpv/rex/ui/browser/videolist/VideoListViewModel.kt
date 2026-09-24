@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import xyz.mpv.rex.domain.media.model.Video
+import xyz.mpv.rex.database.entities.PlaybackStateEntity
 import xyz.mpv.rex.domain.playbackstate.repository.PlaybackStateRepository
 import xyz.mpv.rex.repository.MediaFileRepository
 import xyz.mpv.rex.ui.browser.base.BaseBrowserViewModel
@@ -39,6 +40,7 @@ data class VideoWithPlaybackInfo(
   val timeRemaining: Long? = null, // in seconds
   val progressPercentage: Float? = null, // 0.0 to 1.0
   val isOldAndUnplayed: Boolean = false, // true if video is older than threshold and never played
+  val hasLocalDanmaku: Boolean = false, // true if video has bound/cached local danmaku xml
   val isWatched: Boolean = false, // true if video has any playback history
   val isNeverPlayed: Boolean = true, // true if video has never been opened
 )
@@ -236,6 +238,9 @@ class VideoListViewModel(
         val videoAge = currentTime - (video.dateModified * 1000)
         val isOldAndUnplayed = (playbackState == null && videoAge <= thresholdMillis) || (playbackState != null && playbackState.timeRemaining == -1)
 
+        // 判断是否已有本地弹幕：视频同目录同名 .xml 缓存，或持久化绑定非空
+        val hasLocalDanmaku = hasBoundOrCachedDanmaku(video.path, playbackState)
+
         VideoWithPlaybackInfo(
           video = videoWithOrientation,
           timeRemaining = playbackState?.timeRemaining?.toLong(),
@@ -243,9 +248,28 @@ class VideoListViewModel(
           isOldAndUnplayed = isOldAndUnplayed,
           isWatched = isWatched,
           isNeverPlayed = playbackState == null,
+          hasLocalDanmaku = hasLocalDanmaku,
         )
       }
     _videosWithPlaybackInfo.value = videosWithInfo
+  }
+
+  /**
+   * 判断视频是否已有本地弹幕：视频同目录同名 .xml 缓存，或持久化绑定（danmakuPath）非空。
+   */
+  private fun hasBoundOrCachedDanmaku(videoPath: String, playbackState: PlaybackStateEntity?): Boolean {
+    // 持久化绑定非空即算
+    val boundPath = playbackState?.danmakuPath
+    if (!boundPath.isNullOrBlank()) return true
+    // 视频同目录同名 .xml（缓存弹幕随视频存放）
+    if (videoPath.isBlank()) return false
+    return try {
+      val videoFile = File(videoPath)
+      val parent = videoFile.parentFile
+      parent != null && File(parent, "${videoFile.nameWithoutExtension}.xml").exists()
+    } catch (_: Exception) {
+      false
+    }
   }
 
   companion object {

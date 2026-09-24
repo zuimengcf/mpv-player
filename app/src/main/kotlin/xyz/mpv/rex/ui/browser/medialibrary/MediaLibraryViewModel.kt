@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import xyz.mpv.rex.domain.media.model.Video
+import xyz.mpv.rex.database.entities.PlaybackStateEntity
 import xyz.mpv.rex.repository.MediaFileRepository
 import xyz.mpv.rex.ui.browser.base.BaseBrowserViewModel
 import xyz.mpv.rex.ui.browser.videolist.VideoWithPlaybackInfo
@@ -157,6 +158,9 @@ class MediaLibraryViewModel(
         val videoAge = currentTime - (video.dateModified * 1000)
         val isOldAndUnplayed = (playbackState == null && videoAge <= thresholdMillis) || (playbackState != null && playbackState.timeRemaining == -1)
 
+        // 判断是否已有本地弹幕：视频同目录同名 .xml 缓存，或持久化绑定非空
+        val hasLocalDanmaku = hasBoundOrCachedDanmaku(video.path, playbackState)
+
         VideoWithPlaybackInfo(
           video = videoWithOrientation,
           timeRemaining = playbackState?.timeRemaining?.toLong(),
@@ -164,10 +168,27 @@ class MediaLibraryViewModel(
           isOldAndUnplayed = isOldAndUnplayed,
           isWatched = isWatched,
           isNeverPlayed = playbackState == null,
+          hasLocalDanmaku = hasLocalDanmaku,
         )
       }
     _videosWithPlaybackInfo.value = videosWithInfo
     _items.value = videosWithInfo
+  }
+
+  /**
+   * 判断视频是否已有本地弹幕：视频同目录同名 .xml 缓存，或持久化绑定（danmakuPath）非空。
+   */
+  private fun hasBoundOrCachedDanmaku(videoPath: String, playbackState: PlaybackStateEntity?): Boolean {
+    val boundPath = playbackState?.danmakuPath
+    if (!boundPath.isNullOrBlank()) return true
+    if (videoPath.isBlank()) return false
+    return try {
+      val videoFile = File(videoPath)
+      val parent = videoFile.parentFile
+      parent != null && File(parent, "${videoFile.nameWithoutExtension}.xml").exists()
+    } catch (_: Exception) {
+      false
+    }
   }
 
   companion object {
