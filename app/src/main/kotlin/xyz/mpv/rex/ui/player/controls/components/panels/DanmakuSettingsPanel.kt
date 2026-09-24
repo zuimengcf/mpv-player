@@ -249,42 +249,6 @@ private fun DanmakuSettingsContent(modifier: Modifier = Modifier, activity: Play
       .padding(bottom = MaterialTheme.spacing.large),
     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
   ) {
-    // ── 在线弹幕凭证 ──
-    SectionTitle(stringResource(R.string.danmaku_online_section_title), Icons.Default.Subtitles)
-
-    ProvidePreferenceLocals(theme = preferenceTheme(iconContainerMinWidth = 48.dp)) {
-      val appId by advancedPrefs.dandanplayAppId.collectAsState()
-      val appSecret by advancedPrefs.dandanplayAppSecret.collectAsState()
-      TextFieldPreference(
-        value = appId,
-        onValueChange = advancedPrefs.dandanplayAppId::set,
-        textToValue = { it.trim() },
-        title = { Text(stringResource(R.string.danmaku_app_id)) },
-        summary = {
-          Text(
-            if (appId.isNotBlank()) stringResource(R.string.danmaku_app_id_summary)
-            else stringResource(R.string.danmaku_app_not_set),
-            color = MaterialTheme.colorScheme.outline,
-          )
-        },
-      )
-      TextFieldPreference(
-        value = appSecret,
-        onValueChange = advancedPrefs.dandanplayAppSecret::set,
-        textToValue = { it.trim() },
-        title = { Text(stringResource(R.string.danmaku_app_secret)) },
-        summary = {
-          Text(
-            if (appSecret.isNotBlank()) stringResource(R.string.danmaku_app_secret_summary)
-            else stringResource(R.string.danmaku_app_not_set),
-            color = MaterialTheme.colorScheme.outline,
-          )
-        },
-      )
-    }
-
-    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
-
     // ── 加载弹幕 ──
     SectionTitle(stringResource(R.string.danmaku_section_show), Icons.Default.ChatBubbleOutline)
 
@@ -446,6 +410,42 @@ private fun DanmakuSettingsContent(modifier: Modifier = Modifier, activity: Play
       min = 5,
       icon = { Icon(Icons.Default.Speed, null) },
     )
+
+    // ── 在线弹幕凭证（置于面板最底部，填好即可收起） ──
+    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
+
+    SectionTitle(stringResource(R.string.danmaku_online_section_title), Icons.Default.Subtitles)
+
+    ProvidePreferenceLocals(theme = preferenceTheme(iconContainerMinWidth = 48.dp)) {
+      val appId by advancedPrefs.dandanplayAppId.collectAsState()
+      val appSecret by advancedPrefs.dandanplayAppSecret.collectAsState()
+      TextFieldPreference(
+        value = appId,
+        onValueChange = advancedPrefs.dandanplayAppId::set,
+        textToValue = { it.trim() },
+        title = { Text(stringResource(R.string.danmaku_app_id)) },
+        summary = {
+          Text(
+            if (appId.isNotBlank()) stringResource(R.string.danmaku_app_id_summary)
+            else stringResource(R.string.danmaku_app_not_set),
+            color = MaterialTheme.colorScheme.outline,
+          )
+        },
+      )
+      TextFieldPreference(
+        value = appSecret,
+        onValueChange = advancedPrefs.dandanplayAppSecret::set,
+        textToValue = { it.trim() },
+        title = { Text(stringResource(R.string.danmaku_app_secret)) },
+        summary = {
+          Text(
+            if (appSecret.isNotBlank()) stringResource(R.string.danmaku_app_secret_summary)
+            else stringResource(R.string.danmaku_app_not_set),
+            color = MaterialTheme.colorScheme.outline,
+          )
+        },
+      )
+    }
   }
 }
 
