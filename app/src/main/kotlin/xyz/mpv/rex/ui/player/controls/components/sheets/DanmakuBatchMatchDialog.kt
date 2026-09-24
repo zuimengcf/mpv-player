@@ -37,6 +37,14 @@ import xyz.mpv.rex.ui.player.PlayerActivity
 import java.io.File
 
 /**
+ * 批量匹配结果状态（文件顶层声明，Composable 内不允许局部 sealed class）
+ */
+sealed class MatchResultStatus {
+    data class Failed(val message: String) : MatchResultStatus()
+    object Cached : MatchResultStatus()
+}
+
+/**
  * 批量匹配弹幕对话框：对当前播放列表的所有本地视频做哈希匹配，
  * 匹配成功后下载弹幕并缓存到视频同目录同名 .xml。
  * 文件名含集数，哈希匹配命中对应集弹幕库即完成集数分配。
@@ -65,11 +73,6 @@ fun DanmakuBatchMatchDialog(
 
     var isMatching by remember { mutableStateOf(false) }
     var results by remember { mutableStateOf<List<Pair<String, MatchResultStatus>>>(emptyList()) }
-
-    sealed class MatchResultStatus {
-        data class Failed(val message: String) : MatchResultStatus()
-        object Cached : MatchResultStatus()
-    }
 
     fun startMatch() {
         if (localVideos.isEmpty()) {

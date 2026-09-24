@@ -608,14 +608,17 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
     ) {
       val hasCredentials = api.hasCredentials()
       val hasLocalVideos = activity.viewModel.playlistManager.playlist.value.any { it.scheme == "file" }
+      // 提前取资源字符串（clickable 非 Composable 上下文不能调 stringResource）
+      val noCredentialsMsg = stringResource(R.string.danmaku_batch_no_credentials)
+      val noLocalVideosMsg = stringResource(R.string.danmaku_batch_no_local_videos)
       ListItem(
         modifier = Modifier
           .fillMaxWidth()
           .clickable {
             if (!hasCredentials) {
-              Toast.makeText(context, stringResource(R.string.danmaku_batch_no_credentials), Toast.LENGTH_SHORT).show()
+              Toast.makeText(context, noCredentialsMsg, Toast.LENGTH_SHORT).show()
             } else if (!hasLocalVideos) {
-              Toast.makeText(context, stringResource(R.string.danmaku_batch_no_local_videos), Toast.LENGTH_SHORT).show()
+              Toast.makeText(context, noLocalVideosMsg, Toast.LENGTH_SHORT).show()
             } else {
               showBatchMatchDialog = true
             }
