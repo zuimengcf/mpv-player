@@ -1388,6 +1388,10 @@
     <string name="danmaku_batch_no_credentials">请先配置 AppId/AppSecret</string>
     <string name="danmaku_batch_no_local_videos">播放列表中没有可匹配的本地视频</string>
     <string name="danmaku_scroll_speed_title">滚动速度</string>
+    <string name="danmaku_merge_duplicate_title">同一弹幕合并</string>
+    <string name="danmaku_merge_duplicate_summary">合并内容相同的重复弹幕，减少刷屏</string>
+    <string name="danmaku_block_keywords_title">弹幕屏蔽关键词</string>
+    <string name="danmaku_block_keywords_summary">多个用分号分隔；命中关键词的弹幕不显示（留空关闭）</string>
     <string name="generic_off">关闭</string>
     <string name="github_repo_url">https://github.com/zuimengcf/mpv-player</string>
     <string name="community_links">社区链接</string>

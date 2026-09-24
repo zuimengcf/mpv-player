@@ -411,6 +411,30 @@ private fun DanmakuSettingsContent(modifier: Modifier = Modifier, activity: Play
       icon = { Icon(Icons.Default.Speed, null) },
     )
 
+    ProvidePreferenceLocals(theme = preferenceTheme(iconContainerMinWidth = 48.dp)) {
+      val mergeDuplicate by preferences.mergeDuplicate.collectAsState()
+      SwitchPreference(
+        mergeDuplicate,
+        onValueChange = { preferences.mergeDuplicate.set(it) },
+        { Text(stringResource(R.string.danmaku_merge_duplicate_title)) },
+        summary = { Text(stringResource(R.string.danmaku_merge_duplicate_summary)) },
+      )
+      val blockKeywords by preferences.blockKeywords.collectAsState()
+      TextFieldPreference(
+        value = blockKeywords,
+        onValueChange = preferences.blockKeywords::set,
+        textToValue = { it.trim() },
+        title = { Text(stringResource(R.string.danmaku_block_keywords_title)) },
+        summary = {
+          Text(
+            if (blockKeywords.isBlank()) stringResource(R.string.danmaku_block_keywords_summary)
+            else blockKeywords,
+            maxLines = 1,
+          )
+        },
+      )
+    }
+
     // ── 在线弹幕凭证（置于面板最底部，填好即可收起） ──
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
 

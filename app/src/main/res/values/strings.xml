@@ -520,6 +520,10 @@
     <string name="danmaku_batch_no_credentials">Configure AppId/AppSecret first</string>
     <string name="danmaku_batch_no_local_videos">No local videos in playlist to match</string>
     <string name="danmaku_scroll_speed_title">Scroll speed</string>
+    <string name="danmaku_merge_duplicate_title">Merge duplicate danmaku</string>
+    <string name="danmaku_merge_duplicate_summary">Merge repeated same-text danmaku to reduce spam</string>
+    <string name="danmaku_block_keywords_title">Block keywords</string>
+    <string name="danmaku_block_keywords_summary">Semicolon-separated keywords; matching danmaku is hidden (empty = off)</string>
     <string name="danmaku_online_section_title">Online Danmaku Credentials</string>
     <string name="danmaku_app_id_summary">AppId from dandanplay.com (required for online danmaku search)</string>
     <string name="danmaku_app_secret_summary">AppSecret from dandanplay.com</string>

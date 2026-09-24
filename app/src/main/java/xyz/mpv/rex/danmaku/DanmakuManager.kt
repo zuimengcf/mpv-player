@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import master.flame.danmaku.controller.DanmakuFilters
 import master.flame.danmaku.controller.DrawHandler
 import master.flame.danmaku.danmaku.model.BaseDanmaku
 import master.flame.danmaku.danmaku.model.DanmakuTimer
@@ -12,6 +13,36 @@ import master.flame.danmaku.danmaku.model.IDisplayer
 import master.flame.danmaku.danmaku.model.android.DanmakuContext
 import master.flame.danmaku.ui.widget.DanmakuView
 import java.io.File
+
+/**
+ * 弹幕关键词屏蔽过滤器：命中黑名单关键词的弹幕不显示。
+ * setData 传入分号分隔的关键词列表；每次设置即刷新屏蔽规则。
+ */
+class BlockKeywordFilter : DanmakuFilters.BaseDanmakuFilter<List<String>>() {
+    private val keywords = mutableListOf<String>()
+
+    override fun filter(
+        danmaku: BaseDanmaku,
+        order: Int,
+        size: Int,
+        timer: DanmakuTimer,
+        isR2L: Boolean,
+        context: DanmakuContext,
+    ): Boolean {
+        if (keywords.isEmpty()) return false
+        val text = danmaku.text?.toString() ?: return false
+        return keywords.any { text.contains(it, ignoreCase = true) }
+    }
+
+    override fun setData(data: List<String>) {
+        keywords.clear()
+        keywords.addAll(data.map { it.trim() }.filter { it.isNotBlank() })
+    }
+
+    override fun reset() {
+        keywords.clear()
+    }
+}
 
 /**
  * 弹幕管理器 — 精简版
@@ -34,6 +65,9 @@ class DanmakuManager(
 
     private val danmakuContext = DanmakuContext.create()
     private val danmakuLoader = BiliDanmakuLoader.instance()
+
+    /** 弹幕关键词屏蔽过滤器（registerFilter 于 init，applyPreferences 时刷新关键词） */
+    private val blockFilter = BlockKeywordFilter()
 
     private var currentDanmakuPath: String? = null
     private var currentDanmakuTitle: String? = null
@@ -60,9 +94,14 @@ class DanmakuManager(
         overlappingPair[BaseDanmaku.TYPE_FIX_TOP] = true
         overlappingPair[BaseDanmaku.TYPE_FIX_BOTTOM] = true
 
+        blockFilter.setData(parseBlockKeywords(danmakuPreferences?.blockKeywords?.get().orEmpty()))
+
         danmakuContext.apply {
-            isDuplicateMergingEnabled = true
+            // 同一弹幕合并开关（读偏好，默认开启）
+            isDuplicateMergingEnabled = danmakuPreferences?.mergeDuplicate?.get() ?: true
             preventOverlapping(overlappingPair)
+            // 关键词屏蔽：命中黑名单的弹幕不显示
+            registerFilter(blockFilter)
         }
 
         // 应用用户偏好（字号/滚动速度/描边/阴影/透明度/密度）
@@ -110,7 +149,12 @@ class DanmakuManager(
     fun applyPreferences() {
         val prefs = danmakuPreferences ?: return
         try {
-            val fontSize = prefs.fontSize.get().coerceIn(12, 40)
+            // 同一弹幕合并开关（运行时刷新）
+            danmakuContext.isDuplicateMergingEnabled = prefs.mergeDuplicate.get()
+            // 关键词屏蔽（运行时刷新，分号分隔）
+            blockFilter.setData(parseBlockKeywords(prefs.blockKeywords.get().orEmpty()))
+
+            val fontSize = prefs.fontSize.get().coerceIn(12, 70)
             // 基准字号 22sp → scale
             val scale = fontSize / 22f
             danmakuContext.setScaleTextSize(scale)
@@ -299,6 +343,13 @@ class DanmakuManager(
 
     /** 当前播放视频的本地绝对路径（清洗后，无 file:// 前缀）。未设置或非本地路径时为 null。 */
     fun getCurrentVideoPath(): String? = currentVideoPath
+
+    /** 解析屏蔽关键词：分号（含中文；）或逗号分隔，去空白并去空项。 */
+    private fun parseBlockKeywords(raw: String): List<String> =
+        raw.split(';', '；', ',', '，')
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
 
     /**
      * 从 XML 字符串加载弹幕（用于 dandanplay 在线获取）。

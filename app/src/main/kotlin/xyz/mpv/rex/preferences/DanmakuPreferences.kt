@@ -50,4 +50,10 @@ class DanmakuPreferences(
 
   /** 弹幕繁简转换：0=不转换，1=简体转繁体，2=繁体转简体 */
   val chConvert = preferenceStore.getInt("danmaku_ch_convert", 0)
+
+  /** 同一弹幕合并（去重合并同内容刷屏弹幕），默认开启 */
+  val mergeDuplicate = preferenceStore.getBoolean("danmaku_merge_duplicate", true)
+
+  /** 弹幕屏蔽关键词（以分号分隔），命中则不显示该条弹幕。空串表示不屏蔽 */
+  val blockKeywords = preferenceStore.getString("danmaku_block_keywords", "")
 }
