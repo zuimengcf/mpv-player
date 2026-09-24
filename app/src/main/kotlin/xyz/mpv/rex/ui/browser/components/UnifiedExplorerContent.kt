@@ -373,7 +373,8 @@ fun <T> UnifiedExplorerContent(
                         newVideoIds = newVideoIds,
                         watchedVideoIds = watchedVideoIds,
                         videoPlaybackProgress = videoPlaybackProgress,
-                        showSections = showSections
+                        showSections = showSections,
+                        hasLocalDanmakuByPath = hasLocalDanmakuByPath
                       )
                     }
                   }
@@ -420,7 +421,8 @@ fun <T> UnifiedExplorerContent(
                   newVideoIds = newVideoIds,
                   watchedVideoIds = watchedVideoIds,
                   videoPlaybackProgress = videoPlaybackProgress,
-                  showSections = showSections
+                  showSections = showSections,
+                  hasLocalDanmakuByPath = hasLocalDanmakuByPath
                 )
               }
             }
@@ -482,7 +484,8 @@ fun <T> UnifiedExplorerContent(
                         newVideoIds = newVideoIds,
                         watchedVideoIds = watchedVideoIds,
                         videoPlaybackProgress = videoPlaybackProgress,
-                        showSections = showSections
+                        showSections = showSections,
+                        hasLocalDanmakuByPath = hasLocalDanmakuByPath
                       )
                     }
                   }
@@ -529,7 +532,8 @@ fun <T> UnifiedExplorerContent(
                   newVideoIds = newVideoIds,
                   watchedVideoIds = watchedVideoIds,
                   videoPlaybackProgress = videoPlaybackProgress,
-                  showSections = showSections
+                  showSections = showSections,
+                  hasLocalDanmakuByPath = hasLocalDanmakuByPath
                 )
               }
             }
@@ -584,7 +588,8 @@ fun <T> UnifiedExplorerContent(
               newVideoIds = newVideoIds,
               watchedVideoIds = watchedVideoIds,
               videoPlaybackProgress = videoPlaybackProgress,
-              showSections = showSections
+              showSections = showSections,
+              hasLocalDanmakuByPath = hasLocalDanmakuByPath
             )
           }
         }
@@ -648,7 +653,8 @@ fun <T> UnifiedExplorerContent(
                       newVideoIds = newVideoIds,
                       watchedVideoIds = watchedVideoIds,
                       videoPlaybackProgress = videoPlaybackProgress,
-                      showSections = showSections
+                      showSections = showSections,
+                      hasLocalDanmakuByPath = hasLocalDanmakuByPath
                     )
                   }
                   IconButton(
@@ -682,7 +688,8 @@ fun <T> UnifiedExplorerContent(
                 newVideoIds = newVideoIds,
                 watchedVideoIds = watchedVideoIds,
                 videoPlaybackProgress = videoPlaybackProgress,
-                showSections = showSections
+                showSections = showSections,
+                hasLocalDanmakuByPath = hasLocalDanmakuByPath
               )
             }
           }
@@ -757,6 +764,7 @@ private fun <T> ExplorerItemCard(
   watchedVideoIds: Set<Long> = emptySet(),
   videoPlaybackProgress: Map<Long, Float> = emptyMap(),
   showSections: Boolean = false,
+  hasLocalDanmakuByPath: Map<String, Boolean> = emptyMap(),
 ) {
   val lastPlayedVideoPathsInFolder = LocalLastPlayedVideoPathsInFolder.current
   val recentlyPlayedFilePaths = LocalRecentlyPlayedFilePaths.current
