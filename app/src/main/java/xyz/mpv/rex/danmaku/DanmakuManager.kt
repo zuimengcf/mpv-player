@@ -22,7 +22,7 @@ class BlockKeywordFilter : DanmakuFilters.BaseDanmakuFilter<List<String>>() {
     private val keywords = mutableListOf<String>()
 
     override fun filter(
-        danmaku: BaseDanmaku,
+        danmaku: BaseDanmaku?,
         order: Int,
         size: Int,
         timer: DanmakuTimer,
@@ -30,11 +30,11 @@ class BlockKeywordFilter : DanmakuFilters.BaseDanmakuFilter<List<String>>() {
         context: DanmakuContext,
     ): Boolean {
         if (keywords.isEmpty()) return false
-        // 弹幕库在预渲染缓存阶段会逐条调用本过滤器，且可能传入 null / 特殊条目；
-        // 任何判空或文本处理异常都必须兜住，绝不抛到缓存线程导致闪退。
+        // 弹幕库在预渲染缓存阶段会逐条调用本过滤器，且可能传入 null 条目；
+        // 必须把参数声明为可空（避免 Kotlin 在方法入口对非空参数生成 getClass() 判空检查
+        // 提前抛 NPE），并对文本处理做整体兜底，任何异常都返回 false，绝不抛到缓存线程。
         return try {
-            val raw = danmaku?.text ?: return false
-            val text = raw.toString()
+            val text = danmaku?.text?.toString() ?: return false
             if (text.isEmpty()) return false
             keywords.any { text.contains(it, ignoreCase = true) }
         } catch (_: Exception) {
