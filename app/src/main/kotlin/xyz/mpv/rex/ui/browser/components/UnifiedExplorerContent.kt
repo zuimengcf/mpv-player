@@ -22,6 +22,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import xyz.mpv.rex.domain.media.model.Video
 import xyz.mpv.rex.domain.media.model.VideoFolder
@@ -116,6 +117,41 @@ fun <T> UnifiedExplorerContent(
   val tapThumbnailToSelect by gesturePreferences.tapThumbnailToSelect.collectAsState()
   val showSubtitleIndicator by browserPreferences.showSubtitleIndicator.collectAsState()
   val navigationBarHeight = LocalNavigationBarHeight.current
+
+  // 视频路径 -> 是否已有本地弹幕（同目录同名 .xml 或应用缓存目录内非空）
+  // 文件浏览器/最近播放等走 FileSystemItem.VideoFile / RecentlyPlayedItem.VideoItem 分支时，
+  // 没有 VideoWithPlaybackInfo 的 hasLocalDanmaku 字段，这里统一按路径判定。
+  val context = LocalContext.current
+  val localDanmakuDir = remember(context) { java.io.File(context.filesDir, "danmaku") }
+  val hasLocalDanmakuByPath = remember(items, localDanmakuDir) {
+    val result = HashMap<String, Boolean>()
+    for (item in items) {
+      val path = when (item) {
+        is Video -> item.path
+        is VideoWithPlaybackInfo -> item.video.path
+        is FileSystemItem.VideoFile -> item.video.path
+        is RecentlyPlayedItem.VideoItem -> item.video.path
+        is PlaylistVideoItem -> item.video.path
+        else -> null
+      }
+      if (path.isNullOrBlank()) continue
+      try {
+        val videoFile = java.io.File(path)
+        val sameDir = videoFile.parentFile
+        val hasSameDirXml = sameDir != null &&
+          java.io.File(sameDir, "${videoFile.nameWithoutExtension}.xml").exists()
+        val hasCachedXml = if (localDanmakuDir.exists()) {
+          // 缓存目录内是"标题_时间戳.xml"，不直接对应文件名，粗略判定目录非空即可
+          localDanmakuDir.listFiles()?.isNotEmpty() == true
+        } else false
+        result[path] = hasSameDirXml || hasCachedXml
+      } catch (_: Exception) {
+        result[path] = false
+      }
+    }
+    result
+  }
+
 
   val animatedBottomPadding by animateDpAsState(
     targetValue = if (isInSelectionMode) {
@@ -768,6 +804,7 @@ private fun <T> ExplorerItemCard(
         showSubtitleIndicator = showSubtitleIndicator,
         isOldAndUnplayed = isOldAndUnplayed,
         isWatched = isWatched,
+        hasLocalDanmaku = hasLocalDanmakuByPath[item.path] == true,
         isRecentlyPlayed = isRecentlyPlayed
       )
     }
@@ -819,6 +856,7 @@ private fun <T> ExplorerItemCard(
         gridColumns = columns,
         showSubtitleIndicator = showSubtitleIndicator,
         progressPercentage = item.progress,
+        hasLocalDanmaku = hasLocalDanmakuByPath[item.video.path] == true,
         isWatched = item.isWatched,
         isRecentlyPlayed = isRecentlyPlayed
       )
@@ -893,6 +931,7 @@ private fun <T> ExplorerItemCard(
         isOldAndUnplayed = isOldAndUnplayed,
         isWatched = isWatched,
         isNeverPlayed = videoPlaybackProgress[item.video.id] == null,
+        hasLocalDanmaku = hasLocalDanmakuByPath[item.video.path] == true,
         isRecentlyPlayed = isRecentlyPlayed
       )
     }

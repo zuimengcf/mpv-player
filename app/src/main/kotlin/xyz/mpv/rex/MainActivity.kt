@@ -96,7 +96,15 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     installSplashScreen()
     super.onCreate(savedInstanceState)
-    
+
+    // 冷启动时清空历史 logcat 缓冲，避免新版本崩溃/分享日志里混入旧版本的历史日志
+    // （无 READ_LOGS 权限或执行失败时静默忽略，不影响启动）
+    try {
+      Runtime.getRuntime().exec("logcat -c").waitFor()
+    } catch (_: Exception) {
+      // ignore
+    }
+
     PermissionUtils.setMediaAccessLauncher(mediaAccessLauncher)
 
     // Register proxy lifecycle observer for network streaming
