@@ -1078,7 +1078,7 @@ class PlayerActivity :
     // 弹幕加载完成（prepared）后：强制同步到当前播放位置并重置跳变基准，
     // 避免续播（mpv 从 start=savedPos 起播）时弹幕停在旧位置而不同步。
     danmakuManager.onPreparedListener = {
-      val posMs = runCatching { MPVLib.getPropertyDouble("time-pos")?.times(1000)?.toLong() }.getOrDefault(0L)
+      val posMs: Long = runCatching { MPVLib.getPropertyDouble("time-pos")?.times(1000)?.toLong() }.getOrNull() ?: 0L
       // 重置基准，使后续 time-pos 跳变能正确捕获并纠正弹幕位置
       lastDanmakuSyncPosMs = 0L
       runCatching { danmakuManager.seekTo(posMs) }
