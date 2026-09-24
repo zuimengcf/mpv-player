@@ -3,6 +3,7 @@ package xyz.mpv.rex.ui.player.controls.components.sheets
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -33,21 +35,13 @@ import org.koin.compose.koinInject
 import xyz.mpv.rex.R
 import xyz.mpv.rex.preferences.DanmakuPreferences
 import xyz.mpv.rex.repository.dandanplay.DanDanPlayApi
+import xyz.mpv.rex.repository.dandanplay.MatchInfo
 import xyz.mpv.rex.ui.player.PlayerActivity
 import java.io.File
 
 /**
- * 批量匹配结果状态（文件顶层声明，Composable 内不允许局部 sealed class）
- */
-sealed class MatchResultStatus {
-    data class Failed(val message: String) : MatchResultStatus()
-    object Cached : MatchResultStatus()
-}
-
-/**
  * 批量匹配弹幕对话框：对当前播放列表的所有本地视频做哈希匹配，
- * 匹配成功后下载弹幕并缓存到视频同目录同名 .xml。
- * 文件名含集数，哈希匹配命中对应集弹幕库即完成集数分配。
+ * 先列出每个文件匹配到的"番剧名 + 集数"供用户审阅，确认后再批量下载缓存。
  */
 @Composable
 fun DanmakuBatchMatchDialog(
@@ -71,9 +65,14 @@ fun DanmakuBatchMatchDialog(
         }
     }
 
-    var isMatching by remember { mutableStateOf(false) }
-    var results by remember { mutableStateOf<List<Pair<String, MatchResultStatus>>>(emptyList()) }
+    var isMatching by remember { mutableStateOf(false) }   // 阶段1：匹配预览中
+    var isCaching by remember { mutableStateOf(false) }    // 阶段2：批量缓存中
+    // 匹配预览结果：文件名 -> 匹配信息或失败原因
+    var matches by remember { mutableStateOf<List<Pair<String, MatchInfo?>>>(emptyList()) }
+    // 缓存结果：文件名 -> 状态
+    var cacheResults by remember { mutableStateOf<List<Pair<String, Boolean>>>(emptyList()) }
 
+    // 阶段1：只做哈希匹配，列出"番剧名 + 集数"供审阅，不下载
     fun startMatch() {
         if (localVideos.isEmpty()) {
             Toast.makeText(context, "播放列表中没有本地视频", Toast.LENGTH_SHORT).show()
@@ -81,93 +80,160 @@ fun DanmakuBatchMatchDialog(
         }
         isMatching = true
         scope.launch {
-            val mutable = mutableListOf<Pair<String, MatchResultStatus>>()
-            // 逐文件匹配（batchMatch 每批 ≤32，这里为简化逐文件处理）
-            for ((uri, path, size) in localVideos) {
+            val mutable = mutableListOf<Pair<String, MatchInfo?>>()
+            for ((_, path, size) in localVideos) {
                 val fileName = File(path).name
                 try {
                     val hash = api.calculateFileHash(path)
-                    // 文件名（含集数）+ 哈希匹配对应集弹幕库
                     val resp = api.matchDanmaku(fileName, hash, size)
                     if (resp.isMatched && !resp.matches.isNullOrEmpty()) {
-                        val match = resp.matches.first()
-                        // 命中即下载该集弹幕并缓存到视频同目录同名 .xml，完成集数分配
-                        val danmaku = api.getDanmaku(match.episodeId, danmakuPrefs.chConvert.get())
-                        if (danmaku.isSuccess) {
-                            val xml = api.convertToXml(danmaku.getOrThrow())
-                            activity.danmakuManager.setCurrentVideoPath(path)
-                            val loaded = activity.danmakuManager.loadDanmakuFromXml(xml, match.animeTitle)
-                            if (loaded) {
-                                mutable.add(fileName to MatchResultStatus.Cached)
-                            } else {
-                                mutable.add(fileName to MatchResultStatus.Failed("弹幕写入失败"))
-                            }
-                        } else {
-                            mutable.add(fileName to MatchResultStatus.Failed("下载弹幕失败"))
-                        }
+                        mutable.add(fileName to resp.matches.first())
                     } else {
-                        mutable.add(fileName to MatchResultStatus.Failed("未匹配到"))
+                        mutable.add(fileName to null)
                     }
                 } catch (e: Exception) {
-                    mutable.add(fileName to MatchResultStatus.Failed(e.message ?: "错误"))
+                    mutable.add(fileName to null)
                 }
             }
-            results = mutable
+            matches = mutable
             isMatching = false
         }
     }
 
+    // 阶段2：用户确认后，对所有匹配到的文件批量下载并缓存
+    fun startCache() {
+        isCaching = true
+        cacheResults = emptyList()
+        scope.launch {
+            val mutable = mutableListOf<Pair<String, Boolean>>()
+            for ((_, path, _) in localVideos) {
+                val fileName = File(path).name
+                val match = matches.firstOrNull { it.first == fileName }?.second
+                if (match == null) {
+                    mutable.add(fileName to false)
+                    continue
+                }
+                try {
+                    val danmaku = api.getDanmaku(match.episodeId, danmakuPrefs.chConvert.get())
+                    if (danmaku.isSuccess) {
+                        val xml = api.convertToXml(danmaku.getOrThrow())
+                        activity.danmakuManager.setCurrentVideoPath(path)
+                        val loaded = activity.danmakuManager.loadDanmakuFromXml(xml, match.animeTitle)
+                        mutable.add(fileName to loaded)
+                    } else {
+                        mutable.add(fileName to false)
+                    }
+                } catch (e: Exception) {
+                    mutable.add(fileName to false)
+                }
+            }
+            cacheResults = mutable
+            isCaching = false
+        }
+    }
+
+    val matchedCount = matches.count { it.second != null }
+
     AlertDialog(
-        onDismissRequest = { if (!isMatching) onDismiss() },
+        onDismissRequest = { if (!isMatching && !isCaching) onDismiss() },
         title = { Text(stringResource(R.string.danmaku_batch_match_button)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                // 进度 / 结果
-                if (isMatching) {
-                    androidx.compose.foundation.layout.Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        CircularProgressIndicator(modifier = Modifier.padding(4.dp))
-                        Text("正在批量匹配并缓存弹幕…", style = MaterialTheme.typography.bodyMedium)
-                    }
-                } else if (results.isNotEmpty()) {
-                    Text("匹配结果：", style = MaterialTheme.typography.labelLarge)
-                    LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 240.dp)) {
-                        items(results) { (fileName, status) ->
-                            ListItem(
-                                headlineContent = { Text(fileName, maxLines = 1) },
-                                supportingContent = {
-                                    Text(
-                                        when (status) {
-                                            is MatchResultStatus.Cached -> "✓ 已缓存"
-                                            is MatchResultStatus.Failed -> "✗ ${(status as MatchResultStatus.Failed).message}"
-                                        },
-                                        color = if (status is MatchResultStatus.Failed) MaterialTheme.colorScheme.error
-                                        else MaterialTheme.colorScheme.primary,
-                                    )
-                                },
-                                leadingContent = {
-                                    Icon(
-                                        if (status is MatchResultStatus.Failed) Icons.Default.Close else Icons.Default.Check,
-                                        contentDescription = null,
-                                    )
-                                },
-                            )
+                when {
+                    // 阶段2：缓存进度 / 结果
+                    isCaching -> {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            CircularProgressIndicator(modifier = Modifier.padding(4.dp))
+                            Text("正在批量下载并缓存弹幕…", style = MaterialTheme.typography.bodyMedium)
                         }
                     }
-                } else {
-                    Text("将匹配播放列表中的 ${localVideos.size} 个本地视频，匹配成功后弹幕会缓存到视频同目录同名 .xml。", style = MaterialTheme.typography.bodyMedium)
+                    cacheResults.isNotEmpty() -> {
+                        Text("缓存结果：", style = MaterialTheme.typography.labelLarge)
+                        LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 240.dp)) {
+                            items(cacheResults) { (fileName, ok) ->
+                                ListItem(
+                                    headlineContent = { Text(fileName, maxLines = 1) },
+                                    supportingContent = {
+                                        Text(
+                                            if (ok) "✓ 已缓存" else "✗ 缓存失败",
+                                            color = if (ok) MaterialTheme.colorScheme.primary
+                                            else MaterialTheme.colorScheme.error,
+                                        )
+                                    },
+                                    leadingContent = {
+                                        Icon(
+                                            if (ok) Icons.Default.Check else Icons.Default.Close,
+                                            contentDescription = null,
+                                        )
+                                    },
+                                )
+                            }
+                        }
+                    }
+                    // 阶段1：匹配预览
+                    isMatching -> {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            CircularProgressIndicator(modifier = Modifier.padding(4.dp))
+                            Text("正在匹配番剧…", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                    // 匹配完成：展示"番剧名 + 集数"，等待确认
+                    matches.isNotEmpty() -> {
+                        Text("匹配到 $matchedCount/${matches.size} 个视频，确认后批量缓存：", style = MaterialTheme.typography.labelLarge)
+                        LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 240.dp)) {
+                            items(matches, key = { it.first }) { (fileName, match) ->
+                                ListItem(
+                                    headlineContent = { Text(fileName, maxLines = 1) },
+                                    supportingContent = {
+                                        if (match != null) {
+                                            Text("${match.animeTitle} · ${match.episodeTitle}")
+                                        } else {
+                                            Text("✗ 未匹配到", color = MaterialTheme.colorScheme.error)
+                                        }
+                                    },
+                                    leadingContent = {
+                                        Icon(
+                                            if (match != null) Icons.Default.Subtitles else Icons.Default.Close,
+                                            contentDescription = null,
+                                        )
+                                    },
+                                )
+                            }
+                        }
+                    }
+                    else -> {
+                        Text("将匹配播放列表中的 ${localVideos.size} 个本地视频，匹配出「番剧名 + 集数」展示给你确认后，再批量缓存弹幕。", style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
             }
         },
         confirmButton = {
-            TextButton(
-                onClick = { if (!isMatching) startMatch() },
-                enabled = !isMatching,
-            ) {
-                Text(if (results.isEmpty()) "开始匹配" else "重新匹配")
+            when {
+                // 有匹配预览时：确认按钮 = 批量缓存
+                matches.isNotEmpty() && !isMatching -> {
+                    TextButton(
+                        onClick = { startCache() },
+                        enabled = !isCaching && matchedCount > 0,
+                    ) { Text("批量缓存") }
+                }
+                else -> {
+                    TextButton(onClick = { if (!isMatching && !isCaching) onDismiss() }) { Text("关闭") }
+                }
             }
         },
         dismissButton = {
-            TextButton(onClick = { if (!isMatching) onDismiss() }) { Text("关闭") }
+            when {
+                matches.isNotEmpty() && !isMatching -> {
+                    // 已匹配后，dismiss 位 = 重新匹配
+                    TextButton(
+                        onClick = { if (!isCaching) startMatch() },
+                        enabled = true,
+                    ) { Text("重新匹配") }
+                }
+                else -> {
+                    TextButton(onClick = { if (!isMatching && !isCaching) startMatch() }) { Text("开始匹配") }
+                }
+            }
         },
     )
 }

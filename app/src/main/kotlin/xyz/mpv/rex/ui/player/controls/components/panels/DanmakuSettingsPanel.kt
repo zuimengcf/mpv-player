@@ -298,7 +298,7 @@ private fun DanmakuSettingsContent(modifier: Modifier = Modifier, activity: Play
       value = fontSize,
       valueText = fontSize.toString(),
       onChange = { preferences.fontSize.set(it) },
-      max = 40,
+      max = 70,
       min = 12,
       icon = { Icon(Icons.Default.FormatSize, null) },
     )

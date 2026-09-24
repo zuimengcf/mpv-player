@@ -297,6 +297,9 @@ class DanmakuManager(
         }
     }
 
+    /** 当前播放视频的本地绝对路径（清洗后，无 file:// 前缀）。未设置或非本地路径时为 null。 */
+    fun getCurrentVideoPath(): String? = currentVideoPath
+
     /**
      * 从 XML 字符串加载弹幕（用于 dandanplay 在线获取）。
      * 若当前视频为本地路径，弹幕写入视频同目录同名 .xml（随视频拷贝/移动，便于复用）；

@@ -1684,14 +1684,15 @@ when (property) {
         viewModel.updateAmbientStretch()
       }
       "time-pos" -> {
-        // Sync danmaku on significant position jumps (seek / chapter skip).
-        // Tolerate small drift from normal playback so we don't seek every frame.
+        // MPVView 以 MPV_FORMAT_INT64 observe time-pos，此处 value 单位为秒。
+        // 弹幕在显著位置跳变（seek / 拖动进度条）时同步到当前播放位置，秒转毫秒。
         if (danmakuManager.isDanmakuLoaded()) {
-          val jump = kotlin.math.abs(value - lastDanmakuSyncPosMs)
+          val posMs = value * 1000
+          val jump = kotlin.math.abs(posMs - lastDanmakuSyncPosMs)
           if (jump > 3000) {
-            danmakuManager.seekTo(value)
+            danmakuManager.seekTo(posMs)
           }
-          lastDanmakuSyncPosMs = value
+          lastDanmakuSyncPosMs = posMs
         }
       }
     }
@@ -1855,6 +1856,19 @@ when (property) {
     property: String,
     value: Double,
   ) {
+    if (property == "time-pos") {
+      // mpv 以 MPV_FORMAT_DOUBLE（秒）观察 time-pos，所有位置回调都走这里。
+      // 弹幕在显著位置跳变（seek / 章节跳转 / 拖动进度条）时同步到当前播放位置，
+      // 保证快进/快退后弹幕与时间进度条同步。秒转毫秒；容忍正常播放的小幅漂移。
+      if (danmakuManager.isDanmakuLoaded()) {
+        val posMs = (value * 1000).toLong()
+        val jump = kotlin.math.abs(posMs - lastDanmakuSyncPosMs)
+        if (jump > 3000) {
+          danmakuManager.seekTo(posMs)
+        }
+        lastDanmakuSyncPosMs = posMs
+      }
+    }
     mpvEventDispatcher.dispatchProperty(property, value)
   }
 
@@ -2442,7 +2456,8 @@ internal fun saveVideoPlaybackState(mediaTitle: String, isEof: Boolean = false) 
     val boundPath = state?.danmakuPath
     if (boundPath.isNullOrBlank()) {
       // 未绑定：尝试从当前视频同目录找同名 .xml（缓存弹幕随视频存放的场景）
-      val localPath = parsePathFromIntent(intent)
+      // 优先用弹幕管理器当前视频路径（切换集数时已更新为当前集），intent 作为回退
+      val localPath: String? = danmakuManager.getCurrentVideoPath() ?: parsePathFromIntent(intent)
       if (!localPath.isNullOrBlank()) {
         val videoFile = File(localPath)
         val parent = videoFile.parentFile
@@ -2468,7 +2483,7 @@ internal fun saveVideoPlaybackState(mediaTitle: String, isEof: Boolean = false) 
     if (!file.exists()) {
       // 绑定路径找不到文件（如从"最近打开"等不同入口进入导致路径不一致）：
       // 尝试从当前视频同目录找同名 .xml 兜底
-      val localPath = parsePathFromIntent(intent)
+      val localPath: String? = danmakuManager.getCurrentVideoPath() ?: parsePathFromIntent(intent)
       if (!localPath.isNullOrBlank()) {
         val videoFile = File(localPath)
         val parent = videoFile.parentFile
