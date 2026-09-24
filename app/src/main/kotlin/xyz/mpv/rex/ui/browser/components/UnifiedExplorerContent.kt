@@ -22,7 +22,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import xyz.mpv.rex.domain.media.model.Video
 import xyz.mpv.rex.domain.media.model.VideoFolder
@@ -34,6 +33,7 @@ import xyz.mpv.rex.ui.browser.cards.FolderCard
 import xyz.mpv.rex.ui.browser.cards.PlaylistCard
 import xyz.mpv.rex.ui.browser.cards.VideoCard
 import xyz.mpv.rex.ui.browser.videolist.VideoWithPlaybackInfo
+import xyz.mpv.rex.domain.playbackstate.repository.PlaybackStateRepository
 import xyz.mpv.rex.preferences.UiSettings
 import org.koin.compose.koinInject
 import xyz.mpv.rex.preferences.BrowserPreferences
@@ -118,12 +118,20 @@ fun <T> UnifiedExplorerContent(
   val showSubtitleIndicator by browserPreferences.showSubtitleIndicator.collectAsState()
   val navigationBarHeight = LocalNavigationBarHeight.current
 
-  // 视频路径 -> 是否已有本地弹幕（同目录同名 .xml 或应用缓存目录内非空）
+  // 视频路径 -> 是否已有本地弹幕：
+  // ① 数据库持久化绑定（PlaybackStateEntity.danmakuPath 非空，mediaTitle=displayName）命中该视频；
+  // ② 视频同目录存在同名 .xml（本地缓存弹幕随视频存放）。
   // 文件浏览器/最近播放等走 FileSystemItem.VideoFile / RecentlyPlayedItem.VideoItem 分支时，
-  // 没有 VideoWithPlaybackInfo 的 hasLocalDanmaku 字段，这里统一按路径判定。
-  val context = LocalContext.current
-  val localDanmakuDir = remember(context) { java.io.File(context.filesDir, "danmaku") }
-  val hasLocalDanmakuByPath = remember(items, localDanmakuDir) {
+  // 没有 VideoWithPlaybackInfo 的 hasLocalDanmaku 字段，这里统一按路径精确判定。
+  val playbackStateRepository = koinInject<PlaybackStateRepository>()
+  val allPlaybackStates by playbackStateRepository.observeAllPlaybackStates().collectAsState(initial = emptyList())
+  val boundDanmakuFileNames = remember(allPlaybackStates) {
+    allPlaybackStates
+      .filter { it.danmakuPath.isNotBlank() }
+      .map { it.mediaTitle }
+      .toSet()
+  }
+  val hasLocalDanmakuByPath = remember(items, boundDanmakuFileNames) {
     val result = HashMap<String, Boolean>()
     for (item in items) {
       val path = when (item) {
@@ -134,19 +142,30 @@ fun <T> UnifiedExplorerContent(
         is PlaylistVideoItem -> item.video.path
         else -> null
       }
-      if (path.isNullOrBlank()) continue
-      try {
-        val videoFile = java.io.File(path)
-        val sameDir = videoFile.parentFile
-        val hasSameDirXml = sameDir != null &&
-          java.io.File(sameDir, "${videoFile.nameWithoutExtension}.xml").exists()
-        val hasCachedXml = if (localDanmakuDir.exists()) {
-          // 缓存目录内是"标题_时间戳.xml"，不直接对应文件名，粗略判定目录非空即可
-          localDanmakuDir.listFiles()?.isNotEmpty() == true
-        } else false
-        result[path] = hasSameDirXml || hasCachedXml
+      val displayName = when (item) {
+        is Video -> item.displayName
+        is VideoWithPlaybackInfo -> item.video.displayName
+        is FileSystemItem.VideoFile -> item.video.displayName
+        is RecentlyPlayedItem.VideoItem -> item.video.displayName
+        is PlaylistVideoItem -> item.video.displayName
+        else -> null
+      }
+      if (displayName.isNullOrBlank()) continue
+      result[displayName] = try {
+        // ① 持久化绑定命中该视频
+        if (displayName in boundDanmakuFileNames) true
+        else {
+          // ② 视频同目录存在同名 .xml
+          if (path.isNullOrBlank()) false
+          else {
+            val videoFile = java.io.File(path)
+            val sameDir = videoFile.parentFile
+            sameDir != null &&
+              java.io.File(sameDir, "${videoFile.nameWithoutExtension}.xml").exists()
+          }
+        }
       } catch (_: Exception) {
-        result[path] = false
+        false
       }
     }
     result
@@ -812,7 +831,7 @@ private fun <T> ExplorerItemCard(
         showSubtitleIndicator = showSubtitleIndicator,
         isOldAndUnplayed = isOldAndUnplayed,
         isWatched = isWatched,
-        hasLocalDanmaku = hasLocalDanmakuByPath[item.path] == true,
+        hasLocalDanmaku = hasLocalDanmakuByPath[item.displayName] == true,
         isRecentlyPlayed = isRecentlyPlayed
       )
     }
@@ -864,7 +883,7 @@ private fun <T> ExplorerItemCard(
         gridColumns = columns,
         showSubtitleIndicator = showSubtitleIndicator,
         progressPercentage = item.progress,
-        hasLocalDanmaku = hasLocalDanmakuByPath[item.video.path] == true,
+        hasLocalDanmaku = hasLocalDanmakuByPath[item.video.displayName] == true,
         isWatched = item.isWatched,
         isRecentlyPlayed = isRecentlyPlayed
       )
@@ -939,7 +958,7 @@ private fun <T> ExplorerItemCard(
         isOldAndUnplayed = isOldAndUnplayed,
         isWatched = isWatched,
         isNeverPlayed = videoPlaybackProgress[item.video.id] == null,
-        hasLocalDanmaku = hasLocalDanmakuByPath[item.video.path] == true,
+        hasLocalDanmaku = hasLocalDanmakuByPath[item.video.displayName] == true,
         isRecentlyPlayed = isRecentlyPlayed
       )
     }
