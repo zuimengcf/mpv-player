@@ -14,5 +14,6 @@ KeyStore.jks
 install_debug.sh
 compile_release.sh
 remote.log
+nohup.out
 .kotlin/
 mpvRex-libmpv/
