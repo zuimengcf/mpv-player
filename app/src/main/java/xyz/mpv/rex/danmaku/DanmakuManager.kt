@@ -30,9 +30,16 @@ class BlockKeywordFilter : DanmakuFilters.BaseDanmakuFilter<List<String>>() {
         context: DanmakuContext,
     ): Boolean {
         if (keywords.isEmpty()) return false
-        // 库可能对 null 条目调用 filter，需判空保护避免空指针闪退
-        val text = danmaku?.text?.toString() ?: return false
-        return keywords.any { text.contains(it, ignoreCase = true) }
+        // 弹幕库在预渲染缓存阶段会逐条调用本过滤器，且可能传入 null / 特殊条目；
+        // 任何判空或文本处理异常都必须兜住，绝不抛到缓存线程导致闪退。
+        return try {
+            val raw = danmaku?.text ?: return false
+            val text = raw.toString()
+            if (text.isEmpty()) return false
+            keywords.any { text.contains(it, ignoreCase = true) }
+        } catch (_: Exception) {
+            false
+        }
     }
 
     override fun setData(data: List<String>) {
