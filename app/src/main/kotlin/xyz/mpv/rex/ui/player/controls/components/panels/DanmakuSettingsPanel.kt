@@ -92,6 +92,8 @@ import xyz.mpv.rex.preferences.preference.collectAsState
 import xyz.mpv.rex.presentation.components.PlayerSheet
 import xyz.mpv.rex.presentation.components.SliderItem
 import xyz.mpv.rex.ui.player.PlayerActivity
+import xyz.mpv.rex.repository.dandanplay.DanDanPlayApi
+import xyz.mpv.rex.ui.player.controls.components.sheets.DanmakuBatchMatchDialog
 import xyz.mpv.rex.ui.player.controls.components.sheets.DanmakuSearchDialog
 import xyz.mpv.rex.ui.preferences.components.SwitchPreference
 import xyz.mpv.rex.ui.theme.spacing
@@ -420,6 +422,18 @@ private fun DanmakuSettingsContent(modifier: Modifier = Modifier, activity: Play
         summary = { Text(areaLabel(displayArea, context)) },
         icon = { Icon(Icons.Default.ViewAgenda, null) },
       )
+
+      val chConvert by preferences.chConvert.collectAsState()
+      ListPreference(
+        chConvert,
+        onValueChange = { preferences.chConvert.set(it) },
+        title = { Text(stringResource(R.string.danmaku_ch_convert_title)) },
+        valueToText = { AnnotatedString(chConvertLabel(it, context)) },
+        values = listOf(0, 1, 2),
+        type = ListPreferenceType.DROPDOWN_MENU,
+        summary = { Text(chConvertLabel(chConvert, context)) },
+        icon = { Icon(Icons.Default.Subtitles, null) },
+      )
     }
 
     val scrollSpeed by preferences.scrollSpeed.collectAsState()
@@ -469,6 +483,12 @@ private fun areaLabel(value: Int, context: android.content.Context): String = wh
    2 -> context.getString(R.string.danmaku_area_bottom)
    3 -> context.getString(R.string.danmaku_area_middle)
    else -> context.getString(R.string.danmaku_area_all)
+ }
+
+private fun chConvertLabel(value: Int, context: android.content.Context): String = when (value) {
+   1 -> context.getString(R.string.danmaku_ch_convert_s2t)
+   2 -> context.getString(R.string.danmaku_ch_convert_t2s)
+   else -> context.getString(R.string.danmaku_ch_convert_none)
  }
 
 @Composable
@@ -540,7 +560,10 @@ private fun DanmakuColorPicker(
 private fun DanmakuLoadSection(activity: PlayerActivity) {
   val context = androidx.compose.ui.platform.LocalContext.current
   val danmakuManager = activity.danmakuManager
+  val advancedPrefs = koinInject<AdvancedPreferences>()
+  val api = koinInject<DanDanPlayApi>()
   var showSearchDialog by remember { mutableStateOf(false) }
+  var showBatchMatchDialog by remember { mutableStateOf(false) }
   var danmakuVisible by remember { mutableStateOf(danmakuManager.isTrackSelected()) }
 
   val danmakuFilePicker = rememberLauncherForActivityResult(
@@ -577,6 +600,54 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
       .padding(vertical = MaterialTheme.spacing.smaller),
     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
   ) {
+    // 批量匹配弹幕（自检：凭证 + 播放列表有本地视频）
+    Surface(
+      shape = MaterialTheme.shapes.medium,
+      color = MaterialTheme.colorScheme.surfaceContainerLow,
+      modifier = Modifier.fillMaxWidth(),
+    ) {
+      val hasCredentials = api.hasCredentials()
+      val hasLocalVideos = activity.viewModel.playlistManager.playlist.value.any { it.scheme == "file" }
+      ListItem(
+        modifier = Modifier
+          .fillMaxWidth()
+          .clickable {
+            if (!hasCredentials) {
+              Toast.makeText(context, stringResource(R.string.danmaku_batch_no_credentials), Toast.LENGTH_SHORT).show()
+            } else if (!hasLocalVideos) {
+              Toast.makeText(context, stringResource(R.string.danmaku_batch_no_local_videos), Toast.LENGTH_SHORT).show()
+            } else {
+              showBatchMatchDialog = true
+            }
+          },
+        leadingContent = {
+          Icon(
+            imageVector = Icons.Default.Subtitles,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+          )
+        },
+        headlineContent = {
+          Text(
+            text = stringResource(R.string.danmaku_batch_match_button),
+            style = MaterialTheme.typography.bodyLarge,
+          )
+        },
+        supportingContent = {
+          Text(
+            text = when {
+              !hasCredentials -> stringResource(R.string.danmaku_batch_no_credentials)
+              !hasLocalVideos -> stringResource(R.string.danmaku_batch_no_local_videos)
+              else -> stringResource(R.string.danmaku_batch_match_summary)
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = if (!hasCredentials || !hasLocalVideos) MaterialTheme.colorScheme.outline
+            else MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        },
+      )
+    }
+
     // 在线搜索弹幕（弹弹play）
     Surface(
       shape = MaterialTheme.shapes.medium,
@@ -657,7 +728,40 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
         summary = { Text(stringResource(R.string.danmaku_show_switch_summary)) },
         enabled = loaded,
       )
+
+      // 弹幕时间轴偏移（手动输入秒数，正=延后/弹幕慢，负=提前/弹幕快）
+      if (loaded) {
+        var offsetText by remember { mutableStateOf((danmakuManager.getDanmakuOffset() / 1000.0).toString()) }
+        TextFieldPreference(
+          value = offsetText,
+          onValueChange = { input ->
+            val seconds = input.trim().toDoubleOrNull() ?: return@TextFieldPreference
+            val newOffsetMs = (seconds * 1000).toLong()
+            danmakuManager.setDanmakuOffset(newOffsetMs)
+            offsetText = seconds.toString()
+          },
+          textToValue = { it.trim() },
+          title = { Text(stringResource(R.string.danmaku_time_offset_title)) },
+          summary = {
+            val currentSec = danmakuManager.getDanmakuOffset() / 1000.0
+            Text(
+              if (currentSec == 0.0) stringResource(R.string.danmaku_time_offset_zero)
+              else String.format("%+.1fs (%s)", currentSec,
+                if (currentSec > 0) stringResource(R.string.danmaku_time_offset_delayed)
+                else stringResource(R.string.danmaku_time_offset_early)),
+              color = MaterialTheme.colorScheme.outline,
+            )
+          },
+        )
+      }
     }
+  }
+
+  if (showBatchMatchDialog) {
+    DanmakuBatchMatchDialog(
+      activity = activity,
+      onDismiss = { showBatchMatchDialog = false },
+    )
   }
 
   if (showSearchDialog) {

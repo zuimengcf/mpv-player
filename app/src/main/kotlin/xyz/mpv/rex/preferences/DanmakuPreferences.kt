@@ -47,4 +47,7 @@ class DanmakuPreferences(
 
   /** 弹幕统一颜色 ARGB，默认白色 0xFFFFFFFF */
   val fontColor = preferenceStore.getInt("danmaku_font_color", 0xFFFFFFFF.toInt())
+
+  /** 弹幕繁简转换：0=不转换，1=简体转繁体，2=繁体转简体 */
+  val chConvert = preferenceStore.getInt("danmaku_ch_convert", 0)
 }

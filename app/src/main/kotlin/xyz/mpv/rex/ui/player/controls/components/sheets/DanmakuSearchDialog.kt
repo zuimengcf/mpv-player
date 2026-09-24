@@ -8,13 +8,19 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -29,15 +35,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import xyz.mpv.rex.R
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import xyz.mpv.rex.preferences.AdvancedPreferences
+import xyz.mpv.rex.preferences.DanmakuPreferences
 import xyz.mpv.rex.repository.dandanplay.DanDanPlayApi
 import xyz.mpv.rex.repository.dandanplay.AnimeSearchInfo
 import xyz.mpv.rex.repository.dandanplay.EpisodeInfo
+import xyz.mpv.rex.utils.media.MediaInfoParser
 
 /**
  * 弹弹play 在线弹幕搜索对话框：配置凭证 → 搜索动漫 → 选剧集 → 回调加载。
@@ -52,17 +63,19 @@ fun DanmakuSearchDialog(
     val context = LocalContext.current
     val api = koinInject<DanDanPlayApi>()
     val advancedPrefs = koinInject<AdvancedPreferences>()
+    val danmakuPrefs = koinInject<DanmakuPreferences>()
     val scope = rememberCoroutineScope()
 
     var showCredentialInput by remember { mutableStateOf(!api.hasCredentials()) }
     var appIdInput by remember { mutableStateOf(advancedPrefs.dandanplayAppId.get()) }
     var appSecretInput by remember { mutableStateOf(advancedPrefs.dandanplayAppSecret.get()) }
 
-    // 用当前播放文件名预填搜索词（去掉扩展名，如 .mp4/.mkv）
-    val cleanedInitial = remember(initialKeyword) {
-        initialKeyword.substringBeforeLast('.').trim().ifBlank { initialKeyword.trim() }
+    // 从当前播放文件名清洗出 1-3 个候选搜索词（用 MediaInfoParser 剥离发布组/分辨率/编码/集数等噪声）
+    val candidates = remember(initialKeyword) {
+        generateSearchCandidates(initialKeyword)
     }
-    var keyword by remember { mutableStateOf(cleanedInitial) }
+    // 最接近的候选（第一个）预填
+    var keyword by remember { mutableStateOf(candidates.firstOrNull().orEmpty()) }
     var isSearching by remember { mutableStateOf(false) }
     var results by remember { mutableStateOf<List<AnimeSearchInfo>>(emptyList()) }
     var selectedAnime by remember { mutableStateOf<AnimeSearchInfo?>(null) }
@@ -100,7 +113,7 @@ fun DanmakuSearchDialog(
     fun loadDanmaku(episode: EpisodeInfo) {
         isLoadingDanmaku = true
         scope.launch {
-            api.getDanmaku(episode.episodeId).fold(
+            api.getDanmaku(episode.episodeId, danmakuPrefs.chConvert.get()).fold(
                 onSuccess = { resp ->
                     if (resp.comments.isEmpty()) {
                         Toast.makeText(context, "该集暂无弹幕", Toast.LENGTH_SHORT).show()
@@ -151,8 +164,39 @@ fun DanmakuSearchDialog(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("搜索番剧名") },
                     singleLine = true,
+                    trailingIcon = {
+                        IconButton(onClick = { doSearch() }) {
+                            Icon(Icons.Default.Search, contentDescription = "搜索")
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(onSearch = { doSearch() }),
                 )
-                TextButton(onClick = { doSearch() }) { Text("搜索") }
+
+                // 候选分词 chips：点击即可替换搜索词
+                if (candidates.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState())
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        candidates.forEach { candidate ->
+                            AssistChip(
+                                onClick = { keyword = candidate },
+                                label = { Text(candidate, maxLines = 1) },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Search,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                },
+                            )
+                        }
+                    }
+                }
 
                 if (isSearching) {
                     Row(
@@ -212,4 +256,42 @@ fun DanmakuSearchDialog(
             TextButton(onClick = onDismiss) { Text("关闭") }
         },
     )
+}
+
+/**
+ * 从播放文件名清洗出 1-3 个候选搜索词（用于弹弹play 搜索）。
+ * 候选1：MediaInfoParser 清洗出的纯番名（最接近，预填）
+ * 候选2：番名 + 年份（区分同名不同季/剧场版）
+ * 候选3：完整文件名（去扩展名，兜底）
+ */
+private fun generateSearchCandidates(fileName: String): List<String> {
+    if (fileName.isBlank()) return emptyList()
+
+    // 去掉扩展名，得到可分析的原始串
+    val base = fileName.substringBeforeLast('.').trim().ifBlank { fileName.trim() }
+
+    // 候选1：MediaInfoParser 清洗出的纯番名
+    val parsed = MediaInfoParser.parse(base)
+    val title = parsed.title.trim()
+
+    val candidates = mutableListOf<String>()
+
+    if (title.isNotBlank()) {
+        // 候选1：纯番名
+        candidates.add(title)
+        // 候选2：番名 + 年份
+        parsed.year?.takeIf { it.isNotBlank() }?.let { year ->
+            val withYear = "$title $year"
+            if (withYear != title && withYear != base) candidates.add(withYear)
+        }
+    }
+
+    // 候选3：完整原始串（去扩展名），若与已有候选不同则加入
+    val baseCleaned = base.trim()
+    if (baseCleaned.isNotBlank() && candidates.none { it == baseCleaned }) {
+        candidates.add(baseCleaned)
+    }
+
+    // 去重并限制最多 3 个
+    return candidates.distinct().take(3)
 }

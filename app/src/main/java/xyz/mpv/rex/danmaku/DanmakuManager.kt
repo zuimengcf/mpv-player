@@ -41,6 +41,12 @@ class DanmakuManager(
     private var trackSelected = false
     private var positionProvider: PlaybackPositionProvider? = null
 
+    /** 当前播放视频的本地绝对路径（可空）。用于把弹幕缓存写到视频同目录同名 .xml。 */
+    private var currentVideoPath: String? = null
+
+    /** 弹幕时间轴偏移（毫秒，正=弹幕延后，负=弹幕提前）。用于本地动态调整。 */
+    private var danmakuOffsetMs: Long = 0L
+
     /** 上次应用的覆盖颜色（-1=未覆盖），用于检测颜色变化是否需要重载弹幕 */
     private var lastAppliedOverrideColor = -1
 
@@ -282,17 +288,41 @@ class DanmakuManager(
     }
 
     /**
+     * 设置当前播放视频的本地绝对路径。用于把弹幕缓存写到视频同目录同名 .xml。
+     * 传 null/空或非本地路径（content:// 等）时，弹幕回退写到应用私有目录。
+     */
+    fun setCurrentVideoPath(videoPath: String?) {
+        currentVideoPath = videoPath?.takeIf { it.startsWith("/") || it.startsWith("file://") }?.let {
+            if (it.startsWith("file://")) it.removePrefix("file://") else it
+        }
+    }
+
+    /**
      * 从 XML 字符串加载弹幕（用于 dandanplay 在线获取）。
-     * 写入应用文件目录（filesDir，持久存储，系统清理缓存不丢失）后复用 loadDanmaku。
+     * 若当前视频为本地路径，弹幕写入视频同目录同名 .xml（随视频拷贝/移动，便于复用）；
+     * 否则回退写入应用文件目录（filesDir/danmaku，持久存储，系统清理缓存不丢失）。
      */
     fun loadDanmakuFromXml(content: String, title: String): Boolean {
         return try {
-            val dir = File(context.filesDir, "danmaku")
-            if (!dir.exists()) dir.mkdirs()
-            val cleanName = title.replace(Regex("[^a-zA-Z0-9_\\u4e00-\\u9fa5]"), "_")
-            val file = File(dir, "${cleanName}_${System.currentTimeMillis()}.xml")
-            file.writeText(content)
-            loadDanmaku(file.absolutePath, title)
+            val videoPath = currentVideoPath
+            var target: File? = null
+            if (!videoPath.isNullOrBlank()) {
+                val videoFile = File(videoPath)
+                val parent = videoFile.parentFile
+                if (parent != null && parent.canWrite()) {
+                    // 视频同目录同名 .xml，如 "xxx.mp4" -> "xxx.xml"
+                    val xmlFile = File(parent, "${videoFile.nameWithoutExtension}.xml")
+                    target = xmlFile
+                }
+            }
+            if (target == null) {
+                val dir = File(context.filesDir, "danmaku")
+                if (!dir.exists()) dir.mkdirs()
+                val cleanName = title.replace(Regex("[^a-zA-Z0-9_\\u4e00-\\u9fa5]"), "_")
+                target = File(dir, "${cleanName}_${System.currentTimeMillis()}.xml")
+            }
+            target.writeText(content)
+            loadDanmaku(target.absolutePath, title)
         } catch (e: Exception) {
             Log.e(TAG, "Error writing danmaku xml", e)
             Toast.makeText(context, "弹幕写入失败: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -329,8 +359,9 @@ class DanmakuManager(
 
     fun seekTo(timeMs: Long) {
         if (danmakuLoaded) {
-            danmakuView.seekTo(timeMs)
-            Log.d(TAG, "Danmaku seek to: $timeMs ms")
+            val adjusted = (timeMs + danmakuOffsetMs).coerceAtLeast(0L)
+            danmakuView.seekTo(adjusted)
+            Log.d(TAG, "Danmaku seek to: $timeMs ms (offset=$danmakuOffsetMs, adjusted=$adjusted)")
         }
     }
 
@@ -365,6 +396,23 @@ class DanmakuManager(
     /** 当前已加载弹幕的标题（如 "番剧名 - 第x集"，null=未加载/无标题） */
     fun getCurrentDanmakuTitle(): String? = currentDanmakuTitle
 
+    /** 获取弹幕时间轴偏移（毫秒） */
+    fun getDanmakuOffset(): Long = danmakuOffsetMs
+
+    /**
+     * 设置弹幕时间轴偏移（毫秒，正=弹幕延后，负=弹幕提前）。
+     * 设置后立即同步到当前播放位置。
+     */
+    fun setDanmakuOffset(offsetMs: Long) {
+        danmakuOffsetMs = offsetMs
+        if (danmakuLoaded) {
+            val currentPos = positionProvider?.getCurrentPositionMs() ?: 0L
+            val adjusted = (currentPos + danmakuOffsetMs).coerceAtLeast(0L)
+            danmakuView.seekTo(adjusted)
+            Log.d(TAG, "Danmaku offset set to $offsetMs ms, re-synced to $adjusted")
+        }
+    }
+
     fun releaseDanmaku() {
         if (danmakuLoaded) {
             danmakuView.release()
@@ -372,6 +420,7 @@ class DanmakuManager(
             trackSelected = false
             currentDanmakuPath = null
             currentDanmakuTitle = null
+            danmakuOffsetMs = 0L
             danmakuView.visibility = android.view.View.GONE
             // 还原高度为 match_parent，避免残留区域高度影响下次加载
             val lp = danmakuView.layoutParams

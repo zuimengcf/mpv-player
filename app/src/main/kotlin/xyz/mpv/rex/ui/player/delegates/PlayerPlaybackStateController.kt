@@ -128,6 +128,11 @@ class PlayerPlaybackStateController(
             } else {
               oldState?.danmakuSelected ?: false
             },
+            danmakuOffset = if (activity.danmakuManager.getCurrentDanmakuPath() != null) {
+              activity.danmakuManager.getDanmakuOffset()
+            } else {
+              oldState?.danmakuOffset ?: 0L
+            },
           ),
         )
       }.onFailure { e ->

@@ -112,12 +112,14 @@ class DanDanPlayApi(
     /**
      * 获取弹幕
      * GET /api/v2/comment/{episodeId}
+     * @param chConvert 繁简转换：0=不转换，1=简体转换为繁体，2=繁体转换为简体
      */
-    suspend fun getDanmaku(episodeId: Int): Result<DanmakuResponse> = withContext(Dispatchers.IO) {
+    suspend fun getDanmaku(episodeId: Int, chConvert: Int = 0): Result<DanmakuResponse> = withContext(Dispatchers.IO) {
         try {
             if (!hasCredentials()) return@withContext Result.failure(Exception("未配置弹弹play AppId/AppSecret，请到设置页填写"))
             val path = "/api/v2/comment/$episodeId"
-            val url = "$baseUrl$path?withRelated=true"
+            val convertParam = if (chConvert in 1..2) "&chConvert=$chConvert" else ""
+            val url = "$baseUrl$path?withRelated=true$convertParam"
             val timestamp = System.currentTimeMillis() / 1000
 
             val request = sign(Request.Builder().url(url).get()
@@ -203,12 +205,14 @@ class DanDanPlayApi(
     /**
      * 使用文件哈希匹配弹幕
      * POST /api/v2/match
+     * 文档要求 fileName 不包含文件夹名称和扩展名，此方法内部会做一次剥离保险。
      */
     suspend fun matchDanmaku(fileName: String, fileHash: String, fileSize: Long): MatchResponse = withContext(Dispatchers.IO) {
         if (!hasCredentials()) throw Exception("未配置弹弹play AppId/AppSecret，请到设置页填写")
         val timestamp = System.currentTimeMillis() / 1000
         val path = "/api/v2/match"
-        val matchRequest = MatchRequest(fileName = fileName, fileHash = fileHash, fileSize = fileSize)
+        val cleanName = cleanMatchFileName(fileName)
+        val matchRequest = MatchRequest(fileName = cleanName, fileHash = fileHash, fileSize = fileSize)
         val requestJson = json.encodeToString(MatchRequest.serializer(), matchRequest)
         val requestBody = requestJson.toRequestBody("application/json".toMediaType())
 
@@ -221,5 +225,49 @@ class DanDanPlayApi(
         val body = decodeBody(response) ?: throw Exception("空响应")
         if (!response.isSuccessful) throw Exception("匹配失败: ${response.code} - $body")
         json.decodeFromString<MatchResponse>(body)
+    }
+
+    /**
+     * 批量匹配多个文件到对应弹幕库
+     * POST /api/v2/match/batch
+     * 每次最多 32 个请求，不能有重复项。
+     * @return 每个请求对应的匹配结果（与传入顺序一致）
+     */
+    suspend fun batchMatch(files: List<Triple<String, String, Long>>): BatchMatchResponse = withContext(Dispatchers.IO) {
+        if (!hasCredentials()) throw Exception("未配置弹弹play AppId/AppSecret，请到设置页填写")
+        require(files.size <= 32) { "批量匹配一次最多 32 个文件" }
+        val timestamp = System.currentTimeMillis() / 1000
+        val path = "/api/v2/match/batch"
+
+        val requests = files.map { (fileName, fileHash, fileSize) ->
+            MatchRequest(
+                fileName = cleanMatchFileName(fileName),
+                fileHash = fileHash,
+                fileSize = fileSize,
+            )
+        }
+        val batchRequest = BatchMatchRequest(requests = requests)
+        val requestJson = json.encodeToString(BatchMatchRequest.serializer(), batchRequest)
+        val requestBody = requestJson.toRequestBody("application/json".toMediaType())
+
+        val request = sign(Request.Builder().url("$baseUrl$path").post(requestBody)
+            .addHeader("Accept-Encoding", "gzip")
+            .addHeader("Content-Type", "application/json"),
+            timestamp, path).build()
+
+        val response = client.newCall(request).execute()
+        val body = decodeBody(response) ?: throw Exception("空响应")
+        if (!response.isSuccessful) throw Exception("批量匹配失败: ${response.code} - $body")
+        json.decodeFromString<BatchMatchResponse>(body)
+    }
+
+    /**
+     * 清洗匹配用的文件名：去掉文件夹路径和扩展名（文档要求）。
+     */
+    private fun cleanMatchFileName(fileName: String): String {
+        if (fileName.isBlank()) return fileName
+        var name = fileName.substringAfterLast('/').substringAfterLast('\\')
+        name = name.substringBeforeLast('.')
+        return name.trim()
     }
 }

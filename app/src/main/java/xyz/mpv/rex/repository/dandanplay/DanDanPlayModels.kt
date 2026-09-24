@@ -55,8 +55,14 @@ data class MatchRequest(
     @SerialName("fileName") val fileName: String,
     @SerialName("fileHash") val fileHash: String,
     @SerialName("fileSize") val fileSize: Long,
-    @SerialName("videoDuration") val videoDuration: Double? = null,
+    @SerialName("videoDuration") val videoDuration: Long? = null,
     @SerialName("matchMode") val matchMode: String? = null,
+)
+
+// 批量匹配请求
+@Serializable
+data class BatchMatchRequest(
+    @SerialName("requests") val requests: List<MatchRequest>,
 )
 
 // 文件哈希匹配响应
@@ -64,6 +70,23 @@ data class MatchRequest(
 data class MatchResponse(
     @SerialName("isMatched") val isMatched: Boolean,
     @SerialName("matches") val matches: List<MatchInfo>? = null,
+)
+
+// 批量匹配响应
+@Serializable
+data class BatchMatchResponse(
+    @SerialName("success") val success: Boolean? = null,
+    @SerialName("errorCode") val errorCode: Int? = null,
+    @SerialName("errorMessage") val errorMessage: String? = null,
+    @SerialName("results") val results: List<BatchMatchResponseItem>? = null,
+)
+
+// 批量匹配单项结果
+@Serializable
+data class BatchMatchResponseItem(
+    @SerialName("success") val success: Boolean,
+    @SerialName("fileHash") val fileHash: String? = null,
+    @SerialName("matchResult") val matchResult: MatchInfo? = null,
 )
 
 // 匹配信息
@@ -76,4 +99,5 @@ data class MatchInfo(
     @SerialName("type") val type: String? = null,
     @SerialName("typeDescription") val typeDescription: String? = null,
     @SerialName("shift") val shift: Double = 0.0,
+    @SerialName("imageUrl") val imageUrl: String? = null,
 )

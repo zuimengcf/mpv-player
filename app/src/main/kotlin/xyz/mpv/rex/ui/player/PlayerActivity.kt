@@ -1899,6 +1899,10 @@ when (property) {
       mediaIdentifier = getMediaIdentifier(intent, fileName)
     }
 
+    // 同步当前视频本地路径到弹幕管理器：本地路径弹幕缓存写视频同目录，非本地回退应用目录
+    val localPath = parsePathFromIntent(intent)
+    danmakuManager.setCurrentVideoPath(localPath)
+
     // Start media notification service only when going to background (like stock mpv-android)
     // startBackgroundPlayback() is now deferred to backgrounding lifecycle events
 
@@ -2437,18 +2441,60 @@ internal fun saveVideoPlaybackState(mediaTitle: String, isEof: Boolean = false) 
   internal fun restoreBoundDanmaku(state: PlaybackStateEntity?) {
     val boundPath = state?.danmakuPath
     if (boundPath.isNullOrBlank()) {
-      // 未绑定：确保不残留上个视频的弹幕
+      // 未绑定：尝试从当前视频同目录找同名 .xml（缓存弹幕随视频存放的场景）
+      val localPath = parsePathFromIntent(intent)
+      if (!localPath.isNullOrBlank()) {
+        val videoFile = File(localPath)
+        val parent = videoFile.parentFile
+        if (parent != null) {
+          val siblingXml = File(parent, "${videoFile.nameWithoutExtension}.xml")
+          if (siblingXml.exists()) {
+            Log.d(TAG, "Restoring danmaku from sibling file: ${siblingXml.absolutePath}")
+            val loaded = danmakuManager.loadDanmaku(siblingXml.absolutePath, state?.danmakuTitle)
+            if (loaded) {
+              danmakuManager.setDanmakuOffset(state?.danmakuOffset ?: 0L)
+              if (state?.danmakuSelected == true) danmakuManager.showDanmaku()
+              else danmakuManager.hideDanmaku()
+            }
+            return
+          }
+        }
+      }
       if (danmakuManager.isDanmakuLoaded()) danmakuManager.releaseDanmaku()
       return
     }
+    var actualPath = boundPath
     val file = File(boundPath)
     if (!file.exists()) {
-      Log.w(TAG, "Bound danmaku file missing, skip restore: $boundPath")
-      return
+      // 绑定路径找不到文件（如从"最近打开"等不同入口进入导致路径不一致）：
+      // 尝试从当前视频同目录找同名 .xml 兜底
+      val localPath = parsePathFromIntent(intent)
+      if (!localPath.isNullOrBlank()) {
+        val videoFile = File(localPath)
+        val parent = videoFile.parentFile
+        if (parent != null) {
+          val siblingXml = File(parent, "${videoFile.nameWithoutExtension}.xml")
+          if (siblingXml.exists()) {
+            actualPath = siblingXml.absolutePath
+            Log.d(TAG, "Bound path missing, using sibling: $actualPath")
+          } else {
+            Log.w(TAG, "Bound danmaku file missing and no sibling found, skip restore: $boundPath")
+            return
+          }
+        } else {
+          Log.w(TAG, "Bound danmaku file missing, skip restore: $boundPath")
+          return
+        }
+      } else {
+        Log.w(TAG, "Bound danmaku file missing, skip restore: $boundPath")
+        return
+      }
     }
-    Log.d(TAG, "Restoring bound danmaku: $boundPath (title=${state.danmakuTitle})")
-    val loaded = danmakuManager.loadDanmaku(boundPath, state.danmakuTitle)
+    Log.d(TAG, "Restoring bound danmaku: $actualPath (title=${state.danmakuTitle})")
+    val loaded = danmakuManager.loadDanmaku(actualPath, state.danmakuTitle)
     if (loaded) {
+      // 恢复弹幕时间轴偏移
+      danmakuManager.setDanmakuOffset(state.danmakuOffset)
       if (state.danmakuSelected) {
         danmakuManager.showDanmaku()
       } else {
@@ -2491,6 +2537,7 @@ internal fun saveVideoPlaybackState(mediaTitle: String, isEof: Boolean = false) 
             danmakuPath = path ?: "",
             danmakuTitle = title ?: "",
             danmakuSelected = selected,
+            danmakuOffset = danmakuManager.getDanmakuOffset(),
           ),
         )
         Log.d(TAG, "Danmaku binding saved: path=$path title=$title selected=$selected")

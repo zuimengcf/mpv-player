@@ -218,6 +218,13 @@ class PlayerPlaylistLoader(
     activity.viewModel.setMediaTitle(activity.fileName)
     activity.viewModel.setMediaIdentifier(activity.mediaIdentifier)
 
+    // 同步当前视频本地路径到弹幕管理器：本地路径弹幕缓存写视频同目录，非本地回退应用目录
+    val localVideoPath = when (uri.scheme) {
+      "file" -> uri.path
+      else -> null
+    }
+    activity.danmakuManager.setCurrentVideoPath(localVideoPath)
+
     val cachedDurationMs = activity.viewModel.playlistManager.getDurationAt(index)
     val fastDurationMs = if (cachedDurationMs > 0L) cachedDurationMs else getFastDurationMsForUri(uri)
     val fastDurationSec = if (fastDurationMs > 0L) fastDurationMs / 1000f else null
