@@ -25,14 +25,14 @@ class BlockKeywordFilter : DanmakuFilters.BaseDanmakuFilter<List<String>>() {
         danmaku: BaseDanmaku?,
         order: Int,
         size: Int,
-        timer: DanmakuTimer,
+        timer: DanmakuTimer?,
         isR2L: Boolean,
-        context: DanmakuContext,
+        context: DanmakuContext?,
     ): Boolean {
         if (keywords.isEmpty()) return false
-        // 弹幕库在预渲染缓存阶段会逐条调用本过滤器，且可能传入 null 条目；
-        // 必须把参数声明为可空（避免 Kotlin 在方法入口对非空参数生成 getClass() 判空检查
-        // 提前抛 NPE），并对文本处理做整体兜底，任何异常都返回 false，绝不抛到缓存线程。
+        // 弹幕库在预渲染缓存阶段会逐条调用本过滤器，且可能传入 null 条目/null timer/null context；
+        // 所有引用参数必须声明为可空：非空声明会让 Kotlin 在方法入口生成 Intrinsics.checkNotNullParameter
+        // （内部 getClass() 判空），库传 null 时入口就抛 NPE 闪退。再配合整体 try-catch 兜底。
         return try {
             val text = danmaku?.text?.toString() ?: return false
             if (text.isEmpty()) return false
