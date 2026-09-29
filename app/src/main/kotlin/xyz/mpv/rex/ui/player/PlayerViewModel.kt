@@ -1172,21 +1172,23 @@ class PlayerViewModel(
   // ==================== Screen Rotation ====================
 
   fun cycleScreenRotations() {
-    // 手动旋转锁定：在固定横屏 / 固定竖屏之间切换，并锁定（不跟随传感器，也不随视频自动变）。
-    // "一直横着，手动切换一直竖着"。
-    host.hostRequestedOrientation =
-      when (host.hostRequestedOrientation) {
-        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE,
-        ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE,
-        ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE,
-        ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE,
-        -> {
-          ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
-        else -> {
-          ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        }
-      }
+    // 手动旋转锁定：在固定横屏 / 固定竖屏之间切换，并把选择持久化到方向偏好，
+    // 这样切视频、下次打开都会保持这个手动选择。
+    val isCurrentlyLandscape =
+      host.hostRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
+        host.hostRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE ||
+        host.hostRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE ||
+        host.hostRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+
+    if (isCurrentlyLandscape) {
+      // 当前是横屏 -> 切竖屏并锁定
+      host.hostRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+      playerPreferences.orientation.set(PlayerOrientation.Portrait)
+    } else {
+      // 当前是竖屏/其他 -> 切横屏并锁定
+      host.hostRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+      playerPreferences.orientation.set(PlayerOrientation.Landscape)
+    }
   }
 
   // ==================== Lua Invocation Handling ====================
