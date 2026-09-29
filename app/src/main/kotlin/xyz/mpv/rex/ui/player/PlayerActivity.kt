@@ -1077,12 +1077,16 @@ class PlayerActivity :
     })
     // 弹幕加载完成（prepared）后：强制同步到当前播放位置并重置跳变基准，
     // 避免续播（mpv 从 start=savedPos 起播）时弹幕停在旧位置而不同步。
+    // 同时兜底同步当前播放倍速：DanmakuContext 构造会重置 CustomClock 为 1x，
+    // 若初始倍速不是 1（如保存的默认速度）且弹幕晚于 speed 事件才加载，这里补一次同步。
     danmakuManager.onPreparedListener = {
       val posMs: Long = runCatching { MPVLib.getPropertyDouble("time-pos")?.times(1000)?.toLong() }.getOrNull() ?: 0L
       // 重置基准，使后续 time-pos 跳变能正确捕获并纠正弹幕位置
       lastDanmakuSyncPosMs = 0L
       runCatching { danmakuManager.seekTo(posMs) }
-      Log.d(TAG, "Danmaku prepared: forced sync to $posMs ms, baseline reset")
+      val spd = runCatching { MPVLib.getPropertyDouble("speed")?.toFloat() }.getOrNull() ?: 1f
+      danmakuManager.syncPlaybackSpeed(spd)
+      Log.d(TAG, "Danmaku prepared: forced sync to $posMs ms, baseline reset, speed=$spd")
     }
   }
 
@@ -1883,6 +1887,11 @@ when (property) {
         }
         lastDanmakuSyncPosMs = posMs
       }
+    } else if (property == "speed") {
+      // 弹幕时钟与播放倍速同步：mpv 倍速变化时（2x/1.5x/0.5x…），
+      // 若不把倍速同步进弹幕时钟（CustomClock），弹幕出现节奏与滚动
+      // 仍按 1x 推进，导致跟不上视频、卡顿/跳帧。这里实时同步。
+      danmakuManager.syncPlaybackSpeed(value.toFloat())
     }
     mpvEventDispatcher.dispatchProperty(property, value)
   }

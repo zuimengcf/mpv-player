@@ -104,12 +104,31 @@ class DanmakuManager(
 
         blockFilter.setData(parseBlockKeywords(danmakuPreferences?.blockKeywords?.get().orEmpty()))
 
+        // 绘制性能优化：
+        // 1) 高优先级独立渲染线程：避免弹幕渲染与其他任务抢资源导致掉帧（默认普通优先级）。
+        // 2) 显式开启弹幕位图绘制缓存（默认已开，显式声明防回退）。
+        // 3) 缓存策略取折中：缓存池 0.5（比默认 0.3 更大，减少弹幕密集时重建）、
+        //    周期自动回收（避免 GREEDY 不回收导致的高密度长时播放内存累积）、回收阈值 0.005（更激进地复用，减少回收抖动）。
+        runCatching { danmakuView.setDrawingThreadType(
+            master.flame.danmaku.controller.IDanmakuView.THREAD_TYPE_HIGH_PRIORITY
+        ) }
+        runCatching { danmakuView.enableDanmakuDrawingCache(true) }
+
         danmakuContext.apply {
-            // 同一弹幕合并开关（读偏好，默认开启）
             isDuplicateMergingEnabled = danmakuPreferences?.mergeDuplicate?.get() ?: true
             preventOverlapping(overlappingPair)
             // 关键词屏蔽：命中黑名单的弹幕不显示
             registerFilter(blockFilter)
+            // 折中缓存策略（比默认 LAZY 更大的池 + 自动回收 + 更低回收阈值）
+            try {
+                cachingPolicy = master.flame.danmaku.danmaku.model.android.CachingPolicy(
+                    master.flame.danmaku.danmaku.model.android.CachingPolicy.BMP_BPP_ARGB_4444,
+                    0.5f,          // 缓存池占用系数 0.5（默认 0.3）
+                    master.flame.danmaku.danmaku.model.android.CachingPolicy.CACHE_PERIOD_AUTO,
+                    50,            // 复用查找次数上限
+                    0.005f,        // 强制回收阈值（默认 0.01，更激进复用）
+                )
+            } catch (_: Exception) { /* 保持默认策略 */ }
         }
 
         // 应用用户偏好（字号/滚动速度/描边/阴影/透明度/密度）
@@ -397,6 +416,28 @@ class DanmakuManager(
         if (danmakuLoaded && trackSelected) {
             danmakuView.start()
             Log.d(TAG, "Danmaku started")
+        }
+    }
+
+    /**
+     * 同步弹幕时钟到当前播放倍速。
+     *
+     * 弹幕引擎所有时间推进（DrawHandler.syncTimer/getCurrentTime）都经
+     * master.flame.danmaku.danmaku.util.SystemClock.uptimeMillis()
+     *   -> CustomClock.getInstance().elapsedRealtime()
+     * 而这个全局单例时钟按 speed 倍速缩放时间增量。
+     * mpv 倍速播放时（如 2x），视频内容时间每秒走 2000ms，
+     * 若不设置该倍速，弹幕时钟仍按 1x（1000ms/秒）推进，
+     * 弹幕出现节奏与横向滚动都会跟不上视频 -> 卡顿/跳帧感。
+     * 这里把播放倍速同步到弹幕时钟，使弹幕时间轴与视频内容时间一致。
+     */
+    fun syncPlaybackSpeed(speed: Float) {
+        try {
+            val s = if (speed <= 0f) 1f else speed
+            danmakuContext.setSpeed(s)
+            Log.d(TAG, "Danmaku speed synced: $s")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to sync danmaku speed", e)
         }
     }
 
