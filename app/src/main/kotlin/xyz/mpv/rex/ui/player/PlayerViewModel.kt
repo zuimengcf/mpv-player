@@ -1172,22 +1172,33 @@ class PlayerViewModel(
   // ==================== Screen Rotation ====================
 
   fun cycleScreenRotations() {
-    // 手动旋转锁定：在固定横屏 / 固定竖屏之间切换，并把选择持久化到方向偏好，
-    // 这样切视频、下次打开都会保持这个手动选择。
-    val isCurrentlyLandscape =
-      host.hostRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
-        host.hostRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE ||
-        host.hostRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE ||
-        host.hostRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
-
-    if (isCurrentlyLandscape) {
-      // 当前是横屏 -> 切竖屏并锁定
-      host.hostRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-      playerPreferences.orientation.set(PlayerOrientation.Portrait)
-    } else {
-      // 当前是竖屏/其他 -> 切横屏并锁定
-      host.hostRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-      playerPreferences.orientation.set(PlayerOrientation.Landscape)
+    // 手动旋转：
+    //  - 当前是「固定横屏/固定竖屏」模式 -> 两者之间切换并持久化到偏好（跨视频保持）。
+    //  - 当前是自动/动态模式（Video、Smart、Free、Sensor* 等）-> 做「临时切换」
+    //    （临时横/竖显示），但【不写入偏好】，切换后仍是自动模式，下次加载按原自动模式走。
+    when (playerPreferences.orientation.get()) {
+      PlayerOrientation.Portrait -> {
+        // 当前固定竖屏 -> 切固定横屏并锁定（持久化）
+        host.hostRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        playerPreferences.orientation.set(PlayerOrientation.Landscape)
+      }
+      PlayerOrientation.Landscape -> {
+        // 当前固定横屏 -> 切固定竖屏并锁定（持久化）
+        host.hostRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        playerPreferences.orientation.set(PlayerOrientation.Portrait)
+      }
+      // 自动/动态/自由等模式：临时切换（不写偏好，保持自动模式）
+      else -> {
+        val isCurrentLandscape =
+          host.hostRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
+            host.hostRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE ||
+            host.hostRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE ||
+            host.hostRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        host.hostRequestedOrientation =
+          if (isCurrentLandscape) ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+          else ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        // 不写 playerPreferences.orientation -> 仍保持自动模式
+      }
     }
   }
 
