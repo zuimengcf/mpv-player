@@ -164,6 +164,23 @@ class PlayerPlaybackStateController(
   }
 
   /**
+   * 预加载弹幕（视频解码前调用，与视频解码并行，消除"播放几秒后弹幕才出现"的延迟）。
+   * 只读取 DB 绑定 + 同目录同名 .xml，不恢复完整播放状态（那是 loadVideoPlaybackState 的职责）。
+   * 由于弹幕 XML 解析较重，放到后台线程；loadDanmaku 已做幂等，后续正式恢复不会重复解析。
+   */
+  fun preloadDanmaku() {
+    if (activity.mediaIdentifier.isBlank()) return
+    activity.lifecycleScope.launch(Dispatchers.IO) {
+      runCatching {
+        val state = activity.playbackStateRepository.getVideoDataByTitle(activity.mediaIdentifier)
+        activity.restoreBoundDanmaku(state)
+      }.onFailure { e ->
+        Log.e(TAG, "Error preloading danmaku", e)
+      }
+    }
+  }
+
+  /**
    * Applies saved playback state to MPV.
    *
    * Restores subtitle delay, audio delay, audio and track selections, and playback speed.

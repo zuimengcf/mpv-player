@@ -302,6 +302,16 @@ class PlayerActivity :
           HttpUtils.isNetworkStream(runCatching { Uri.parse(path) }.getOrNull())
         } ?: false
         viewModel.onFileStartLoading(isNetwork = isNetwork)
+        // 提前同步当前视频本地路径到弹幕管理器（本地路径弹幕缓存写视频同目录），
+        // 保证预加载弹幕时同目录同名 .xml 兜底路径正确。
+        runCatching {
+          val intentPath = parsePathFromIntent(intent)
+          if (!intentPath.isNullOrBlank()) danmakuManager.setCurrentVideoPath(intentPath)
+          else currentPath?.let { danmakuManager.setCurrentVideoPath(it) }
+        }
+        // 预加载弹幕：视频解码的同时在后台读 DB 绑定 + 解析 XML，
+        // 避免 "播放几秒后弹幕才出现" 的延迟（正式恢复 loadVideoPlaybackState 会幂等跳过已加载）。
+        playbackStateController.preloadDanmaku()
       }
 
       override fun onFileLoaded() {

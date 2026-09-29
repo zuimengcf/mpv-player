@@ -83,6 +83,10 @@ class DanmakuManager(
     private var trackSelected = false
     private var positionProvider: PlaybackPositionProvider? = null
 
+    /** 弹幕加载锁：预加载（onStartFile 后台）与正式恢复（onFileLoaded）可能并发调用 loadDanmaku，
+     *  串行化避免 release/prepare 互相打架。 */
+    private val loadLock = Any()
+
     /** 当前播放视频的本地绝对路径（可空）。用于把弹幕缓存写到视频同目录同名 .xml。 */
     private var currentVideoPath: String? = null
 
@@ -315,7 +319,12 @@ class DanmakuManager(
      * 加载弹幕文件（B站 XML 格式）
      * @param title 弹幕标题（如 "番剧名 - 第x集"），用于持久化绑定展示，可为空
      */
-    fun loadDanmaku(filePath: String, title: String? = null): Boolean {
+    fun loadDanmaku(filePath: String, title: String? = null): Boolean = synchronized(loadLock) {
+        // 幂等：同一路径已加载则直接返回成功，避免预加载与 onFileLoaded 恢复重复解析
+        if (danmakuLoaded && currentDanmakuPath != null && currentDanmakuPath == filePath) {
+            Log.d(TAG, "Danmaku already loaded: $filePath")
+            return@synchronized true
+        }
         try {
             Log.d(TAG, "Loading danmaku: $filePath")
             val file = File(filePath)
