@@ -128,7 +128,7 @@ class DanmakuManager(
                 cachingPolicy = master.flame.danmaku.danmaku.model.android.CachingPolicy(
                     master.flame.danmaku.danmaku.model.android.CachingPolicy.BMP_BPP_ARGB_4444,
                     0.5f,          // 缓存池占用系数 0.5（默认 0.3）
-                    master.flame.danmaku.danmaku.model.android.CachingPolicy.CACHE_PERIOD_AUTO,
+                    0L,            // 周期自动回收（CACHE_PERIOD_AUTO，Long 类型）
                     50,            // 复用查找次数上限
                     0.005f,        // 强制回收阈值（默认 0.01，更激进复用）
                 )
