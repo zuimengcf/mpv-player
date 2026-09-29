@@ -186,7 +186,37 @@ fun BaseMediaCard(
                             tint = MaterialTheme.colorScheme.secondary
                         )
                     }
-                    
+
+                    // 已播放：缩略图蒙一层半透明白色，降低饱和度并强化"已看过"的视觉区分
+                    if (isWatched) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.White.copy(alpha = 0.38f))
+                        )
+                    }
+
+                    // 已播放：左上角"已看"角标（更醒目的区分）
+                    if (isWatched) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.92f),
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .padding(6.dp)
+                                .size(20.dp),
+                            shadowElevation = 1.dp,
+                        ) {
+                            Icon(
+                                Icons.Filled.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.padding(3.dp),
+                            )
+                        }
+                    }
+
                     // Progress Bar
                     if (progressPercentage != null && !isWatched) {
                         LinearProgressIndicator(

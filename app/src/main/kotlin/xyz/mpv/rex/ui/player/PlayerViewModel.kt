@@ -1172,18 +1172,19 @@ class PlayerViewModel(
   // ==================== Screen Rotation ====================
 
   fun cycleScreenRotations() {
-    // Temporarily cycle orientation WITHOUT modifying preferences
-    // Preferences remain the single source of truth and will be reapplied on next video
+    // 手动旋转锁定：在固定横屏 / 固定竖屏之间切换，并锁定（不跟随传感器，也不随视频自动变）。
+    // "一直横着，手动切换一直竖着"。
     host.hostRequestedOrientation =
       when (host.hostRequestedOrientation) {
         ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE,
         ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE,
         ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE,
+        ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE,
         -> {
-          ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+          ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
         else -> {
-          ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+          ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
       }
   }
