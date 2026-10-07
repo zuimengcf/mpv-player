@@ -86,6 +86,7 @@ class SettingsManager(
       ATTR_EXPORT_DATE,
       SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date()),
     )
+    serializer.attribute(null, ATTR_VERSION, BACKUP_VERSION)
 
     var exportedCount = 0
     val exportedKeys = mutableListOf<String>()
@@ -111,6 +112,44 @@ class SettingsManager(
       exportedKeys.add("network:${connection.name}")
     }
     serializer.endTag(null, TAG_NETWORK_CONNECTIONS)
+
+    // 播放状态（含观看进度、弹幕绑定 danmakuPath/danmakuTitle/danmakuSelected/danmakuOffset、音轨/字幕轨、宽高比等）
+    val playbackStates = database.videoDataDao().getAllPlaybackStates()
+    serializer.startTag(null, TAG_PLAYBACK_STATES)
+    playbackStates.forEach { state ->
+      writePlaybackState(serializer, state)
+      exportedCount++
+      exportedKeys.add("playbackState:${state.mediaTitle}")
+    }
+    serializer.endTag(null, TAG_PLAYBACK_STATES)
+
+    // 播放列表 + 条目
+    val playlists = database.playlistDao().getAllPlaylists()
+    val playlistItems = database.playlistDao().getAllPlaylistItems()
+    serializer.startTag(null, TAG_PLAYLISTS)
+    playlists.forEach { playlist ->
+      writePlaylist(serializer, playlist)
+      exportedCount++
+      exportedKeys.add("playlist:${playlist.name}")
+    }
+    serializer.endTag(null, TAG_PLAYLISTS)
+    serializer.startTag(null, TAG_PLAYLIST_ITEMS)
+    playlistItems.forEach { item ->
+      writePlaylistItem(serializer, item)
+      exportedCount++
+      exportedKeys.add("playlistItem:${item.playlistId}:${item.filePath}")
+    }
+    serializer.endTag(null, TAG_PLAYLIST_ITEMS)
+
+    // 最近播放
+    val recentlyPlayed = database.recentlyPlayedDao().getAllRecentlyPlayed()
+    serializer.startTag(null, TAG_RECENTLY_PLAYED)
+    recentlyPlayed.forEach { item ->
+      writeRecentlyPlayed(serializer, item)
+      exportedCount++
+      exportedKeys.add("recentlyPlayed:${item.filePath}")
+    }
+    serializer.endTag(null, TAG_RECENTLY_PLAYED)
 
     serializer.endTag(null, TAG_DATABASE)
 
@@ -188,6 +227,88 @@ class SettingsManager(
     serializer.endTag(null, TAG_NETWORK_CONNECTION)
   }
 
+  private fun writePlaybackState(
+    serializer: XmlSerializer,
+    state: xyz.mpv.rex.database.entities.PlaybackStateEntity,
+  ) {
+    serializer.startTag(null, TAG_PLAYBACK_STATE)
+    serializer.attribute(null, "mediaTitle", state.mediaTitle)
+    serializer.attribute(null, "lastPosition", state.lastPosition.toString())
+    serializer.attribute(null, "playbackSpeed", state.playbackSpeed.toString())
+    serializer.attribute(null, "videoZoom", state.videoZoom.toString())
+    serializer.attribute(null, "sid", state.sid.toString())
+    serializer.attribute(null, "secondarySid", state.secondarySid.toString())
+    serializer.attribute(null, "subDelay", state.subDelay.toString())
+    serializer.attribute(null, "subSpeed", state.subSpeed.toString())
+    serializer.attribute(null, "aid", state.aid.toString())
+    serializer.attribute(null, "audioDelay", state.audioDelay.toString())
+    serializer.attribute(null, "timeRemaining", state.timeRemaining.toString())
+    serializer.attribute(null, "savedOrientation", state.savedOrientation?.toString() ?: "")
+    serializer.attribute(null, "externalSubtitles", state.externalSubtitles)
+    serializer.attribute(null, "externalAudioTracks", state.externalAudioTracks)
+    serializer.attribute(null, "hasBeenWatched", state.hasBeenWatched.toString())
+    serializer.attribute(null, "danmakuPath", state.danmakuPath)
+    serializer.attribute(null, "danmakuTitle", state.danmakuTitle)
+    serializer.attribute(null, "danmakuSelected", state.danmakuSelected.toString())
+    serializer.attribute(null, "danmakuOffset", state.danmakuOffset.toString())
+    serializer.attribute(null, "videoAspect", state.videoAspect ?: "")
+    serializer.attribute(null, "customAspectRatio", state.customAspectRatio.toString())
+    serializer.endTag(null, TAG_PLAYBACK_STATE)
+  }
+
+  private fun writePlaylist(
+    serializer: XmlSerializer,
+    playlist: xyz.mpv.rex.database.entities.PlaylistEntity,
+  ) {
+    serializer.startTag(null, TAG_PLAYLIST)
+    serializer.attribute(null, "id", playlist.id.toString())
+    serializer.attribute(null, "name", playlist.name)
+    serializer.attribute(null, "createdAt", playlist.createdAt.toString())
+    serializer.attribute(null, "updatedAt", playlist.updatedAt.toString())
+    serializer.attribute(null, "m3uSourceUrl", playlist.m3uSourceUrl ?: "")
+    serializer.attribute(null, "isM3uPlaylist", playlist.isM3uPlaylist.toString())
+    serializer.endTag(null, TAG_PLAYLIST)
+  }
+
+  private fun writePlaylistItem(
+    serializer: XmlSerializer,
+    item: xyz.mpv.rex.database.entities.PlaylistItemEntity,
+  ) {
+    serializer.startTag(null, TAG_PLAYLIST_ITEM)
+    serializer.attribute(null, "id", item.id.toString())
+    serializer.attribute(null, "playlistId", item.playlistId.toString())
+    serializer.attribute(null, "filePath", item.filePath)
+    serializer.attribute(null, "fileName", item.fileName)
+    serializer.attribute(null, "position", item.position.toString())
+    serializer.attribute(null, "addedAt", item.addedAt.toString())
+    serializer.attribute(null, "lastPlayedAt", item.lastPlayedAt.toString())
+    serializer.attribute(null, "playCount", item.playCount.toString())
+    serializer.attribute(null, "lastPosition", item.lastPosition.toString())
+    serializer.endTag(null, TAG_PLAYLIST_ITEM)
+  }
+
+  private fun writeRecentlyPlayed(
+    serializer: XmlSerializer,
+    item: xyz.mpv.rex.database.entities.RecentlyPlayedEntity,
+  ) {
+    serializer.startTag(null, TAG_RECENTLY_PLAYED_ITEM)
+    serializer.attribute(null, "id", item.id.toString())
+    serializer.attribute(null, "filePath", item.filePath)
+    serializer.attribute(null, "fileName", item.fileName)
+    serializer.attribute(null, "videoTitle", item.videoTitle ?: "")
+    serializer.attribute(null, "duration", item.duration.toString())
+    serializer.attribute(null, "fileSize", item.fileSize.toString())
+    serializer.attribute(null, "width", item.width.toString())
+    serializer.attribute(null, "height", item.height.toString())
+    serializer.attribute(null, "timestamp", item.timestamp.toString())
+    serializer.attribute(null, "launchSource", item.launchSource ?: "")
+    serializer.attribute(null, "playlistId", item.playlistId?.toString() ?: "")
+    serializer.attribute(null, "isAudio", item.isAudio.toString())
+    serializer.attribute(null, "artist", item.artist)
+    serializer.attribute(null, "album", item.album)
+    serializer.endTag(null, TAG_RECENTLY_PLAYED_ITEM)
+  }
+
   private suspend fun readSettingsFromXml(inputStream: InputStream): ImportStats {
     val parser: XmlPullParser = Xml.newPullParser()
     parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
@@ -197,6 +318,10 @@ class SettingsManager(
     var eventType = parser.eventType
 
     val networkConnections = mutableListOf<NetworkConnection>()
+    val playbackStates = mutableListOf<xyz.mpv.rex.database.entities.PlaybackStateEntity>()
+    val playlists = mutableListOf<xyz.mpv.rex.database.entities.PlaylistEntity>()
+    val playlistItems = mutableListOf<xyz.mpv.rex.database.entities.PlaylistItemEntity>()
+    val recentlyPlayed = mutableListOf<xyz.mpv.rex.database.entities.RecentlyPlayedEntity>()
 
     while (eventType != XmlPullParser.END_DOCUMENT) {
       when (eventType) {
@@ -224,6 +349,42 @@ class SettingsManager(
                 stats.errors.add("Failed to import network connection: ${e.message}")
               }
             }
+            TAG_PLAYBACK_STATE -> {
+              try {
+                playbackStates.add(readPlaybackState(parser))
+                stats.imported++
+              } catch (e: Exception) {
+                stats.failed++
+                stats.errors.add("Failed to import playback state: ${e.message}")
+              }
+            }
+            TAG_PLAYLIST -> {
+              try {
+                playlists.add(readPlaylist(parser))
+                stats.imported++
+              } catch (e: Exception) {
+                stats.failed++
+                stats.errors.add("Failed to import playlist: ${e.message}")
+              }
+            }
+            TAG_PLAYLIST_ITEM -> {
+              try {
+                playlistItems.add(readPlaylistItem(parser))
+                stats.imported++
+              } catch (e: Exception) {
+                stats.failed++
+                stats.errors.add("Failed to import playlist item: ${e.message}")
+              }
+            }
+            TAG_RECENTLY_PLAYED_ITEM -> {
+              try {
+                recentlyPlayed.add(readRecentlyPlayed(parser))
+                stats.imported++
+              } catch (e: Exception) {
+                stats.failed++
+                stats.errors.add("Failed to import recently played: ${e.message}")
+              }
+            }
           }
         }
       }
@@ -234,6 +395,23 @@ class SettingsManager(
     try {
       if (networkConnections.isNotEmpty()) {
         database.networkConnectionDao().insertAll(networkConnections)
+      }
+      // 播放状态（含弹幕绑定）恢复
+      if (playbackStates.isNotEmpty()) {
+        database.videoDataDao().upsertAll(playbackStates)
+      }
+      // 播放列表恢复：为避免自增主键冲突，先清空再插入（播放列表可重建）
+      if (playlists.isNotEmpty()) {
+        database.playlistDao().deleteAllPlaylists()
+        playlists.forEach { database.playlistDao().insertPlaylist(it) }
+      }
+      if (playlistItems.isNotEmpty()) {
+        database.playlistDao().deleteAllPlaylistItems()
+        playlistItems.forEach { database.playlistDao().insertPlaylistItem(it) }
+      }
+      // 最近播放恢复
+      if (recentlyPlayed.isNotEmpty()) {
+        database.recentlyPlayedDao().insertAll(recentlyPlayed)
       }
     } catch (e: Exception) {
       stats.failed++
@@ -291,6 +469,77 @@ class SettingsManager(
       isAnonymous = parser.getAttributeValue(null, "isAnonymous")?.toBoolean() ?: false,
       lastConnected = parser.getAttributeValue(null, "lastConnected")?.toLongOrNull() ?: 0L,
       autoConnect = parser.getAttributeValue(null, "autoConnect")?.toBoolean() ?: false,
+    )
+  }
+
+  private fun readPlaybackState(parser: XmlPullParser): xyz.mpv.rex.database.entities.PlaybackStateEntity {
+    val mediaTitle = parser.getAttributeValue(null, "mediaTitle") ?: ""
+    return xyz.mpv.rex.database.entities.PlaybackStateEntity(
+      mediaTitle = mediaTitle,
+      lastPosition = parser.getAttributeValue(null, "lastPosition")?.toIntOrNull() ?: 0,
+      playbackSpeed = parser.getAttributeValue(null, "playbackSpeed")?.toDoubleOrNull() ?: 1.0,
+      videoZoom = parser.getAttributeValue(null, "videoZoom")?.toFloatOrNull() ?: 0f,
+      sid = parser.getAttributeValue(null, "sid")?.toIntOrNull() ?: -1,
+      secondarySid = parser.getAttributeValue(null, "secondarySid")?.toIntOrNull() ?: -1,
+      subDelay = parser.getAttributeValue(null, "subDelay")?.toIntOrNull() ?: 0,
+      subSpeed = parser.getAttributeValue(null, "subSpeed")?.toDoubleOrNull() ?: 1.0,
+      aid = parser.getAttributeValue(null, "aid")?.toIntOrNull() ?: -1,
+      audioDelay = parser.getAttributeValue(null, "audioDelay")?.toIntOrNull() ?: 0,
+      timeRemaining = parser.getAttributeValue(null, "timeRemaining")?.toIntOrNull() ?: 0,
+      savedOrientation = parser.getAttributeValue(null, "savedOrientation")?.toIntOrNull(),
+      externalSubtitles = parser.getAttributeValue(null, "externalSubtitles") ?: "",
+      externalAudioTracks = parser.getAttributeValue(null, "externalAudioTracks") ?: "",
+      hasBeenWatched = parser.getAttributeValue(null, "hasBeenWatched")?.toBoolean() ?: false,
+      danmakuPath = parser.getAttributeValue(null, "danmakuPath") ?: "",
+      danmakuTitle = parser.getAttributeValue(null, "danmakuTitle") ?: "",
+      danmakuSelected = parser.getAttributeValue(null, "danmakuSelected")?.toBoolean() ?: false,
+      danmakuOffset = parser.getAttributeValue(null, "danmakuOffset")?.toLongOrNull() ?: 0L,
+      videoAspect = parser.getAttributeValue(null, "videoAspect")?.takeIf { it.isNotBlank() },
+      customAspectRatio = parser.getAttributeValue(null, "customAspectRatio")?.toDoubleOrNull() ?: -1.0,
+    )
+  }
+
+  private fun readPlaylist(parser: XmlPullParser): xyz.mpv.rex.database.entities.PlaylistEntity {
+    return xyz.mpv.rex.database.entities.PlaylistEntity(
+      id = parser.getAttributeValue(null, "id")?.toIntOrNull() ?: 0,
+      name = parser.getAttributeValue(null, "name") ?: "",
+      createdAt = parser.getAttributeValue(null, "createdAt")?.toLongOrNull() ?: 0L,
+      updatedAt = parser.getAttributeValue(null, "updatedAt")?.toLongOrNull() ?: 0L,
+      m3uSourceUrl = parser.getAttributeValue(null, "m3uSourceUrl")?.takeIf { it.isNotBlank() },
+      isM3uPlaylist = parser.getAttributeValue(null, "isM3uPlaylist")?.toBoolean() ?: false,
+    )
+  }
+
+  private fun readPlaylistItem(parser: XmlPullParser): xyz.mpv.rex.database.entities.PlaylistItemEntity {
+    return xyz.mpv.rex.database.entities.PlaylistItemEntity(
+      id = parser.getAttributeValue(null, "id")?.toIntOrNull() ?: 0,
+      playlistId = parser.getAttributeValue(null, "playlistId")?.toIntOrNull() ?: 0,
+      filePath = parser.getAttributeValue(null, "filePath") ?: "",
+      fileName = parser.getAttributeValue(null, "fileName") ?: "",
+      position = parser.getAttributeValue(null, "position")?.toIntOrNull() ?: 0,
+      addedAt = parser.getAttributeValue(null, "addedAt")?.toLongOrNull() ?: 0L,
+      lastPlayedAt = parser.getAttributeValue(null, "lastPlayedAt")?.toLongOrNull() ?: 0L,
+      playCount = parser.getAttributeValue(null, "playCount")?.toIntOrNull() ?: 0,
+      lastPosition = parser.getAttributeValue(null, "lastPosition")?.toLongOrNull() ?: 0L,
+    )
+  }
+
+  private fun readRecentlyPlayed(parser: XmlPullParser): xyz.mpv.rex.database.entities.RecentlyPlayedEntity {
+    return xyz.mpv.rex.database.entities.RecentlyPlayedEntity(
+      id = parser.getAttributeValue(null, "id")?.toIntOrNull() ?: 0,
+      filePath = parser.getAttributeValue(null, "filePath") ?: "",
+      fileName = parser.getAttributeValue(null, "fileName") ?: "",
+      videoTitle = parser.getAttributeValue(null, "videoTitle")?.takeIf { it.isNotBlank() },
+      duration = parser.getAttributeValue(null, "duration")?.toLongOrNull() ?: 0L,
+      fileSize = parser.getAttributeValue(null, "fileSize")?.toLongOrNull() ?: 0L,
+      width = parser.getAttributeValue(null, "width")?.toIntOrNull() ?: 0,
+      height = parser.getAttributeValue(null, "height")?.toIntOrNull() ?: 0,
+      timestamp = parser.getAttributeValue(null, "timestamp")?.toLongOrNull() ?: 0L,
+      launchSource = parser.getAttributeValue(null, "launchSource")?.takeIf { it.isNotBlank() },
+      playlistId = parser.getAttributeValue(null, "playlistId")?.toIntOrNull(),
+      isAudio = parser.getAttributeValue(null, "isAudio")?.toBoolean() ?: false,
+      artist = parser.getAttributeValue(null, "artist") ?: "",
+      album = parser.getAttributeValue(null, "album") ?: "",
     )
   }
 

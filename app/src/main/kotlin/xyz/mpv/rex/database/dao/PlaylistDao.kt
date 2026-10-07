@@ -142,4 +142,13 @@ interface PlaylistDao {
     """,
   )
   suspend fun getPlaylistItemsInRange(playlistId: Int, startPosition: Int, endPosition: Int): List<PlaylistItemEntity>
+
+  @Query("SELECT * FROM PlaylistItemEntity ORDER BY playlistId ASC, position ASC")
+  suspend fun getAllPlaylistItems(): List<PlaylistItemEntity>
+
+  @Query("DELETE FROM PlaylistEntity")
+  suspend fun deleteAllPlaylists()
+
+  @Query("DELETE FROM PlaylistItemEntity")
+  suspend fun deleteAllPlaylistItems()
 }
