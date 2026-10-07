@@ -24,6 +24,25 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Restore signing keystore from secrets
+        env:
+          ZUIMENG_JKS: ${{ secrets.ZUIMENG_JKS }}
+          ZUIMENG_KEYSTORE_PASSWORD: ${{ secrets.ZUIMENG_KEYSTORE_PASSWORD }}
+          ZUIMENG_KEY_ALIAS: ${{ secrets.ZUIMENG_KEY_ALIAS }}
+        # 解密 keystore 到临时位置，并导出签名环境变量供 Gradle 使用。
+        # 仓库内不提交任何私钥/密码，全部走加密 Actions Secret。
+        run: |
+          if [ -z "${ZUIMENG_JKS}" ]; then
+            echo "::warning::ZUIMENG_JKS secret not set, falling back to debug signing"
+            exit 0
+          fi
+          mkdir -p "$RUNNER_TEMP/keystore"
+          echo "${ZUIMENG_JKS}" | base64 -d > "$RUNNER_TEMP/keystore/release.jks"
+          echo "KEYSTORE_FILE=$RUNNER_TEMP/keystore/release.jks" >> "$GITHUB_ENV"
+          echo "KEYSTORE_PASSWORD=${ZUIMENG_KEYSTORE_PASSWORD}" >> "$GITHUB_ENV"
+          echo "KEY_ALIAS=${ZUIMENG_KEY_ALIAS}" >> "$GITHUB_ENV"
+          echo "Restored signing keystore from secrets"
+
       - name: Build with Gradle (release)
         run: ./gradlew assembleRelease --no-daemon --no-configuration-cache
 
