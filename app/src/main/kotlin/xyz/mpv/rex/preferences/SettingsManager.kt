@@ -31,7 +31,15 @@ class SettingsManager(
     private const val TAG_DATABASE = "database"
     private const val TAG_NETWORK_CONNECTIONS = "networkConnections"
     private const val TAG_NETWORK_CONNECTION = "networkConnection"
-    
+    private const val TAG_PLAYBACK_STATES = "playbackStates"
+    private const val TAG_PLAYBACK_STATE = "playbackState"
+    private const val TAG_PLAYLISTS = "playlists"
+    private const val TAG_PLAYLIST = "playlist"
+    private const val TAG_PLAYLIST_ITEMS = "playlistItems"
+    private const val TAG_PLAYLIST_ITEM = "playlistItem"
+    private const val TAG_RECENTLY_PLAYED = "recentlyPlayed"
+    private const val TAG_RECENTLY_PLAYED_ITEM = "recentlyPlayedItem"
+
     private const val ATTR_KEY = "key"
     private const val ATTR_TYPE = "type"
     private const val ATTR_VALUE = "value"
@@ -45,6 +53,9 @@ class SettingsManager(
     private const val TYPE_BOOLEAN = "boolean"
     private const val TYPE_STRING_SET = "stringSet"
     private const val STRING_SET_SEPARATOR = "|||"
+
+    // 备份文件版本号：导入时用于向前兼容判断
+    private const val BACKUP_VERSION = "1"
   }
 
 
