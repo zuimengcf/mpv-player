@@ -60,10 +60,22 @@ android {
 
   signingConfigs {
     create("release") {
-      storeFile = file("../keystore/debug.keystore")
-      storePassword = "android"
-      keyAlias = "androiddebugkey"
-      keyPassword = "android"
+      // 正式签名从 GitHub Actions Secret 注入的环境变量读取（CI 构建时 workflow 会
+      // 用 ZUIMENG_JKS / ZUIMENG_KEYSTORE_PASSWORD / ZUIMENG_KEY_ALIAS 解密生成 keystore 并
+      // 设置环境变量 KEYSTORE_FILE / KEYSTORE_PASSWORD / KEY_ALIAS）。仓库内不提交任何私钥。
+      val ksFile = System.getenv("KEYSTORE_FILE")
+      if (!ksFile.isNullOrBlank() && File(ksFile).exists()) {
+        storeFile = file(ksFile)
+        storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+        keyAlias = System.getenv("KEY_ALIAS") ?: ""
+        keyPassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+      } else {
+        // 本地开发回退：debug 签名，保证无 Secret 环境时也能构建调试
+        storeFile = file("../keystore/debug.keystore")
+        storePassword = "android"
+        keyAlias = "androiddebugkey"
+        keyPassword = "android"
+      }
     }
   }
 
