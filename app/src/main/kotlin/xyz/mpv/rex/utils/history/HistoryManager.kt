@@ -8,6 +8,7 @@ import xyz.mpv.rex.database.entities.PlaybackStateEntity
 import xyz.mpv.rex.database.entities.RecentlyPlayedEntity
 import xyz.mpv.rex.domain.playbackstate.repository.PlaybackStateRepository
 import xyz.mpv.rex.domain.recentlyplayed.repository.RecentlyPlayedRepository
+import xyz.mpv.rex.database.repository.MediaPlayCountRepository
 import xyz.mpv.rex.preferences.AdvancedPreferences
 import `is`.xyz.mpv.MPVLib
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +31,8 @@ class HistoryManager(
     private val recentlyPlayedRepository: RecentlyPlayedRepository,
     private val playbackStateRepository: PlaybackStateRepository,
     private val advancedPreferences: AdvancedPreferences,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    private val mediaPlayCountRepository: MediaPlayCountRepository? = org.koin.core.context.GlobalContext.getOrNull()?.getOrNull(),
 ) {
     companion object {
         private const val TAG = "HistoryManager"
@@ -60,6 +62,8 @@ class HistoryManager(
                     Log.d(TAG, "recordPlaybackStart: skipping history for $filePath")
                     return@launch
                 }
+
+                mediaPlayCountRepository?.incrementPlayCount(filePath)
 
                 val videoTitle = MPVLib.getPropertyString("media-title")?.takeIf { it != fileName }
                 val duration = (MPVLib.getPropertyDouble("duration") ?: 0.0).times(1000).toLong()

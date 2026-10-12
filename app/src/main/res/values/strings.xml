@@ -1696,4 +1696,10 @@
     <string name="jellyfin_remote_notif_text">Discoverable as Play on target</string>
     <string name="web_share_link_label">Web Share Link</string>
 
+    <!-- Auto playlists -->
+    <string name="playlist_recently_added">Recently Added</string>
+    <string name="playlist_recently_added_desc">Dynamic playlist of your latest added media</string>
+    <string name="playlist_most_played">Most Played</string>
+    <string name="playlist_most_played_desc">Dynamic playlist of your most frequently watched media</string>
+
 </resources>
