@@ -22,7 +22,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import xyz.mpv.rex.R
 import xyz.mpv.rex.preferences.SubtitlesPreferences
 import xyz.mpv.rex.preferences.preference.collectAsState
@@ -33,7 +35,9 @@ import xyz.mpv.rex.ui.player.controls.CARDS_MAX_WIDTH
 import xyz.mpv.rex.ui.player.controls.components.sheets.toFixed
 import xyz.mpv.rex.ui.player.controls.panelCardsColors
 import xyz.mpv.rex.ui.theme.spacing
+import xyz.mpv.rex.utils.media.SubtitleEncodingUtils
 import `is`.xyz.mpv.MPVLib
+import me.zhanghai.compose.preference.ListPreference
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import xyz.mpv.rex.ui.preferences.components.SwitchPreference
 import org.koin.compose.koinInject
@@ -109,7 +113,28 @@ fun SubtitlesMiscellaneousCard(modifier: Modifier = Modifier) {
           { Text(stringResource(R.string.pref_subtitles_force_ltr_title)) },
           summary = { Text(stringResource(R.string.pref_subtitles_force_ltr_summary)) },
         )
-
+        val context = LocalContext.current
+        val subtitleEncoding by preferences.subtitleEncoding.collectAsState()
+        ListPreference(
+          value = subtitleEncoding,
+          onValueChange = { newEncoding ->
+            preferences.subtitleEncoding.set(newEncoding)
+            val codepage = if (newEncoding.isBlank() || newEncoding.equals("auto", ignoreCase = true)) "auto" else newEncoding
+            runCatching {
+              MPVLib.setPropertyString("sub-codepage", codepage)
+              SubtitleEncodingUtils.applyEncodingChange(context, newEncoding)
+            }
+          },
+          values = SubtitleEncodingUtils.ENCODINGS.map { it.code },
+          valueToText = { AnnotatedString(SubtitleEncodingUtils.getDisplayName(it)) },
+          title = { Text(stringResource(R.string.pref_subtitles_encoding_title)) },
+          summary = {
+            Text(
+              SubtitleEncodingUtils.getDisplayName(subtitleEncoding),
+              color = MaterialTheme.colorScheme.outline,
+            )
+          },
+        )
         val secondarySid by MPVLib.propInt["secondary-sid"].collectAsState()
         val isSecondaryActive = (secondarySid ?: (MPVLib.getPropertyInt("secondary-sid") ?: 0)) > 0
 
