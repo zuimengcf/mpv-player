@@ -1677,4 +1677,12 @@
     <string name="view_mode_folder">文件夹</string>
     <string name="view_mode_library">媒体库</string>
     <string name="view_mode_tree">树状</string>
+
+    <!-- Auto playlists -->
+    <string name="auto_playlists">自动播放列表</string>
+    <string name="auto_playlists_desc">配置动态系统生成播放列表</string>
+    <string name="playlist_recently_added">最近添加</string>
+    <string name="playlist_recently_added_desc">最近添加媒体的动态播放列表</string>
+    <string name="playlist_most_played">最常播放</string>
+    <string name="playlist_most_played_desc">最常观看媒体的动态播放列表</string>
 </resources>
