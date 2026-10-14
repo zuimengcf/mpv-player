@@ -66,6 +66,10 @@ class BrowserPreferences(
   // Custom video extensions (comma-separated, e.g. "iso,bin,dat")
   val customVideoExtensions = preferenceStore.getString("custom_video_extensions", "")
 
+  // Auto-playlist preferences
+  val showRecentlyAddedPlaylist = preferenceStore.getBoolean("show_recently_added_playlist", true)
+  val showMostPlayedPlaylist = preferenceStore.getBoolean("show_most_played_playlist", true)
+
   // Keep FileTypeUtils in sync at startup so custom extensions apply before any scan
   init {
     FileTypeUtils.setCustomVideoExtensions(customVideoExtensions.get())

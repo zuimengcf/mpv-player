@@ -1697,6 +1697,8 @@
     <string name="web_share_link_label">Web Share Link</string>
 
     <!-- Auto playlists -->
+    <string name="auto_playlists">Auto Playlists</string>
+    <string name="auto_playlists_desc">Configure dynamic system-generated playlists</string>
     <string name="playlist_recently_added">Recently Added</string>
     <string name="playlist_recently_added_desc">Dynamic playlist of your latest added media</string>
     <string name="playlist_most_played">Most Played</string>
