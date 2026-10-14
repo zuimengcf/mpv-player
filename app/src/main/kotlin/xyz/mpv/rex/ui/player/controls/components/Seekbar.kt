@@ -203,7 +203,9 @@ fun SeekbarWithTimers(
       )
       .padding(horizontal = 14.dp)
   } else {
-    modifier.height(48.dp)
+    modifier
+      .height(48.dp)
+      .padding(horizontal = MaterialTheme.spacing.medium)
   }
 
   Row(
