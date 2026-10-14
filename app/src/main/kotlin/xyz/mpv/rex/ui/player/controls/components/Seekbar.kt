@@ -218,7 +218,7 @@ fun SeekbarWithTimers(
         clickEvent()
         positionTimerOnClick()
       },
-      modifier = if (isGlassActive) Modifier.wrapContentWidth() else Modifier.width(68.dp),
+      modifier = Modifier.wrapContentWidth(),
     )
 
     // Seekbar
@@ -359,7 +359,7 @@ fun SeekbarWithTimers(
         clickEvent()
         durationTimerOnCLick()
       },
-      modifier = if (isGlassActive) Modifier.wrapContentWidth() else Modifier.width(68.dp),
+      modifier = Modifier.wrapContentWidth(),
     )
   }
 }
@@ -785,6 +785,7 @@ fun VideoTimer(
     color = if (matchTheme) MaterialTheme.colorScheme.primary else Color.White,
     textAlign = TextAlign.Center,
     fontSize = 11.sp,
+    maxLines = 1,
   )
 }
 
