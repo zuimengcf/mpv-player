@@ -152,10 +152,12 @@ class PlayerPlaybackStateController(
 
     return runCatching {
       val state = activity.playbackStateRepository.getVideoDataByTitle(activity.mediaIdentifier)
-
       applyPlaybackState(state)
       applyDefaultSettings(state)
-      activity.restoreBoundDanmaku(state)
+      // restoreBoundDanmaku 会操作 DanmakuView/Toast（只能主线程），此处可能在 IO 协程被调，切回 Main。
+      withContext(Dispatchers.Main) {
+        activity.restoreBoundDanmaku(state)
+      }
 
       state != null
     }.onFailure { e ->
