@@ -71,6 +71,16 @@ class DanmakuManager(
         fun isPlaying(): Boolean
     }
 
+    /** 主线程 Handler，用于把 Toast 等 UI 操作切到主线程（loadDanmaku 可能被后台协程调用）。 */
+    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
+
+    /** 线程安全的 Toast：任意线程可调用，统一投递到主线程。 */
+    private fun toastOnMain(message: String) {
+        runCatching {
+            mainHandler.post { Toast.makeText(context, message, Toast.LENGTH_SHORT).show() }
+        }
+    }
+
     private val danmakuContext = DanmakuContext.create()
     private val danmakuLoader = BiliDanmakuLoader.instance()
 
@@ -330,7 +340,7 @@ class DanmakuManager(
             val file = File(filePath)
             if (!file.exists()) {
                 Log.e(TAG, "Danmaku file not found: $filePath")
-                Toast.makeText(context, "弹幕文件不存在", Toast.LENGTH_SHORT).show()
+                toastOnMain("弹幕文件不存在")
                 return false
             }
 
@@ -339,7 +349,7 @@ class DanmakuManager(
             danmakuLoader.load(filePath)
             val dataSource = danmakuLoader.dataSource
             if (dataSource == null) {
-                Toast.makeText(context, "弹幕加载失败", Toast.LENGTH_SHORT).show()
+                toastOnMain("弹幕加载失败")
                 return false
             }
 
@@ -362,7 +372,7 @@ class DanmakuManager(
             return true
         } catch (e: Exception) {
             Log.e(TAG, "Error loading danmaku", e)
-            Toast.makeText(context, "弹幕加载异常: ${e.message}", Toast.LENGTH_SHORT).show()
+            toastOnMain("弹幕加载异常: ${e.message}")
             return false
         }
     }
@@ -415,7 +425,7 @@ class DanmakuManager(
             loadDanmaku(target.absolutePath, title)
         } catch (e: Exception) {
             Log.e(TAG, "Error writing danmaku xml", e)
-            Toast.makeText(context, "弹幕写入失败: ${e.message}", Toast.LENGTH_SHORT).show()
+            toastOnMain("弹幕写入失败: ${e.message}")
             false
         }
     }

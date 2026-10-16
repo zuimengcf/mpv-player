@@ -170,12 +170,16 @@ class PlayerPlaybackStateController(
    */
   fun preloadDanmaku() {
     if (activity.mediaIdentifier.isBlank()) return
+    // 读 DB 用 IO；restoreBoundDanmaku 内部会操作 DanmakuView/Toast（只能在主线程），故切回 Main。
     activity.lifecycleScope.launch(Dispatchers.IO) {
-      runCatching {
-        val state = activity.playbackStateRepository.getVideoDataByTitle(activity.mediaIdentifier)
-        activity.restoreBoundDanmaku(state)
-      }.onFailure { e ->
-        Log.e(TAG, "Error preloading danmaku", e)
+      val state = runCatching {
+        activity.playbackStateRepository.getVideoDataByTitle(activity.mediaIdentifier)
+      }.getOrNull()
+      if (state != null) {
+        withContext(Dispatchers.Main) {
+          runCatching { activity.restoreBoundDanmaku(state) }
+            .onFailure { e -> Log.e(TAG, "Error preloading danmaku", e) }
+        }
       }
     }
   }
