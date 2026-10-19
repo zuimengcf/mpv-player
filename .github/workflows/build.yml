@@ -1,8 +1,10 @@
 name: Build APK
+
 on:
   push:
     branches: [main, lite-offline]
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -28,13 +30,18 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Restore signing keystore from secrets
+      - name: Restore signing keystores and lineage from secrets
+        # ★ 签名轮换：新旧 keystore + lineage 均从 Secrets 恢复
+        #   ZUIMENG_JKS = 新 keystore (zuimeng.jks) 的 base64
+        #   ZUIMENG_OLD_JKS = 旧 keystore (zuimeng-old.jks) 的 base64
+        #   ZUIMENG_LINEAGE = lineage.bin 的 base64
         env:
           ZUIMENG_JKS: ${{ secrets.ZUIMENG_JKS }}
           ZUIMENG_KEYSTORE_PASSWORD: ${{ secrets.ZUIMENG_KEYSTORE_PASSWORD }}
           ZUIMENG_KEY_ALIAS: ${{ secrets.ZUIMENG_KEY_ALIAS }}
-        # 解密 keystore 到临时位置，并导出签名环境变量供 Gradle 使用。
-        # 仓库内不提交任何私钥/密码，全部走加密 Actions Secret。
+          ZUIMENG_OLD_JKS: ${{ secrets.ZUIMENG_OLD_JKS }}
+          ZUIMENG_OLD_KEYSTORE_PASSWORD: ${{ secrets.ZUIMENG_OLD_KEYSTORE_PASSWORD }}
+          ZUIMENG_LINEAGE: ${{ secrets.ZUIMENG_LINEAGE }}
         run: |
           if [ -z "${ZUIMENG_JKS}" ]; then
             echo "::warning::ZUIMENG_JKS secret not set, falling back to debug signing"
@@ -42,24 +49,53 @@ jobs:
           fi
           mkdir -p "$RUNNER_TEMP/keystore"
           echo "${ZUIMENG_JKS}" | base64 -d > "$RUNNER_TEMP/keystore/release.jks"
+          echo "${ZUIMENG_OLD_JKS}" | base64 -d > "$RUNNER_TEMP/keystore/old-release.jks"
+          echo "${ZUIMENG_LINEAGE}" | base64 -d > "$RUNNER_TEMP/keystore/lineage.bin"
           echo "KEYSTORE_FILE=$RUNNER_TEMP/keystore/release.jks" >> "$GITHUB_ENV"
+          echo "OLD_KEYSTORE_FILE=$RUNNER_TEMP/keystore/old-release.jks" >> "$GITHUB_ENV"
+          echo "LINEAGE_FILE=$RUNNER_TEMP/keystore/lineage.bin" >> "$GITHUB_ENV"
           echo "KEYSTORE_PASSWORD=${ZUIMENG_KEYSTORE_PASSWORD}" >> "$GITHUB_ENV"
           echo "KEY_ALIAS=${ZUIMENG_KEY_ALIAS}" >> "$GITHUB_ENV"
-          echo "Restored signing keystore from secrets"
+          echo "Restored signing keystores and lineage from secrets"
 
       - name: Build with Gradle (release)
         run: ./gradlew assembleRelease --no-daemon --no-configuration-cache
+
+      - name: Rotate signing (v2 old + v3 new via lineage)
+        # ★ 轮换签名：旧证书 v2（minSdk 24-32）+ 新证书 v3/v3.1（minSdk 33+）
+        env:
+          ZUIMENG_OLD_KEYSTORE_PASSWORD: ${{ secrets.ZUIMENG_OLD_KEYSTORE_PASSWORD }}
+          ZUIMENG_KEYSTORE_PASSWORD: ${{ secrets.ZUIMENG_KEYSTORE_PASSWORD }}
+        run: |
+          export PATH="$PATH:$ANDROID_HOME/build-tools"
+          BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -1)
+          APKSIGNER="$BUILD_TOOLS/apksigner"
+          SRC="$(ls app/build/outputs/apk/release/*.apk | grep -v unsigned | head -n 1)"
+          OUT=app/build/outputs/apk/release/app-release-rotated.apk
+          "$APKSIGNER" sign \
+            --ks "$OLD_KEYSTORE_FILE" --ks-key-alias "${KEY_ALIAS}" \
+            --ks-pass "pass:${ZUIMENG_OLD_KEYSTORE_PASSWORD}" \
+            --key-pass "pass:${ZUIMENG_OLD_KEYSTORE_PASSWORD}" \
+            --lineage "$LINEAGE_FILE" \
+            --next-signer \
+            --ks "$KEYSTORE_FILE" --ks-key-alias "${KEY_ALIAS}" \
+            --ks-pass "pass:${ZUIMENG_KEYSTORE_PASSWORD}" \
+            --key-pass "pass:${ZUIMENG_KEYSTORE_PASSWORD}" \
+            --v2-signing-enabled true --v3-signing-enabled true --v1-signing-enabled false \
+            --out "$OUT" "$SRC"
+          "$APKSIGNER" verify --verbose --print-certs "$OUT"
+          ls -lh "$OUT"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: app/build/outputs/apk/release/*.apk
+          path: app/build/outputs/apk/release/app-release-rotated.apk
 
       - name: Create GitHub Release (tag only)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: app/build/outputs/apk/release/*.apk
+          files: app/build/outputs/apk/release/app-release-rotated.apk
           generate_release_notes: true
           fail_on_unmatched_files: true

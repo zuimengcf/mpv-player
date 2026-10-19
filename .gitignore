@@ -17,3 +17,9 @@ remote.log
 nohup.out
 .kotlin/
 mpvRex-libmpv/
+# 签名文件（敏感，不入库）
+keystore/
+*.jks
+*.keystore
+keystore.properties
+lineage.bin
