@@ -90,6 +90,8 @@ class DanmakuManager(
     private var currentDanmakuPath: String? = null
     private var currentDanmakuTitle: String? = null
     private var danmakuLoaded = false
+    private var danmakuPreparing = false
+    private var renderingStarted = false
     private var trackSelected = false
     private var positionProvider: PlaybackPositionProvider? = null
 
@@ -152,28 +154,21 @@ class DanmakuManager(
             override fun drawingFinished() {}
             override fun danmakuShown(danmaku: BaseDanmaku?) {}
             override fun prepared() {
-                danmakuLoaded = true
-                Log.d(TAG, "Danmaku prepared")
-                // 同步到当前播放位置
-                positionProvider?.let { provider ->
-                    if (trackSelected) {
-                        val pos = provider.getCurrentPositionMs()
-                        danmakuView.seekTo(pos)
-                        Log.d(TAG, "Synced to position: $pos ms")
+                val preparedPath = currentDanmakuPath
+                mainHandler.post {
+                    if (preparedPath == null || currentDanmakuPath != preparedPath) return@post
+                    danmakuPreparing = false
+                    danmakuLoaded = true
+                    danmakuView.visibility = if (trackSelected && (danmakuPreferences?.displayArea?.get() ?: 0) != 3) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
                     }
+                    if (trackSelected) startDanmaku()
+                    onPreparedListener?.invoke()
+                    if (positionProvider?.isPlaying() != true) danmakuView.pause()
+                    Log.d(TAG, "Danmaku prepared and synchronized")
                 }
-                danmakuView.visibility = if (trackSelected && (danmakuPreferences?.displayArea?.get() ?: 0) != 3) {
-                    android.view.View.VISIBLE
-                } else {
-                    android.view.View.GONE
-                }
-                // 关键修复：prepared 后必须 start 才能真正渲染弹幕
-                // 只要 trackSelected 就启动渲染循环，暂停状态由 pauseDanmaku/resumeDanmaku 同步
-                if (trackSelected) {
-                    danmakuView.start()
-                    Log.d(TAG, "Danmaku started after prepare")
-                }
-                onPreparedListener?.invoke()
             }
             override fun updateTimer(timer: DanmakuTimer?) {}
         })
@@ -252,13 +247,17 @@ class DanmakuManager(
                 val currentPath = currentDanmakuPath
                 val currentPos = positionProvider?.getCurrentPositionMs() ?: 0L
                 val wasSelected = trackSelected
+                val oldOffset = danmakuOffsetMs
                 if (currentPath != null) {
                     Log.d(TAG, "Override color changed ($lastAppliedOverrideColor -> $newOverrideColor), reloading danmaku")
-                    loadDanmaku(currentPath, currentDanmakuTitle)
+                    loadDanmaku(currentPath, currentDanmakuTitle, forceReload = true)
+                    danmakuOffsetMs = oldOffset
                     // loadDanmaku 内部 release 会重置显示状态，这里恢复并同步位置
                     if (wasSelected) {
                         showDanmaku()
-                        danmakuView.seekTo(currentPos)
+                        seekTo(currentPos)
+                    } else {
+                        hideDanmaku()
                     }
                 }
             }
@@ -329,9 +328,9 @@ class DanmakuManager(
      * 加载弹幕文件（B站 XML 格式）
      * @param title 弹幕标题（如 "番剧名 - 第x集"），用于持久化绑定展示，可为空
      */
-    fun loadDanmaku(filePath: String, title: String? = null): Boolean = synchronized(loadLock) {
+    fun loadDanmaku(filePath: String, title: String? = null, forceReload: Boolean = false): Boolean = synchronized(loadLock) {
         // 幂等：同一路径已加载则直接返回成功，避免预加载与 onFileLoaded 恢复重复解析
-        if (danmakuLoaded && currentDanmakuPath != null && currentDanmakuPath == filePath) {
+        if (!forceReload && (danmakuLoaded || danmakuPreparing) && currentDanmakuPath == filePath) {
             Log.d(TAG, "Danmaku already loaded: $filePath")
             return@synchronized true
         }
@@ -360,6 +359,7 @@ class DanmakuManager(
             trackSelected = enabledByDefault
 
             val parser = BiliDanmakuParser().apply { load(dataSource) }
+            danmakuPreparing = true
             danmakuView.prepare(parser, danmakuContext)
             danmakuView.visibility = if (enabledByDefault) android.view.View.VISIBLE else android.view.View.GONE
 
@@ -371,6 +371,7 @@ class DanmakuManager(
             Log.d(TAG, "Danmaku loaded successfully (enabledByDefault=$enabledByDefault)")
             return true
         } catch (e: Exception) {
+            releaseDanmaku()
             Log.e(TAG, "Error loading danmaku", e)
             toastOnMain("弹幕加载异常: ${e.message}")
             return false
@@ -433,7 +434,10 @@ class DanmakuManager(
 
     fun startDanmaku() {
         if (danmakuLoaded && trackSelected) {
-            danmakuView.start()
+            val position = positionProvider?.getCurrentPositionMs() ?: 0L
+            danmakuView.start(xyz.mpv.rex.danmaku.plugin.DanmakuTimeline.position(position, danmakuOffsetMs))
+            renderingStarted = true
+            if (positionProvider?.isPlaying() != true) danmakuView.pause()
             Log.d(TAG, "Danmaku started")
         }
     }
@@ -470,8 +474,8 @@ class DanmakuManager(
     fun resumeDanmaku() {
         if (danmakuLoaded && trackSelected) {
             // 若渲染循环未启动（例如加载时处于暂停状态），resume 前先 start
-            if (!danmakuView.isPrepared()) {
-                danmakuView.start()
+            if (!renderingStarted) {
+                startDanmaku()
                 Log.d(TAG, "Danmaku started (resume fallback)")
             }
             danmakuView.resume()
@@ -481,7 +485,7 @@ class DanmakuManager(
 
     fun seekTo(timeMs: Long) {
         if (danmakuLoaded) {
-            val adjusted = (timeMs + danmakuOffsetMs).coerceAtLeast(0L)
+            val adjusted = xyz.mpv.rex.danmaku.plugin.DanmakuTimeline.position(timeMs, danmakuOffsetMs)
             danmakuView.seekTo(adjusted)
             Log.d(TAG, "Danmaku seek to: $timeMs ms (offset=$danmakuOffsetMs, adjusted=$adjusted)")
         }
@@ -490,8 +494,8 @@ class DanmakuManager(
     fun showDanmaku() {
         trackSelected = true
         if (danmakuLoaded) {
-            if (!danmakuView.isPrepared()) {
-                danmakuView.start()
+            if (!renderingStarted) {
+                startDanmaku()
                 Log.d(TAG, "Danmaku started (show fallback)")
             }
             // 显示区域为「不显示」时保持隐藏（高度=0 已隐藏，这里不强行显示）
@@ -529,16 +533,18 @@ class DanmakuManager(
         danmakuOffsetMs = offsetMs
         if (danmakuLoaded) {
             val currentPos = positionProvider?.getCurrentPositionMs() ?: 0L
-            val adjusted = (currentPos + danmakuOffsetMs).coerceAtLeast(0L)
+            val adjusted = xyz.mpv.rex.danmaku.plugin.DanmakuTimeline.position(currentPos, danmakuOffsetMs)
             danmakuView.seekTo(adjusted)
             Log.d(TAG, "Danmaku offset set to $offsetMs ms, re-synced to $adjusted")
         }
     }
 
     fun releaseDanmaku() {
-        if (danmakuLoaded) {
+        if (danmakuLoaded || danmakuPreparing) {
+            danmakuPreparing = false
             danmakuView.release()
             danmakuLoaded = false
+            renderingStarted = false
             trackSelected = false
             currentDanmakuPath = null
             currentDanmakuTitle = null

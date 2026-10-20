@@ -145,40 +145,22 @@ class DanDanPlayApi(
      * 将弹幕转换为 Bilibili XML 格式（供 DanmakuFlameMaster 解析）
      */
     fun convertToXml(danmakuResponse: DanmakuResponse): String {
-        val xmlBuilder = StringBuilder()
-        xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-        xmlBuilder.append("<i>\n")
-        xmlBuilder.append("  <chatserver>chat.bilibili.com</chatserver>\n")
-        xmlBuilder.append("  <chatid>0</chatid>\n")
-        xmlBuilder.append("  <mission>0</mission>\n")
-        xmlBuilder.append("  <maxlimit>8000</maxlimit>\n")
-        xmlBuilder.append("  <state>0</state>\n")
-        xmlBuilder.append("  <real_name>0</real_name>\n")
-        xmlBuilder.append("  <source>DanDanPlay</source>\n")
-
-        for (comment in danmakuResponse.comments) {
-            try {
-                val pParts = comment.p.split(",")
-                if (pParts.size >= 3) {
-                    val time = pParts[0]
-                    val mode = pParts[1]
-                    val color = if (pParts.size > 2) pParts[2] else "16777215"
-                    // 格式: 时间,模式,字号,颜色,时间戳,弹幕池,用户hash,弹幕ID
-                    val p = "$time,$mode,25,$color,${System.currentTimeMillis() / 1000},0,0,${comment.cid}"
-                    val content = comment.m
-                        .replace("&", "&amp;")
-                        .replace("<", "&lt;")
-                        .replace(">", "&gt;")
-                        .replace("\"", "&quot;")
-                        .replace("'", "&apos;")
-                    xmlBuilder.append("  <d p=\"$p\">$content</d>\n")
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error converting danmaku: ${comment.m}", e)
+        val entries = danmakuResponse.comments.mapNotNull { comment ->
+            val fields = comment.p.split(',')
+            val seconds = fields.getOrNull(0)?.toDoubleOrNull() ?: return@mapNotNull null
+            if (!seconds.isFinite() || seconds < 0 || seconds >= Long.MAX_VALUE / 1000.0) {
+                return@mapNotNull null
             }
+            xyz.mpv.rex.danmaku.plugin.core.DanmakuEntry(
+                timeMs = (seconds * 1000).toLong(),
+                text = comment.m,
+                mode = fields.getOrNull(1)?.toIntOrNull() ?: 1,
+                color = fields.getOrNull(2)?.toIntOrNull() ?: 0xFFFFFF,
+                id = comment.cid.toString(),
+                source = "dandanplay",
+            )
         }
-        xmlBuilder.append("</i>")
-        return xmlBuilder.toString()
+        return xyz.mpv.rex.danmaku.plugin.core.DanmakuCodec.toXml(entries)
     }
 
     /**

@@ -30,6 +30,10 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import javax.xml.parsers.SAXParserFactory;
@@ -79,12 +83,45 @@ public class BiliDanmakuParser extends BaseDanmakuParser {
         if (mDataSource != null) {
             AndroidFileSource source = (AndroidFileSource) mDataSource;
             try {
+                byte[] bytes;
+                try (InputStream input = source.data(); ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+                    byte[] buffer = new byte[8192];
+                    int length;
+                    while ((length = input.read(buffer)) != -1) {
+                        if (output.size() + length > 32 * 1024 * 1024) {
+                            throw new SAXException("Danmaku XML exceeds 32 MiB");
+                        }
+                        output.write(buffer, 0, length);
+                    }
+                    bytes = output.toByteArray();
+                }
+                // 去掉 NUL 后也能识别 UTF-16/32 中的 ASCII DTD 标记；不依赖 SAX 特性支持。
+                String declarationCheck = new String(bytes, StandardCharsets.UTF_8).replace("\u0000", "");
+                if (java.util.regex.Pattern.compile("<!\\s*(DOCTYPE|ENTITY)", java.util.regex.Pattern.CASE_INSENSITIVE)
+                        .matcher(declarationCheck).find()) {
+                    throw new SAXException("DTD and XML entities are not allowed");
+                }
                 // Android 上不要用 XMLReaderFactory.createXMLReader()（依赖 org.xml.sax.driver
                 // 系统属性，经常抛 SAXException），改用 SAXParserFactory 获取 XMLReader。
                 XMLReader xmlReader = SAXParserFactory.newInstance().newSAXParser().getXMLReader();
+                // 特性在不同 Android XML 实现上不完全一致；resolver 始终 fail closed。
+                String[] disabledFeatures = {
+                    "http://xml.org/sax/features/external-general-entities",
+                    "http://xml.org/sax/features/external-parameter-entities",
+                    "http://apache.org/xml/features/nonvalidating/load-external-dtd"
+                };
+                for (String feature : disabledFeatures) {
+                    try { xmlReader.setFeature(feature, false); } catch (SAXException ignored) { }
+                }
+                try {
+                    xmlReader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                } catch (SAXException ignored) { }
+                xmlReader.setEntityResolver((publicId, systemId) -> {
+                    throw new SAXException("External XML entities are not allowed");
+                });
                 XmlContentHandler contentHandler = new XmlContentHandler();
                 xmlReader.setContentHandler(contentHandler);
-                xmlReader.parse(new InputSource(source.data()));
+                xmlReader.parse(new InputSource(new ByteArrayInputStream(bytes)));
                 return contentHandler.getResult();
             } catch (SAXException | IOException | javax.xml.parsers.ParserConfigurationException e) {
                 e.printStackTrace();
@@ -106,6 +143,7 @@ public class BiliDanmakuParser extends BaseDanmakuParser {
         public boolean completed = false;
 
         public int index = 0;
+        private final StringBuilder textBuffer = new StringBuilder();
 
         public Danmakus getResult() {
             return result;
@@ -126,6 +164,8 @@ public class BiliDanmakuParser extends BaseDanmakuParser {
             String tagName = localName.length() != 0 ? localName : qName;
             tagName = tagName.toLowerCase(Locale.getDefault()).trim();
             if (tagName.equals("d")) {
+                item = null;
+                textBuffer.setLength(0);
                 // <d p="23.826000213623,1,25,16777215,1422201084,0,057075e9,757076900">我从未见过如此厚颜无耻之猴</d>
                 // 0:时间(弹幕出现时间)
                 // 1:类型(1从右至左滚动弹幕|6从左至右滚动弹幕|5顶端固定弹幕|4底端固定弹幕|7高级弹幕|8脚本弹幕)
@@ -141,8 +181,13 @@ public class BiliDanmakuParser extends BaseDanmakuParser {
                 }
                 // parse p value to danmaku
                 String[] values = pValue.split(",");
-                if (values.length > 0) {
-                    long time = (long) (parseFloat(values[0]) * 1000); // 出现时间
+                if (values.length >= 4) {
+                    double seconds;
+                    try { seconds = Double.parseDouble(values[0]); }
+                    catch (NumberFormatException ignored) { return; }
+                    if (Double.isNaN(seconds) || Double.isInfinite(seconds) || seconds < 0
+                            || seconds > Long.MAX_VALUE / 1000.0) return;
+                    long time = (long) (seconds * 1000); // 出现时间
                     int type = parseInteger(values[1]); // 弹幕类型
                     float textSize = parseFloat(values[2]); // 字体大小
                     int color = (int) ((0x00000000ff000000 | parseLong(values[3]))); // 颜色
@@ -173,8 +218,12 @@ public class BiliDanmakuParser extends BaseDanmakuParser {
 
         @Override
         public void endElement(String uri, String localName, String qName) {
+            String tagName = localName.length() != 0 ? localName : qName;
+            if (!tagName.equalsIgnoreCase("d")) return;
+            if (item != null) {
+                applyText(textBuffer.toString());
+            }
             if (item != null && item.text != null) {
-                String tagName = localName.length() != 0 ? localName : qName;
                 if (tagName.equalsIgnoreCase("d")) {
                     item.setTimer(mTimer);
                     item.flags = mContext.mGlobalFlagValues;
@@ -189,8 +238,15 @@ public class BiliDanmakuParser extends BaseDanmakuParser {
 
         @Override
         public void characters(char[] ch, int start, int length) {
+            if (item != null && textBuffer.length() < 65536) {
+                textBuffer.append(ch, start, Math.min(length, 65536 - textBuffer.length()));
+            }
+        }
+
+        private void applyText(String value) {
             if (item != null) {
-                DanmakuUtils.fillText(item, decodeXmlString(new String(ch, start, length)));
+                // SAX 已完成实体解码，不进行二次替换，以保留用户输入的字面量 &amp;。
+                DanmakuUtils.fillText(item, value);
                 item.index = index++;
 
                 // initial specail danmaku data

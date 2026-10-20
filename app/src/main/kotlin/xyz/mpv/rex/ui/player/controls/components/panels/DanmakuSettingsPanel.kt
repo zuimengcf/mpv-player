@@ -1,11 +1,8 @@
 package xyz.mpv.rex.ui.player.controls.components.panels
 
 import android.content.res.Configuration
-import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -75,8 +72,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import java.io.File
-import java.io.FileOutputStream
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.zhanghai.compose.preference.ListPreference
@@ -95,6 +90,7 @@ import xyz.mpv.rex.ui.player.PlayerActivity
 import xyz.mpv.rex.repository.dandanplay.DanDanPlayApi
 import xyz.mpv.rex.ui.player.controls.components.sheets.DanmakuBatchMatchDialog
 import xyz.mpv.rex.ui.player.controls.components.sheets.DanmakuSearchDialog
+import xyz.mpv.rex.ui.player.controls.components.sheets.DanmakuPluginDialog
 import xyz.mpv.rex.ui.preferences.components.SwitchPreference
 import xyz.mpv.rex.ui.theme.spacing
 
@@ -590,40 +586,25 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
   var showBatchMatchDialog by remember { mutableStateOf(false) }
   var danmakuVisible by remember { mutableStateOf(danmakuManager.isTrackSelected()) }
 
-  val danmakuFilePicker = rememberLauncherForActivityResult(
-    ActivityResultContracts.OpenDocument()
-  ) { uri: Uri? ->
-    if (uri != null) {
-      val success = try {
-        val input = context.contentResolver.openInputStream(uri)
-        if (input == null) false else {
-          // 写入持久目录（filesDir），确保绑定弹幕不被系统缓存清理
-          val dir = File(context.filesDir, "danmaku")
-          if (!dir.exists()) dir.mkdirs()
-          val outFile = File(dir, "local_${System.currentTimeMillis()}.xml")
-          FileOutputStream(outFile).use { out -> input.copyTo(out) }
-          input.close()
-          danmakuManager.loadDanmaku(outFile.absolutePath, "本地弹幕")
-        }
-      } catch (e: Exception) {
-        Toast.makeText(context, "导入弹幕失败: ${e.message}", Toast.LENGTH_SHORT).show()
-        false
-      }
-      if (success) {
-        danmakuVisible = true
-        danmakuManager.showDanmaku()
-        activity.saveDanmakuBinding()
-        Toast.makeText(context, R.string.danmaku_toast_loaded, Toast.LENGTH_SHORT).show()
-      }
-    }
-  }
-
+  var showPluginDialog by remember { mutableStateOf(false) }
   Column(
     modifier = Modifier
       .fillMaxWidth()
       .padding(vertical = MaterialTheme.spacing.smaller),
     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
   ) {
+    Surface(
+      shape = MaterialTheme.shapes.medium,
+      color = MaterialTheme.colorScheme.surfaceContainerLow,
+      modifier = Modifier.fillMaxWidth(),
+    ) {
+      ListItem(
+        modifier = Modifier.fillMaxWidth().clickable { showPluginDialog = true },
+        leadingContent = { Icon(Icons.Default.Subtitles, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+        headlineContent = { Text("弹幕管理") },
+        supportingContent = { Text("XML / ASS / JSON · 导入、合并、预览与导出") },
+      )
+    }
     // 批量匹配弹幕（自检：凭证 + 播放列表有本地视频）
     Surface(
       shape = MaterialTheme.shapes.medium,
@@ -714,32 +695,6 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
       )
     }
 
-    // 导入本地弹幕文件（XML）
-    Surface(
-      shape = MaterialTheme.shapes.medium,
-      color = MaterialTheme.colorScheme.surfaceContainerLow,
-      modifier = Modifier.fillMaxWidth(),
-    ) {
-      ListItem(
-        modifier = Modifier
-          .fillMaxWidth()
-          .clickable { danmakuFilePicker.launch(arrayOf("application/xml", "text/xml", "text/plain", "*/*")) },
-        leadingContent = {
-          Icon(
-            imageVector = Icons.Default.Tune,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-          )
-        },
-        headlineContent = {
-          Text(
-            text = stringResource(R.string.danmaku_import_button),
-            style = MaterialTheme.typography.bodyLarge,
-          )
-        },
-      )
-    }
-
     // 显示开关（仅弹幕已加载时可用）
     val loaded = danmakuManager.isDanmakuLoaded()
     ProvidePreferenceLocals(theme = preferenceTheme(iconContainerMinWidth = 48.dp)) {
@@ -763,8 +718,10 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
           value = offsetText,
           onValueChange = { input ->
             val seconds = input.trim().toDoubleOrNull() ?: return@TextFieldPreference
+            if (!seconds.isFinite() || kotlin.math.abs(seconds) > 86_400.0) return@TextFieldPreference
             val newOffsetMs = (seconds * 1000).toLong()
             danmakuManager.setDanmakuOffset(newOffsetMs)
+            activity.saveDanmakuBinding()
             offsetText = seconds.toString()
           },
           textToValue = { it.trim() },
@@ -784,6 +741,13 @@ private fun DanmakuLoadSection(activity: PlayerActivity) {
     }
   }
 
+  if (showPluginDialog) {
+    DanmakuPluginDialog(
+      activity = activity,
+      onDismiss = { showPluginDialog = false },
+      onLoaded = { danmakuVisible = true },
+    )
+  }
   if (showBatchMatchDialog) {
     DanmakuBatchMatchDialog(
       activity = activity,
