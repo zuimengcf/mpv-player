@@ -46,11 +46,9 @@ import xyz.mpv.rex.danmaku.plugin.DanmakuPluginBridge
 import xyz.mpv.rex.danmaku.plugin.core.DanmakuCodec
 import xyz.mpv.rex.danmaku.plugin.core.DanmakuEntry
 import xyz.mpv.rex.danmaku.plugin.core.DanmakuPipeline
-import xyz.mpv.rex.danmaku.plugin.source.AniChDanmakuSource
 import xyz.mpv.rex.ui.player.PlayerActivity
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.util.Locale
 
 private const val MAX_ENTRIES = 200_000
 private const val MAX_BYTES = 16 * 1024 * 1024
@@ -76,10 +74,6 @@ fun DanmakuPluginDialog(activity: PlayerActivity, onDismiss: () -> Unit, onLoade
   var appliedKeywords by remember { mutableStateOf("") }
   var appliedDeduplicate by remember { mutableStateOf(true) }
   var visible by remember { mutableStateOf<List<DanmakuEntry>>(emptyList()) }
-  var baseUrl by remember { mutableStateOf(context.getSharedPreferences("danmaku_plugin", 0).getString("anich_url", "") ?: "") }
-  var bangumiId by remember { mutableStateOf("") }
-  var episode by remember { mutableStateOf("1") }
-  var showOnline by remember { mutableStateOf(false) }
   var exportUri by remember { mutableStateOf<Uri?>(null) }
   var job by remember { mutableStateOf<Job?>(null) }
 
@@ -168,27 +162,6 @@ fun DanmakuPluginDialog(activity: PlayerActivity, onDismiss: () -> Unit, onLoade
         }
         OutlinedTextField(keywords, { keywords = it }, Modifier.fillMaxWidth(), enabled = !busy, label = { Text("关键词屏蔽（分号/；分隔）") }, singleLine = true)
         Row { Checkbox(deduplicate, enabled = !busy, onCheckedChange = { deduplicate = it }); Text("去重", Modifier.padding(top = 12.dp)) }
-        OutlinedButton(enabled = !busy, onClick = { showOnline = !showOnline }) { Text(if (showOnline) "收起 AniCh" else "AniCh 兼容服务") }
-        if (showOnline) {
-          OutlinedTextField(baseUrl, { baseUrl = it }, Modifier.fillMaxWidth(), enabled = !busy, label = { Text("服务地址（https://）") }, singleLine = true)
-          Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(bangumiId, { bangumiId = it }, Modifier.weight(1f), enabled = !busy, label = { Text("番剧 ID") }, singleLine = true)
-            OutlinedTextField(episode, { episode = it }, Modifier.weight(1f), enabled = !busy, label = { Text("集数") }, singleLine = true)
-          }
-          Button(enabled = !busy && baseUrl.startsWith("https://") && bangumiId.toIntOrNull() != null && episode.toIntOrNull()?.let { it > 0 } == true, onClick = {
-            context.getSharedPreferences("danmaku_plugin", 0).edit().putString("anich_url", baseUrl.trim()).apply()
-            start {
-              val loaded = withContext(Dispatchers.IO) { AniChDanmakuSource(baseUrl.trim()).load(bangumiId.toInt(), episode.toInt()) }
-              val combined = if (mode == 0) draft + loaded else loaded
-              require(combined.size <= MAX_ENTRIES) { "合并后超过 200000 条，已拒绝" }
-              draft = combined
-            }
-          }) { Text("加载 AniCh") }
-        }
-        OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth(), enabled = !busy, label = { Text("搜索预览") }, singleLine = true)
-        Text("${filtered.size} 条 · 来源 ${sourceNames.ifEmpty { setOf("无") }.joinToString("、")}（预览最多 200 条）")
-        HorizontalDivider()
-        Column { visible.forEach { e -> Text("${e.timeMs / 1000.0}s  ${e.text}", Modifier.padding(vertical = 2.dp)) } }
         if (error != null) Text(error!!, color = MaterialTheme.colorScheme.error)
       }
     },
@@ -228,14 +201,7 @@ private fun java.io.InputStream.readBounded(): ByteArray {
   return out.toByteArray()
 }
 
-private fun decodeBytes(bytes: ByteArray, name: String): List<DanmakuEntry> {
-  val text = bytes.toString(Charsets.UTF_8).removePrefix("\uFEFF")
-  val extension = name.substringAfterLast('.', "").lowercase(Locale.ROOT)
-  val format = when (extension) {
-    "xml", "json", "dandan", "dandanplay", "anich", "anichjson", "ass", "ssa" -> extension
-    else -> when { text.trimStart().startsWith("<") -> "xml"; text.trimStart().startsWith("{") || text.trimStart().startsWith("[") -> "json"; text.lineSequence().any { it.startsWith("[Script Info]") || it.startsWith("Dialogue:") } -> "ass"; else -> error("未知弹幕格式（请使用 XML、JSON 或 ASS/SSA）") }
-  }
-  return DanmakuCodec.decode(text, format).also { if (it.isEmpty()) error("无法解析 $format 弹幕") }
-}
+private fun decodeBytes(bytes: ByteArray, name: String): List<DanmakuEntry> =
+  DanmakuCodec.decodeBytes(bytes, name)
 
 private fun Uri.displayName(context: Context): String = context.contentResolver.query(this, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c -> if (c.moveToFirst()) c.getString(0) else null } ?: lastPathSegment.orEmpty()

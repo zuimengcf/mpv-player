@@ -4,6 +4,10 @@ import kotlinx.serialization.json.*
 import org.xml.sax.InputSource
 import org.xml.sax.helpers.DefaultHandler
 import java.io.StringReader
+import java.nio.ByteBuffer
+import java.nio.charset.CharacterCodingException
+import java.nio.charset.Charset
+import java.nio.charset.CodingErrorAction
 import java.math.BigDecimal
 import java.math.RoundingMode
 import javax.xml.XMLConstants
@@ -26,6 +30,70 @@ object DanmakuCodec {
     private const val MAX_TEXT = 2_000
     private const val MAX_SIZE = 200
     private const val MAX_JSON_DEPTH = 32
+
+    /** Decode an imported file without assuming UTF-8. The byte limit is checked before decoding. */
+    fun decodeBytes(bytes: ByteArray, name: String = ""): List<DanmakuEntry> {
+        require(bytes.size <= MAX_BYTES) { "danmaku input exceeds 16 MiB" }
+        val (text, bomCharset) = when {
+            hasPrefix(bytes, byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())) ->
+                strictDecode(bytes, Charsets.UTF_8, 3) to Charsets.UTF_8
+            hasPrefix(bytes, byteArrayOf(0xFF.toByte(), 0xFE.toByte())) ->
+                strictDecode(bytes, Charsets.UTF_16LE, 2) to Charsets.UTF_16LE
+            hasPrefix(bytes, byteArrayOf(0xFE.toByte(), 0xFF.toByte())) ->
+                strictDecode(bytes, Charsets.UTF_16BE, 2) to Charsets.UTF_16BE
+            bytes.size >= 2 && bytes[0] == 0x3C.toByte() && bytes[1] == 0x00.toByte() ->
+                strictDecode(bytes, Charsets.UTF_16LE, 0) to Charsets.UTF_16LE
+            bytes.size >= 2 && bytes[0] == 0x00.toByte() && bytes[1] == 0x3C.toByte() ->
+                strictDecode(bytes, Charsets.UTF_16BE, 0) to Charsets.UTF_16BE
+            else -> decodeWithoutBom(bytes)
+        }
+        val declared = Regex("(?is)<\\?xml\\b[^>]*\\bencoding\\s*=\\s*[\"']([^\"']+)[\"']")
+            .find(text)?.groupValues?.get(1)
+        val hasBom = hasPrefix(bytes, byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())) ||
+            hasPrefix(bytes, byteArrayOf(0xFF.toByte(), 0xFE.toByte())) || hasPrefix(bytes, byteArrayOf(0xFE.toByte(), 0xFF.toByte()))
+        val finalText = if (declared != null && !hasBom &&
+            !declared.trim().equals("UTF-16", true) && !bomCharset.name().equals(declared.trim(), true)) {
+            val charset = try { Charset.forName(declared.trim()) }
+            catch (e: Exception) { throw IllegalArgumentException("unsupported XML encoding: ${declared.trim()}", e) }
+            strictDecode(bytes, charset, when {
+                hasPrefix(bytes, byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())) -> 3
+                hasPrefix(bytes, byteArrayOf(0xFF.toByte(), 0xFE.toByte())) || hasPrefix(bytes, byteArrayOf(0xFE.toByte(), 0xFF.toByte())) -> 2
+                else -> 0
+            })
+        } else text
+        val extension = name.substringAfterLast('.', "").lowercase(java.util.Locale.ROOT)
+        val format = when (extension) {
+            "xml", "json", "dandan", "dandanplay", "anich", "anichjson", "ass", "ssa" -> extension
+            else -> when {
+                finalText.trimStart().startsWith("<") -> "xml"
+                finalText.trimStart().startsWith("{") || finalText.trimStart().startsWith("[") -> "json"
+                finalText.lineSequence().any { it.startsWith("[Script Info]") || it.startsWith("Dialogue:") } -> "ass"
+                else -> throw IllegalArgumentException("unknown danmaku format; use XML, JSON, or ASS/SSA")
+            }
+        }
+        return decode(finalText, format).also { if (it.isEmpty()) throw IllegalArgumentException("unable to parse $format danmaku") }
+    }
+
+    private fun hasPrefix(bytes: ByteArray, prefix: ByteArray): Boolean =
+        bytes.size >= prefix.size && prefix.indices.all { bytes[it] == prefix[it] }
+
+    private fun decodeWithoutBom(bytes: ByteArray): Pair<String, Charset> {
+        val declaration = Regex("(?is)<\\?xml\\b[^>]*\\bencoding\\s*=\\s*[\"']([^\"']+)[\"']")
+            .find(String(bytes, Charsets.ISO_8859_1))?.groupValues?.get(1)?.trim()
+        if (declaration != null && !declaration.equals("UTF-8", true) && !declaration.equals("US-ASCII", true)) {
+            val charset = try { Charset.forName(declaration) }
+            catch (e: Exception) { throw IllegalArgumentException("unsupported XML encoding: $declaration", e) }
+            return strictDecode(bytes, charset, 0) to charset
+        }
+        return strictDecode(bytes, Charsets.UTF_8, 0) to Charsets.UTF_8
+    }
+
+    private fun strictDecode(bytes: ByteArray, charset: Charset, skip: Int): String = try {
+        charset.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT)
+            .decode(ByteBuffer.wrap(bytes, skip, bytes.size - skip)).toString().removePrefix("\uFEFF")
+    } catch (e: CharacterCodingException) {
+        throw IllegalArgumentException("malformed ${charset.name()} danmaku bytes", e)
+    }
 
     fun decode(content: String, format: String): List<DanmakuEntry> {
         require(content.toByteArray(Charsets.UTF_8).size <= MAX_BYTES) { "danmaku input exceeds 16 MiB" }

@@ -13,6 +13,8 @@ import master.flame.danmaku.danmaku.model.IDisplayer
 import master.flame.danmaku.danmaku.model.android.DanmakuContext
 import master.flame.danmaku.ui.widget.DanmakuView
 import java.io.File
+import java.util.concurrent.Executors
+import xyz.mpv.rex.danmaku.plugin.DanmakuLoadSession
 
 /**
  * 弹幕关键词屏蔽过滤器：命中黑名单关键词的弹幕不显示。
@@ -82,7 +84,6 @@ class DanmakuManager(
     }
 
     private val danmakuContext = DanmakuContext.create()
-    private val danmakuLoader = BiliDanmakuLoader.instance()
 
     /** 弹幕关键词屏蔽过滤器（registerFilter 于 init，applyPreferences 时刷新关键词） */
     private val blockFilter = BlockKeywordFilter()
@@ -95,9 +96,14 @@ class DanmakuManager(
     private var trackSelected = false
     private var positionProvider: PlaybackPositionProvider? = null
 
-    /** 弹幕加载锁：预加载（onStartFile 后台）与正式恢复（onFileLoaded）可能并发调用 loadDanmaku，
-     *  串行化避免 release/prepare 互相打架。 */
-    private val loadLock = Any()
+    // DFM release -> stopDraw -> HandlerThread.join() can wait for parsing/cache teardown.
+    // Never wait on that thread from Main, nor prepare a replacement while it is still retiring.
+    private val cleanupExecutor = Executors.newSingleThreadExecutor { work ->
+        Thread(work, "Re-DanmakuCleanup").apply { isDaemon = true }
+    }
+    private val loadSession = DanmakuLoadSession(cleanupExecutor) { action -> mainHandler.post { action() } }
+    private var engineAttached = false
+    private var disposed = false
 
     /** 当前播放视频的本地绝对路径（可空）。用于把弹幕缓存写到视频同目录同名 .xml。 */
     private var currentVideoPath: String? = null
@@ -150,28 +156,30 @@ class DanmakuManager(
         // 应用用户偏好（字号/滚动速度/描边/阴影/透明度/密度）
         applyPreferences()
 
-        danmakuView.setCallback(object : DrawHandler.Callback {
-            override fun drawingFinished() {}
-            override fun danmakuShown(danmaku: BaseDanmaku?) {}
-            override fun prepared() {
-                val preparedPath = currentDanmakuPath
-                mainHandler.post {
-                    if (preparedPath == null || currentDanmakuPath != preparedPath) return@post
-                    danmakuPreparing = false
-                    danmakuLoaded = true
-                    danmakuView.visibility = if (trackSelected && (danmakuPreferences?.displayArea?.get() ?: 0) != 3) {
-                        View.VISIBLE
-                    } else {
-                        View.GONE
-                    }
-                    if (trackSelected) startDanmaku()
-                    onPreparedListener?.invoke()
-                    if (positionProvider?.isPlaying() != true) danmakuView.pause()
-                    Log.d(TAG, "Danmaku prepared and synchronized")
+    }
+
+    /** Install a fresh callback before every prepare; never read the current path as its identity. */
+    private fun callbackFor(ticket: DanmakuLoadSession.Ticket) = object : DrawHandler.Callback {
+        override fun drawingFinished() {}
+        override fun danmakuShown(danmaku: BaseDanmaku?) {}
+        override fun prepared() {
+            mainHandler.post {
+                if (!loadSession.isCurrent(ticket) || !danmakuPreparing || disposed) return@post
+                danmakuPreparing = false
+                danmakuLoaded = true
+                danmakuView.visibility = if (trackSelected && (danmakuPreferences?.displayArea?.get() ?: 0) != 3) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
                 }
+                if (trackSelected) startDanmaku()
+                onPreparedListener?.invoke()
+                // A listener may synchronously release or replace this session.
+                if (loadSession.isCurrent(ticket) && positionProvider?.isPlaying() != true) danmakuView.pause()
+                Log.d(TAG, "Danmaku prepared and synchronized")
             }
-            override fun updateTimer(timer: DanmakuTimer?) {}
-        })
+        }
+        override fun updateTimer(timer: DanmakuTimer?) {}
     }
 
     fun setPositionProvider(provider: PlaybackPositionProvider) {
@@ -328,54 +336,51 @@ class DanmakuManager(
      * 加载弹幕文件（B站 XML 格式）
      * @param title 弹幕标题（如 "番剧名 - 第x集"），用于持久化绑定展示，可为空
      */
-    fun loadDanmaku(filePath: String, title: String? = null, forceReload: Boolean = false): Boolean = synchronized(loadLock) {
-        // 幂等：同一路径已加载则直接返回成功，避免预加载与 onFileLoaded 恢复重复解析
-        if (!forceReload && (danmakuLoaded || danmakuPreparing) && currentDanmakuPath == filePath) {
-            Log.d(TAG, "Danmaku already loaded: $filePath")
-            return@synchronized true
-        }
-        try {
-            Log.d(TAG, "Loading danmaku: $filePath")
-            val file = File(filePath)
-            if (!file.exists()) {
-                Log.e(TAG, "Danmaku file not found: $filePath")
-                toastOnMain("弹幕文件不存在")
-                return false
-            }
-
-            releaseDanmaku()
-
-            danmakuLoader.load(filePath)
-            val dataSource = danmakuLoader.dataSource
-            if (dataSource == null) {
-                toastOnMain("弹幕加载失败")
-                return false
-            }
-
-            currentDanmakuPath = filePath
-            currentDanmakuTitle = title
-            // enabledByDefault=false 时加载但不自动显示（需手动开"显示弹幕"）
-            val enabledByDefault = danmakuPreferences?.enabledByDefault?.get() ?: true
-            trackSelected = enabledByDefault
-
-            val parser = BiliDanmakuParser().apply { load(dataSource) }
-            danmakuPreparing = true
-            danmakuView.prepare(parser, danmakuContext)
-            danmakuView.visibility = if (enabledByDefault) android.view.View.VISIBLE else android.view.View.GONE
-
-            // 重新应用显示区域高度（加载可能触发重新布局）
-            val area = danmakuPreferences?.displayArea?.get() ?: 0
-            val parentHeight = (danmakuView.parent as? ViewGroup)?.height ?: danmakuView.height
-            if (parentHeight > 0) applyDanmakuArea(area, parentHeight) else applyPreferences()
-
-            Log.d(TAG, "Danmaku loaded successfully (enabledByDefault=$enabledByDefault)")
-            return true
-        } catch (e: Exception) {
-            releaseDanmaku()
-            Log.e(TAG, "Error loading danmaku", e)
-            toastOnMain("弹幕加载异常: ${e.message}")
+    /** Returns whether the request was accepted; engine preparation completes asynchronously. */
+    fun loadDanmaku(filePath: String, title: String? = null, forceReload: Boolean = false): Boolean {
+        if (!File(filePath).isFile) {
+            toastOnMain("弹幕文件不存在")
             return false
         }
+        if (android.os.Looper.myLooper() != mainHandler.looper) {
+            return mainHandler.post { loadDanmaku(filePath, title, forceReload) }
+        }
+        if (disposed) return false
+        // Idempotent preload; forceReload always gets a distinct ticket, even for the same path.
+        if (!forceReload && (danmakuLoaded || danmakuPreparing) && currentDanmakuPath == filePath) {
+            return true
+        }
+        releaseDanmaku()
+        val ticket = loadSession.begin()
+        currentDanmakuPath = filePath
+        currentDanmakuTitle = title
+        trackSelected = danmakuPreferences?.enabledByDefault?.get() ?: true
+        danmakuPreparing = true
+        // This barrier runs after all earlier retirements. No Main-thread join, and no overlapping
+        // release/prepare on the same view. Superseded requests never open a file or create a parser.
+        loadSession.afterCleanup(ticket, cleanup = {}, ready = {
+            try {
+                val dataSource = master.flame.danmaku.danmaku.parser.android.AndroidFileSource(filePath)
+                val parser = BiliDanmakuParser().apply { load(dataSource) }
+                danmakuView.setCallback(callbackFor(ticket))
+                engineAttached = true // release even if prepare throws halfway through
+                danmakuView.prepare(parser, danmakuContext)
+                danmakuView.visibility = if (trackSelected) View.VISIBLE else View.GONE
+                val area = danmakuPreferences?.displayArea?.get() ?: 0
+                val parentHeight = (danmakuView.parent as? ViewGroup)?.height ?: danmakuView.height
+                if (parentHeight > 0) applyDanmakuArea(area, parentHeight) else applyPreferences()
+                Log.d(TAG, "Danmaku prepare requested: $filePath")
+            } catch (e: Exception) {
+                releaseDanmaku()
+                Log.e(TAG, "Error preparing danmaku", e)
+                toastOnMain("弹幕加载异常: ${e.message}")
+            }
+        }, failed = { e ->
+            releaseDanmaku()
+            Log.e(TAG, "Previous danmaku engine could not be released", e)
+            toastOnMain("旧弹幕引擎释放失败，请重新打开播放器")
+        })
+        return true
     }
 
     /**
@@ -423,7 +428,8 @@ class DanmakuManager(
                 target = File(dir, "${cleanName}_${System.currentTimeMillis()}.xml")
             }
             target.writeText(content)
-            loadDanmaku(target.absolutePath, title)
+            // The same sibling XML may have just been overwritten with another episode/source.
+            loadDanmaku(target.absolutePath, title, forceReload = true)
         } catch (e: Exception) {
             Log.e(TAG, "Error writing danmaku xml", e)
             toastOnMain("弹幕写入失败: ${e.message}")
@@ -540,27 +546,43 @@ class DanmakuManager(
     }
 
     fun releaseDanmaku() {
-        if (danmakuLoaded || danmakuPreparing) {
-            danmakuPreparing = false
-            danmakuView.release()
-            danmakuLoaded = false
-            renderingStarted = false
-            trackSelected = false
-            currentDanmakuPath = null
-            currentDanmakuTitle = null
-            danmakuOffsetMs = 0L
-            danmakuView.visibility = android.view.View.GONE
-            // 还原高度为 match_parent，避免残留区域高度影响下次加载
-            val lp = danmakuView.layoutParams
-            if (lp != null) {
-                lp.height = ViewGroup.LayoutParams.MATCH_PARENT
-                danmakuView.layoutParams = lp
-            }
-            Log.d(TAG, "Danmaku released")
+        if (android.os.Looper.myLooper() != mainHandler.looper) {
+            mainHandler.post { releaseDanmaku() }
+            return
+        }
+        // Invalidate before queueing cleanup, including a prepare callback already posted to Main.
+        loadSession.invalidate()
+        danmakuPreparing = false
+        danmakuLoaded = false
+        renderingStarted = false
+        trackSelected = false
+        currentDanmakuPath = null
+        currentDanmakuTitle = null
+        danmakuOffsetMs = 0L
+        danmakuView.visibility = View.GONE
+        val lp = danmakuView.layoutParams
+        if (lp != null) {
+            lp.height = ViewGroup.LayoutParams.MATCH_PARENT
+            danmakuView.layoutParams = lp
+        }
+        if (engineAttached) {
+            engineAttached = false
+            // Do not call any engine method on Main while this view is being retired.
+            loadSession.afterCleanup(null, cleanup = { danmakuView.release() })
         }
     }
 
     fun release() {
+        if (android.os.Looper.myLooper() != mainHandler.looper) {
+            mainHandler.post { release() }
+            return
+        }
+        if (disposed) return
         releaseDanmaku()
+        disposed = true
+        onPreparedListener = null
+        positionProvider = null
+        // shutdown drains already queued retirements; it does not wait for them on Main.
+        cleanupExecutor.shutdown()
     }
 }

@@ -2509,7 +2509,8 @@ internal fun saveVideoPlaybackState(mediaTitle: String, isEof: Boolean = false) 
           }
         }
       }
-      if (danmakuManager.isDanmakuLoaded()) danmakuManager.releaseDanmaku()
+      // Also invalidate queued/preparing loads; they are not reported as loaded yet.
+      danmakuManager.releaseDanmaku()
       return
     }
     var actualPath = boundPath
@@ -2528,14 +2529,17 @@ internal fun saveVideoPlaybackState(mediaTitle: String, isEof: Boolean = false) 
             Log.d(TAG, "Bound path missing, using sibling: $actualPath")
           } else {
             Log.w(TAG, "Bound danmaku file missing and no sibling found, skip restore: $boundPath")
+            danmakuManager.releaseDanmaku()
             return
           }
         } else {
           Log.w(TAG, "Bound danmaku file missing, skip restore: $boundPath")
+          danmakuManager.releaseDanmaku()
           return
         }
       } else {
         Log.w(TAG, "Bound danmaku file missing, skip restore: $boundPath")
+        danmakuManager.releaseDanmaku()
         return
       }
     }

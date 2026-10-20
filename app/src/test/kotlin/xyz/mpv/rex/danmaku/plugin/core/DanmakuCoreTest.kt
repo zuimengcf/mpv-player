@@ -65,4 +65,48 @@ Dialogue: 0:nan:00.00,0:01:04.00,Default,,0,0,0,,bad"""
         val r = DanmakuCodec.decode("[{\"time\":1,\"text\":\"a\\u0000b\\tb\"}]", "json")
         assertEquals("ab\tb", r.single().text)
     }
+    @Test fun decodeBytesSupportsUtf16BomAndXmlDeclarationWithoutBom() {
+        val xml = "<?xml version=\"1.0\"?><i><d p=\"1,1,25,0\">你好</d></i>"
+        val le = byteArrayOf(0xFF.toByte(), 0xFE.toByte()) + xml.toByteArray(Charsets.UTF_16LE)
+        val be = byteArrayOf(0xFE.toByte(), 0xFF.toByte()) + xml.toByteArray(Charsets.UTF_16BE)
+        assertEquals("你好", DanmakuCodec.decodeBytes(le, "x.bin").single().text)
+        assertEquals("你好", DanmakuCodec.decodeBytes(be, "x.bin").single().text)
+        val latin = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><i><d p=\"1,1,25,0\">caf\u00e9</d></i>"
+        assertEquals("café", DanmakuCodec.decodeBytes(latin.toByteArray(Charsets.ISO_8859_1), "no-extension").single().text)
+    }
+
+    @Test fun decodeBytesSupportsBothUtf16ByteOrdersWithAndWithoutBom() {
+        for ((charset, bom) in listOf(
+            Charsets.UTF_16LE to byteArrayOf(0xFF.toByte(), 0xFE.toByte()),
+            Charsets.UTF_16BE to byteArrayOf(0xFE.toByte(), 0xFF.toByte()),
+        )) {
+            for (declared in listOf("UTF-16", charset.name())) {
+                val xml = "<?xml version=\"1.0\" encoding=\"$declared\"?><i><d p=\"1.25,5,25,16711680\">中文弹幕😀</d></i>"
+                for (prefix in listOf(byteArrayOf(), bom)) {
+                    val entry = DanmakuCodec.decodeBytes(prefix + xml.toByteArray(charset), "import.XML").single()
+                    assertEquals("中文弹幕😀", entry.text)
+                    assertEquals(1250L, entry.timeMs)
+                    assertEquals(5, entry.mode)
+                }
+            }
+        }
+    }
+
+    @Test fun decodeBytesSupportsUtf8BomAndSniffsWithoutExtension() {
+        val xml = "<i><d p=\"2,1,25,0\">bom</d></i>"
+        val bytes = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte()) + xml.toByteArray(Charsets.UTF_8)
+        assertEquals(2000, DanmakuCodec.decodeBytes(bytes, "download").single().timeMs)
+    }
+
+    @Test fun decodeBytesRejectsEncodedDtdAndMalformedBytesClearly() {
+        val dtd = "<!DOCTYPE i [<!ENTITY xxe \"x\">]><i><d p=\"1,1,25,0\">&xxe;</d></i>"
+        val utf16 = byteArrayOf(0xFF.toByte(), 0xFE.toByte()) + dtd.toByteArray(Charsets.UTF_16LE)
+        try { DanmakuCodec.decodeBytes(utf16, "data") ; fail("expected DTD rejection") }
+        catch (e: IllegalArgumentException) { assertTrue(e.message!!.contains("DTD")) }
+        try { DanmakuCodec.decodeBytes(byteArrayOf(0xC3.toByte(), 0x28), "data.json"); fail("expected malformed bytes") }
+        catch (e: IllegalArgumentException) { assertTrue(e.message!!.contains("malformed")) }
+        try { DanmakuCodec.decodeBytes(byteArrayOf(0xFF.toByte(), 0xFE.toByte(), 0x3C), "data.xml"); fail("expected malformed UTF-16") }
+        catch (e: IllegalArgumentException) { assertTrue(e.message!!.contains("malformed UTF-16")) }
+    }
+
 }
